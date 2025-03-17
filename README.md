@@ -43,16 +43,4 @@ Aquest projecte té com a objectiu dissenyar i implementar un assistent de salut
 
 ---
 
-## Road Map
-```
-graph LR
-    A[Revisió Bibliogràfica i Requisits] --> B[Selecció Tecnològica i Disseny d'Arquitectura]
-    B --> C[Integració i Preparació de Dades]
-    C --> D[Desenvolupament i Ajust Fí del Model]
-    D --> E[Implementació del Prototip]
-    E --> F[Testeig i Iteració]
-    F --> G[Documentació i Compliment Normatiu]
-    G --> H[Desplegament Pilot i Monitoratge]
-    H --> I[Avaluació i Futurs Desenvolupaments]
-```
 
