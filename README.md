@@ -34,7 +34,7 @@ El projecte es divideix en dues etapes fonamentals:
 
 ---
 
-## 🛠️ Tecnologies Utilitzades
+## Tecnologies Utilitzades
 
 - Python   
 - Model LLM: GPT-4, DeepSeek-V3  
@@ -51,16 +51,16 @@ El projecte es divideix en dues etapes fonamentals:
 ├── models/                # Models de ML i LLM
 ├── notebooks/             # Notebooks de proves
 ├── src/                   # Codi font del projecte
-│   ├── preprocessing/     # Tractament de dades
-│   ├── training/          # Entrenament del model ML
-│   └── assistant/         # Mòdul del LLM i generació de respostes
+│   ├── 01_preprocessing/  # Tractament de dades
+│   ├── 02_training/       # Entrenament del model ML
+│   └── 03_assistant/      # Mòdul del LLM i generació de respostes
 ├── results/               # Resultats i mètriques
 └── README.md              
 ```
 
 ---
 
-## 🧪 Estat del Desenvolupament
+## Estat del Desenvolupament
 
 - [x] Definició de l'arquitectura
 - [x] Preparació de les dades inicials
