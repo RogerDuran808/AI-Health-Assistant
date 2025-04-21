@@ -47,14 +47,14 @@ El projecte es divideix en dues etapes fonamentals:
 
 ```
 📦 AI-Health-Assistant/
-├── data/                  # Dades utilitzades per entrenar
+├── data/                  # Dades utilitzades per entrenar / cleaned data
 ├── models/                # Models de ML i LLM
 ├── notebooks/             # Notebooks de proves
 ├── src/                   # Codi font del projecte
 │   ├── 01_preprocessing/  # Tractament de dades
 │   ├── 02_training/       # Entrenament del model ML
 │   └── 03_assistant/      # Mòdul del LLM i generació de respostes
-├── results/               # Resultats i mètriques
+├── results/               # Resultats, mètriques i figures finals
 └── README.md              
 ```
 
