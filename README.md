@@ -6,41 +6,67 @@ Aquest projecte té com a objectiu dissenyar i implementar un assistent de salut
 
 ---
 
-## Abast del Projecte
+## Objectius del Projecte
 
-### 1. Estudi de l'estat de l'art
-- **Bibliografia existent:** Revisar la literatura sobre la implementació d’IA en salut i en sistemes de recomanació personalitzats.
-- **Monitorització biomètrica:** Analitzar estudis relacionats amb la monitorització de dades biomètriques i solucions en el sector de la salut digital.
+1. Predir l'estat fisiològic de la persona (tensió / relaxació) per prevenir la fatiga i lesions.
+2. Oferir recomanacions personalitzades a partir de les dades recollides, el context de la persona i l'estat predit.
+3. Implementar un LLM ajustat al domini de la salut (Fine-tuning de GPT-4).
+4. Proporcionar explicacions comprensibles i un pla d'acció diari.
 
-### 2. Definició de paràmetres i recollida de dades
-- **Paràmetres fisiològics:** Identificar els paràmetres més rellevants (freqüència cardíaca, variabilitat, temperatura corporal, etc.) per generar recomanacions.
-- **Protocol de recollida:** Establir protocols per recollir dades a partir de sensors portàtils i wearables, utilitzant datasets reals o simulats segons la disponibilitat.
+---
 
-### 3. Adaptació i Fine-Tuning del Model
-- **Selecció del model:** Escollir un model de llenguatge preentrenat (per exemple, DeepSeek V3) i realitzar un procés de fine-tuning amb dades específiques del domini de la salut.
-- **Eines i tecnologies:** Utilitzar Python i biblioteques com TensorFlow o PyTorch per a l’entrenament.
-- **Documentació tècnica:** Documentar el procés d’adaptació, amb justificacions tècniques, per obtenir recomanacions coherents amb inputs mínims.
+## Arquitectura del Sistema
 
-### 4. Desenvolupament de la Interfície d’Usuari / Interpretació Gràfica
-- **Dashboard interactiu:** Dissenyar un dashboard o, alternativament, un assistent integrat (per exemple, via WhatsApp) que permeti la introducció de dades en temps real i la visualització de les recomanacions generades pel model.
+El projecte es divideix en dues etapes fonamentals:
 
-### 5. Validació i Proves Pilot
-- **Proves pilot:** Realitzar proves amb dades recollides (reals o simulades) per avaluar la precisió, l’eficàcia i la utilitat de les recomanacions.
-- **Feedback i ajustaments:** Recollir feedback i efectuar els ajustaments necessaris en el model i la interfície.
+### Etapa 1: Predicció de l'Estat Fisiològic
 
-### 6. Documentació i Anàlisi
-- **Memòria del projecte:** Redactar una memòria que inclogui l’estat de l’art, la metodologia, el desenvolupament, els resultats experimentals i l’anàlisi crítica del sistema.
-- **Annexos:** Incluir codi font, gràfics, taules de dades i altres materials rellevants.
+- Dataset: LifeSnaps
+- Entrenament d’un model de *machine learning*.
+- Predicció de l’estat de **tensió** i **relaxació** d’una persona.
+- Utilització de dades fisiològiques (ex: HRV, ritme cardíac, patrons de son).
+
+### Etapa 2: Fine-tuning del LLM
+
+- Ajust de models de llenguatge amb dades del domini.
+- Integració amb la predicció del model de ML.
+- Generació de recomanacions i plans personalitzats.
 
 ---
 
 ## Tecnologies Utilitzades
 
-- **Python**: Llenguatge principal per al desenvolupament.
-- **TensorFlow / PyTorch**: Llibreries per al desenvolupament i ajustament dels models d’IA.
-- **Dashboards**: Per a la creació d’interfícies d’usuari interactives.
-- **Sensors i Wearables**: Per a la recollida de dades biomètriques.
+- Python   
+- Model LLM: GPT-4, DeepSeek-V3  
+- APIs a LLMs 
+- Pandas, Scikit-learn, Matplotlib (per EDA i ML)
 
 ---
 
+## 📁 Estructura del Repositori
+
+```
+📦 AI-Health-Assistant/
+├── data/                  # Dades utilitzades per entrenar / cleaned data
+├── models/                # Models de ML i LLM
+├── notebooks/             # Notebooks de proves
+├── src/                   # Codi font del projecte
+│   ├── 01_preprocessing/  # Tractament de dades
+│   ├── 02_training/       # Entrenament del model ML
+│   └── 03_assistant/      # Mòdul del LLM i generació de respostes
+├── results/               # Resultats, mètriques i figures finals
+└── README.md              
+```
+
+---
+
+## Estat del Desenvolupament
+
+- [x] Definició de l'arquitectura
+- [x] Preparació de les dades inicials
+- [ ] Entrenament del model de predicció fisiològica
+- [ ] Fine-tuning del LLM
+- [ ] Integració i proves finals
+
+---
 
