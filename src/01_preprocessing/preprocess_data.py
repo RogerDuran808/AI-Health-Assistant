@@ -16,6 +16,12 @@ from sklearn.compose import ColumnTransformer
 df = pd.read_csv('data/df_cleaned.csv')
 print("Data importada correctament")
 
+#################################
+# Tractament de valors Absents
+################################
+# Imputació de dades del training set
+
+
 # Definim X, y
 y_tense = df['TENSE/ANXIOUS']
 X = df.drop(columns=['TENSE/ANXIOUS', 'RESTED/RELAXED'])
