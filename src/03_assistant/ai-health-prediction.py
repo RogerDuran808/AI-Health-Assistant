@@ -1,19 +1,19 @@
 import pandas as pd
 import joblib
 
-# 1. Carrega el dataset ja pre‐processat
+# Carreguem el dataset ja pre‐processat
 df = pd.read_csv('data/df_preprocessed.csv')
 
 # 2. Extreu una fila de prova (seed per reproductibilitat)
-sample = df.sample(n=1)
-idx = sample.index[0]
-print(f"Mostrant la fila amb índex {idx}:\n", sample, "\n")
+prova = df.sample(n=1)
+idx = prova.index[0]
+print(f"Mostrant la fila amb índex {idx}:\n", prova, "\n")
 
 # 3. Separa característiques (X) i elimna les columnes de target
-X_test = sample.drop(columns=['TENSE/ANXIOUS', 'RESTED/RELAXED'])
+X_test = prova.drop(columns=['TIRED', 'RESTED/RELAXED'])
 
 # 4. Carrega els models serialitzats
-model_tense  = joblib.load('models/best_TENSE_ANXIOUS.joblib')
+model_tense  = joblib.load('models/best_TIRED')
 model_rested = joblib.load('models/best_RESTED_RELAXED.joblib')
 
 # 5. Predicció per a cada etiqueta

@@ -61,20 +61,23 @@ df['bmi_tipo'] = pd.cut(
 
 # Definim els rangs possibles
 rangs_possibles = {
-    'nremhr':                    {'min': 30,     'max': 100},
+    'nightly_temperature':       {'min': 30,    'max': None},
+    'nremhr':                    {'min': 30,    'max': 100},
     'rmssd':                     {'min': 1,     'max': 200}, 
-    'full_sleep_breathing_rate': {'min': 1,   'max': None},
+    'full_sleep_breathing_rate': {'min': 1,     'max': None},
     'stress_score':              {'min': 1,     'max': 100},
-    'sleep_points_percentage':   {'min': 0.01,     'max': 1},    # percentatge
-    'calories':                  {'min': 100,   'max': 6000},    # cal/dia, més de 6000 hauria de ser un error
+    'sleep_points_percentage':   {'min': 0.01,  'max': 1},    # percentatge
+    'calories':                  {'min': 1000,  'max': 6000},    # cal/dia, més de 6000 hauria de ser un error
     'sedentary_minutes':         {'min': 1,     'max': 1200},    # 1200 son 20h de sedentarisme, descartem els errors de 24 h
+    'lightly_active_minutes':    {'min':1,      'max': None},
     'minutesAsleep':             {'min': 1,     'max': 14*60},   # màx 14h, més crec que es tractaria d'un error
-    'sleep_efficiency':          {'min': 1,    'max': 100},
+    'minutesAwake':              {'min': 0,     'max': 200},
+    'sleep_efficiency':          {'min': 65,    'max': 100},
     'sleep_deep_ratio':          {'min': 0.01,  'max': 1},       # ratio [0–1]
     'sleep_wake_ratio':          {'min': 0.01,  'max': 1},
     'sleep_light_ratio':         {'min': 0.01,  'max': 1},
     'sleep_rem_ratio':           {'min': 0.01,  'max': 1},
-    'steps':                     {'min': 100,     'max': 35000},
+    'steps':                     {'min': 100,   'max': 35000},
 }
 # Neteja per columnes
 for col, b in rangs_possibles.items():
@@ -117,17 +120,16 @@ lightly_active_minutes        sedentary_minutes   -0.798791
 --- moderate_active_minutes, ja que te molta més asimetria que steps,
 moderate active mintes te moltes més dades pero podria ser que aquestes dades
 fosin de mala qualitat o erronies.
---- minutes_below_default_zone_1, sedentary_minutes té una millor simetria, amb una curtosi tmb baixa
-i sedentary minutes te moltes més dades registrades.
+--- provarem de eliminar sedentary minutes per
 --- llavors també podriem eliminar lightly_active_minutes.
 
 - 
 '''
-df.drop(columns=['ALERT', 'HAPPY', 'NEUTRAL', 'SAD', 'TIRED'], inplace=True)
+df.drop(columns=['ALERT', 'HAPPY', 'NEUTRAL', 'SAD', 'RESTED/RELAXED'], inplace=True)
 # Eliminem els de sleep 
 df.drop(columns=['sleep_points_percentage', 'minutesToFallAsleep', 'minutesAfterWakeup'], inplace=True)
 # Eliminem els de activitat i zones hr
-df.drop(columns=['minutes_below_default_zone_1', 'minutes_in_default_zone_3', 'minutes_in_default_zone_2'], inplace=True)
+df.drop(columns=['minutes_in_default_zone_3', 'minutes_in_default_zone_2', 'minutes_in_default_zone_1', 'minutes_below_default_zone_1'], inplace=True)
 df.drop(columns=['very_active_minutes', 'moderately_active_minutes', 'lightly_active_minutes'], inplace=True)
 df.drop(columns=['nremhr'], inplace=True)
 
