@@ -8,7 +8,7 @@ Aquest projecte té com a objectiu dissenyar i implementar un assistent de salut
 
 ## Objectius del Projecte
 
-1. Predir l'estat fisiològic de la persona (tensió / relaxació) per prevenir la fatiga i lesions.
+1. Predir l'estat fisiològic de la persona (tensió i cansament) per prevenir la fatiga i lesions.
 2. Oferir recomanacions personalitzades a partir de les dades recollides, el context de la persona i l'estat predit.
 3. Implementar un LLM ajustat al domini de la salut (Fine-tuning de GPT-4).
 4. Proporcionar explicacions comprensibles i un pla d'acció diari.
