@@ -23,7 +23,7 @@ El projecte es divideix en dues etapes fonamentals:
 
 - Dataset: LifeSnaps
 - Entrenament d’un model de *machine learning*.
-- Predicció de l’estat de **tensió** i **relaxació** d’una persona.
+- Predicció de l’estat de **tensió/ansietat** i **cansament** d’una persona.
 - Utilització de dades fisiològiques (ex: HRV, ritme cardíac, patrons de son).
 
 ### Etapa 2: Fine-tuning del LLM
