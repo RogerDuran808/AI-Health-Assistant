@@ -48,8 +48,8 @@ El projecte es divideix en dues etapes fonamentals:
 ```
 📦 AI-Health-Assistant/
 ├── data/                  # Dades utilitzades per entrenar / cleaned data
-├── models/                # Models de ML i LLM
-├── notebooks/             # Notebooks de proves
+├── models/                # Model de ML i LLM
+├── notebooks/             # Notebooks de proves: EDA, preprocessament, entrenament de models, etc.
 ├── src/                   # Codi font del projecte
 │   ├── 01_preprocessing/  # Tractament de dades
 │   ├── 02_training/       # Entrenament del model ML
@@ -67,6 +67,12 @@ El projecte es divideix en dues etapes fonamentals:
 - [ ] Entrenament del model de predicció fisiològica
 - [ ] Fine-tuning del LLM
 - [ ] Integració i proves finals
+
+### Nomenclatura de versions
+
+- v0.1-beta → Projecte / notebook en proves
+- v1.0-release → Primera versión completa del notebook o projecte
+- v1.1-alpha → Funciones noves del projecte o notebook
 
 ---
 
