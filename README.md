@@ -70,9 +70,10 @@ El projecte es divideix en dues etapes fonamentals:
 
 ### Nomenclatura de versions
 
-- v0.1-beta → Projecte / notebook en proves
-- v1.0-release → Primera versión completa del notebook o projecte
-- v1.1-alpha → Funciones noves del projecte o notebook
+- v0.1.0 → Projecte / notebook en proves
+    - v0.1.1 → Correcció d'algun error o petites modificacions
+- v1.0.0 → Primera versión completa del notebook o projecte
+    - v1.1.0 → Funcions noves del projecte o notebook
 
 ---
 

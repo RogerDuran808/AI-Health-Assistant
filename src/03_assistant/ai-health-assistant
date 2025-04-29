@@ -1,2 +1,0 @@
-Per cridar els models hem der fer:
-Carrega’ls en producció amb joblib.load(...) i simplement crida predict() sobre dades amb el mateix preprocessament.
