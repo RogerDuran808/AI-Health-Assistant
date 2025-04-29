@@ -68,5 +68,11 @@ El projecte es divideix en dues etapes fonamentals:
 - [ ] Fine-tuning del LLM
 - [ ] Integració i proves finals
 
+### Nomenclatura de versions
+
+- v0.1-beta → Projecte / notebook en proves
+- v1.0-release → Primera versión completa del notebook o projecte
+- v1.1-alpha → Funciones noves del projecte o notebook
+
 ---
 
