@@ -12,15 +12,19 @@ Corregim la variable del bmi i afegim categories de bmi_tipo
 Corregim els valors anòmals del dataset
 
 '''
-# Importa el fitxer CSV
-df = pd.read_csv('D:/roger/OneDrive/Documentos/02. Formació/2. UNIVERSITAT/05. TFG/03. Datasets/Lifesnaps Fitbit/csv_rais_anonymized/daily_fitbit_sema_df_unprocessed.csv')
+# Importar el fitxer CSV
+
+df = pd.read_csv('data/daily_fitbit_sema_df_unprocessed.csv')
 
 # Eliminem les columnes que no necessitem:
 # Motius: 
 # - dades que podem obtenir a traves del nostre fitbit inspire 3
 # - columnes irrellevants que no aporten valor
-# - filtratge de les columnes segons el PCA 95% (amb 17-18 columnes en fem prou)
-df.drop(columns=['Unnamed: 0', 'id', 'date', 'mindfulness_session', 'step_goal', 'step_goal_label', 'ENTERTAINMENT', 'GYM', 'HOME', 'HOME_OFFICE', 'OTHER', 'OUTDOORS', 'TRANSIT', 'WORK/SCHOOL', 'activityType', 'badgeType', 'filteredDemographicVO2Max', 'exertion_points_percentage', 'responsiveness_points_percentage', 'distance', 'scl_avg', 'sleep_duration', 'min_goal', 'max_goal'], inplace=True)
+
+df.drop(columns=['Unnamed: 0', 'id', 'date'], inplace=True)
+df.drop(columns=['mindfulness_session', 'step_goal', 'step_goal_label', 'activityType', 'badgeType', 'min_goal', 'max_goal'],inplace=True)
+df.drop(columns=['filteredDemographicVO2Max', 'exertion_points_percentage', 'responsiveness_points_percentage', 'distance', 'scl_avg', 'sleep_duration'], inplace=True)
+df.drop(columns=['ENTERTAINMENT', 'GYM', 'HOME', 'HOME_OFFICE', 'OTHER', 'OUTDOORS', 'TRANSIT', 'WORK/SCHOOL'], inplace=True)
 
 ################################################################################
 # Apliquem la correcció del bmi
@@ -58,7 +62,6 @@ df['bmi_tipo'] = pd.cut(
 # Correcció dels valors anòmals trobats
 ##################################################################################
 # Corregim el dataset.
-
 # Definim els rangs possibles
 rangs_possibles = {
     'nightly_temperature':       {'min': 30,    'max': 36},
@@ -83,29 +86,24 @@ rangs_possibles = {
     'steps':                     {'min': 100,   'max': 39000}
 }
 # Neteja per columnes
-for col, b in rangs_possibles.items():
+for col, valor in rangs_possibles.items():
     # valors massa baixos
-    if b['min'] is not None:
-        df.loc[df[col] < b['min'], col] = np.nan
+    if valor['min'] is not None:
+        df.loc[df[col] < valor['min'], col] = np.nan
     # valors massa alts
-    if b['max'] is not None:
-        df.loc[df[col] > b['max'], col] = np.nan
-        
+    if valor['max'] is not None:
+        df.loc[df[col] > valor['max'], col] = np.nan
+
 ##################################################################################
 # Fem un drop de altres possibles columnes que ens pugui millorar la predicció del sistema segons els resultats del EDA
 ##################################################################################
-
+# Targets que no volem predir que no ens pot aportar el fitbit
 df.drop(columns=['ALERT', 'HAPPY', 'NEUTRAL', 'SAD', 'RESTED/RELAXED'], inplace=True)
 # Eliminem els de sleep 
 df.drop(columns=['sleep_points_percentage', 'minutesToFallAsleep', 'minutesAfterWakeup'], inplace=True)
 # Eliminem els de activitat i zones hr
 df.drop(columns=['minutes_in_default_zone_3', 'minutes_in_default_zone_2', 'minutes_in_default_zone_1', 'minutes_below_default_zone_1'], inplace=True)
 df.drop(columns=['very_active_minutes', 'moderately_active_minutes', 'lightly_active_minutes'], inplace=True)
-df.drop(columns=['nremhr'], inplace=True)
-
-
-
-
 
 #################################################################
 # Exportem les dades preprocessades a csv i comprovem
@@ -113,3 +111,4 @@ df.drop(columns=['nremhr'], inplace=True)
 
 df.to_csv('data/df_cleaned.csv', index=False)
 print(df.info())
+ 
