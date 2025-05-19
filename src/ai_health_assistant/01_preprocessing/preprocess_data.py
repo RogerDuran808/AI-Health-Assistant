@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
-
+from ai_health_assistant.utils.clean_helpers import clean_data
 ####################
 
 # Llegim el fitxer CSV ja netejat previament a "data/cleaned_data.py"

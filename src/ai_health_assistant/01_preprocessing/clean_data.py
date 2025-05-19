@@ -1,5 +1,4 @@
-# Import de llibreries necessàries
-from src.utils.clean_helpers import clean_data
+from utils.clean_helpers import clean_data
 
 
 ########################## Neteja de les dades ################################
