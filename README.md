@@ -37,8 +37,6 @@ El projecte es divideix en dues etapes fonamentals:
 ## Tecnologies Utilitzades
 
 - Python   
-- Model LLM: GPT-4, DeepSeek-V3  
-- APIs a LLMs 
 - Pandas, Scikit-learn, Matplotlib (per EDA i ML)
 
 ---
@@ -46,19 +44,50 @@ El projecte es divideix en dues etapes fonamentals:
 ## 📁 Estructura del Repositori
 
 ```
-📦 AI-Health-Assistant/
-├── data/                  # Dades utilitzades per entrenar / cleaned data
-├── models/                # Model de ML i LLM
-├── notebooks/             # Notebooks de proves: EDA, preprocessament, entrenament de models, etc.
-├── src/                   # Codi font del projecte
-│   ├── 01_preprocessing/  # Tractament de dades
-│   ├── 02_training/       # Entrenament del model ML
-│   └── 03_assistant/      # Mòdul del LLM i generació de respostes
-├── results/               # Resultats, mètriques i figures finals
-└── README.md              
+AI-Health-Assistant/
+├── data/                               # Dades utilitzades per entrenar / cleaned data
+├── models/                             # Model de ML
+├── notebooks/                          # Notebooks de proves: EDA, preprocessament, entrenament de models, etc.
+├── results/                            # Resultats, mètriques i figures finals
+├── src/
+│   └── ai_health_assistant/            # Paquet Python instal·lable
+│       ├── preprocessing/              # Tractament de dades
+│       │   ├── clean_data.py
+│       │   └── preprocess_data.py
+│       ├── training/                   # Entrenament del model ML
+│       │   └── model_training.py
+│       ├── assistant/
+│       │   └── ai_health_prediction.py
+│       └── utils/
+│           └── clean_helpers.py
+├── tests/                                # Proves
+├── setup.py                              # Configuració del paquet
+└── README.md
+
 ```
 
 ---
+
+🔧 Instal·lació ràpida (entorn de desenvolupament)
+```
+# 1. Clonar el projecte i entrar‑hi
+git clone https://github.com/RogerDuran808/AI-Health-Assistant.git
+cd AI-Health-Assistant
+
+# 2. Crear i activar un entorn virtual
+python -m venv .venv
+
+# Windows: 
+.venv\Scripts\Activate.ps1
+
+# 3. Instal·lar el paquet en mode editable
+pip install -e .
+```
+
+Després d’aquest pas podràs importar el codi des de qualsevol script o notebook, per exemple:
+```
+from ai_health_assistant.utils.clean_helpers import clean_data
+```
 
 ## Estat del Desenvolupament
 
