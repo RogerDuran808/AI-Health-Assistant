@@ -8,11 +8,11 @@ from sklearn.preprocessing import StandardScaler, OrdinalEncoder, PowerTransform
 from sklearn.impute import SimpleImputer
 
 
-# =============================================================================
-# preprocess_helpers.py
-# Funcions utilitàries per al preprocessament del dataset netejat
-# =============================================================================
+#################################################################################
+# Funcions per al preprocessament del dataset netejat
+#####################################################################
 
+###################### CREEM EL PREPROCESSADOR ######################
 def build_preprocessor(numeric_cols, categoric_cols):
     """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions
     energètiques (PowerTransformer) i escalat a continuació.
@@ -36,7 +36,7 @@ def build_preprocessor(numeric_cols, categoric_cols):
         ("cat", categoric_pipe, categoric_cols),
     ])
 
-
+########################### PREPROCESSEM LES DADES ##################################
 def preprocess_dataframe(df, target, features):
     """Rep un DataFrame ja net (df_cleaned), aplica transformacions i retorna un
     nou DataFrame preparat (df_preprocessed).
@@ -62,6 +62,7 @@ def preprocess_dataframe(df, target, features):
     return df_final
 
 
+########################## FLUXE DEL PREPROCESSAMENT #############################
 def preprocess_data(input_path, output_path) -> pd.DataFrame:
     """Flux complet de preprocessament:
     1. Llegeix el CSV (ja netejat).
@@ -82,9 +83,8 @@ def preprocess_data(input_path, output_path) -> pd.DataFrame:
     df = pd.read_csv(input_path)
     df_final = preprocess_dataframe(df, target, features)
 
-    # Crea carpeta si no existeix
-    out_path = Path(output_path)
-    df_final.to_csv(out_path, index=False)
+    df_final.to_csv(output_path, index=False)
+    
     print(f"Dades preprocessades guardades a: {output_path}")
 
     return df_final
