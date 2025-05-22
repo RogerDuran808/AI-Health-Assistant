@@ -4,7 +4,7 @@ from pathlib import Path
 
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import StandardScaler, OrdinalEncoder, PowerTransformer
+from sklearn.preprocessing import StandardScaler, OrdinalEncoder, PowerTransformer, OneHotEncoder
 from sklearn.impute import SimpleImputer
 
 
@@ -14,8 +14,7 @@ from sklearn.impute import SimpleImputer
 
 ###################### CREEM EL PREPROCESSADOR ######################
 def build_preprocessor(numeric_cols, categoric_cols):
-    """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions
-    energètiques (PowerTransformer) i escalat a continuació.
+    """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
     """
     numeric_pipe = Pipeline([
         ("imputer", SimpleImputer(strategy="median")),
@@ -25,16 +24,15 @@ def build_preprocessor(numeric_cols, categoric_cols):
 
     categoric_pipe = Pipeline([
         ("imputer", SimpleImputer(strategy="most_frequent")),
-        (
-            "encoder",
-            OrdinalEncoder(categories=[["Infrapes", "Normal", "Sobrepes", "Obes"]]),
-        ),
+        ("onehot", OneHotEncoder(handle_unknown='ignore', sparse_output=False))
     ])
 
-    return ColumnTransformer([
+    preprocessor = ColumnTransformer([
         ("num", numeric_pipe, numeric_cols),
         ("cat", categoric_pipe, categoric_cols),
     ])
+
+    return preprocessor
 
 ########################### PREPROCESSEM LES DADES ##################################
 def preprocess_dataframe(df, target, features):
@@ -49,8 +47,8 @@ def preprocess_dataframe(df, target, features):
     y = df[target]
     X = df.drop(columns=[target])
 
-    categoric_cols = [c for c in X.columns if X[c].dtype == "object"]
-    numeric_cols = [c for c in X.columns if c not in categoric_cols]
+    categoric_cols = X.select_dtypes(exclude=['number']).columns
+    numeric_cols = X.select_dtypes(include=['number']).columns
 
     preprocessor = build_preprocessor(numeric_cols, categoric_cols)
 
@@ -63,13 +61,16 @@ def preprocess_dataframe(df, target, features):
 
 
 ########################## FLUXE DEL PREPROCESSAMENT #############################
-def preprocess_data(input_path, output_path) -> pd.DataFrame:
+def preprocess_data(input_path, output_path):
     """Flux complet de preprocessament:
     1. Llegeix el CSV (ja netejat).
     2. Aplica transformacions i exporta CSV preprocessat.
     3. Retorna el DataFrame resultant.
     """
+    # Target a predir
     target = "TIRED"
+
+    # Features que volem utilitzar per fer la predicció
     features = [
         "steps",
         "calories",
@@ -78,6 +79,12 @@ def preprocess_data(input_path, output_path) -> pd.DataFrame:
         "resting_hr",
         "minutesAsleep",
         "bmi_tipo",
+        "gender",
+        "full_sleep_breathing_rate",
+        "stress_score",
+        "sleep_rem_ratio",
+        "sleep_efficiency",
+        "minutesAwake"
     ]
 
     df = pd.read_csv(input_path)

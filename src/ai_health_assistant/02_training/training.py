@@ -2,19 +2,16 @@ import pandas as pd
 pd.set_option('display.max_columns', None)
 import numpy as np
 
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.impute import SimpleImputer, KNNImputer
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report, f1_score, make_scorer, confusion_matrix, ConfusionMatrixDisplay, accuracy_score
-from sklearn.inspection import permutation_importance
-from sklearn.decomposition import PCA
-from imblearn.over_sampling import SMOTE
+
+from imblearn.over_sampling import SMOTE, BorderlineSMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
+
+from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -26,37 +23,23 @@ warnings.filterwarnings('ignore')
 # Load the dataset
 df = pd.read_csv('data/df_preprocessed.csv')
 
-print(f"Shape: {df.shape}")
-
-
 # Comprovem quina es les estructura de les nostres dades faltants en el target
 TARGET = 'TIRED'
-
-df = df.dropna(subset=[TARGET])
-
 
 # Difinim X i el target y
 # Prediccio de TIRED
 X = df.drop(columns=[TARGET])
 y = df[TARGET]
 
-numerical_features = X.select_dtypes(include=['number']).columns.tolist()
-categorical_features = X.select_dtypes(exclude=['number']).columns.tolist()
-
-print(f"\nCol. numeriques ({len(numerical_features)}): \n{numerical_features}")
-print(f"Col. categoriques ({len(categorical_features)}): \n{categorical_features}")
-
-
-
 # Estratifiquem respecte un dels targets per tal d'assegurar el bon split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
 
 # Define classifiers
 CLASSIFIERS = {
     "MLP": MLPClassifier(random_state=42, max_iter=500),
     "SVM": SVC(random_state=42, probability=True),
-    "RandomForest": RandomForestClassifier(random_state=42, class_weight='balanced'),
+    "RandomForest": RandomForestClassifier(random_state=42),
     "GradientBoosting": GradientBoostingClassifier(random_state=42)
 }
 
@@ -75,8 +58,10 @@ PARAM_GRIDS = {
         "classifier__gamma": ["scale", "auto", 0.01]
     },
     "RandomForest": {
-        "classifier__n_estimators": [100, 200],
-        "classifier__max_depth": [None, 10, 20],
+        "classifier__n_estimators": [300, 500, 800, 1200],
+        "classifier__max_depth": [None, 5, 10, 20], # profundiat del random forest per evitar  overfitting
+        "classifier__max_features": ["sqrt", "log2", 0.3],
+        "classifier__min_samples_leaf": [1, 2, 4], # tambe ajuda a fer el model robust
         "classifier__class_weight": ["balanced", "balanced_subsample"]
     },
     "GradientBoosting": {
@@ -86,53 +71,52 @@ PARAM_GRIDS = {
     }
 }
 
-cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+results = []
+models = {}
 
-base_results = []
-base_models = {}
+# Entrenament del model 
+model_name = "RandomForest" # RandomForest, GradientBoosting, MLP, SVM
+clf = CLASSIFIERS[model_name]
 
+pipeline = ImbPipeline([
+    ("smote", BorderlineSMOTE(random_state=42, sampling_strategy=0.8)),
+    ("classifier", clf)
+])
 
-for model, classifier in CLASSIFIERS.items():
-    pipeline = ImbPipeline([
-        ("smote", SMOTE(random_state=42)),
-        ("classifier", classifier)
-    ])
+best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, best_score = train_models(
+    X_train, 
+    y_train, 
+    X_test, 
+    y_test,
+    pipeline,
+    PARAM_GRIDS[model_name]
+)
 
-    gs = GridSearchCV(
-        estimator=pipeline,
-        param_grid=PARAM_GRIDS[model],
-        scoring="f1",
-        cv=cv,
-        n_jobs=-1,
-        refit=True
-    )
-    gs.fit(X_train, y_train)
+models[model_name] = best_est
 
+results_df = append_results(
+    results,
+    model_name,
+    train_report,
+    test_report,
+    best_params,
+    best_score
+)
 
-    best = gs.best_estimator_
-    base_models[model] = best
-    
-    y_pred = best.predict(X_test)
+plot_learning_curve(
+    model_name,
+    models,
+    X,
+    y
+)
 
-    report = classification_report(
-        y_test,
-        y_pred, # Fem un predict amb el millor model trobat i comparem
-        labels=[0, 1],
-        output_dict=True,
-        zero_division=0
-    )
+mat_confusio(
+    model_name,
+    models,
+    X_test,
+    y_test
+)
 
-    base_results.append({
-        "Target":                TARGET,
-        "Experiment":            "Entrenament basic",
-        "Model":                 model,
-        "Best Params":           gs.best_params_,
-        "Best CV":               gs.best_score_,
-        "Test Precision (1)":    report["1"]["precision"],
-        "Test Recall (1)":       report["1"]["recall"],
-        "Test F1 (1)":           report["1"]["f1-score"],
-        "Test F1 (macro global)": f1_score(y_test, y_pred, average="macro"),
-        "Test Accuracy":         report["accuracy"],
-    })
-
-    print(f"{model:20s} | Best CV: {gs.best_score_:.4f} | Test F1(cl1): {report["1"]["f1-score"]:.4f} | Acc: {report["accuracy"]:.4f}")
+print(f"\n\nMillors parametrs pel model - {model_name}:\n")
+print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
+print('\n')
