@@ -79,7 +79,7 @@ model_name = "RandomForest" # RandomForest, GradientBoosting, MLP, SVM
 clf = CLASSIFIERS[model_name]
 
 pipeline = ImbPipeline([
-    ("smote", BorderlineSMOTE(random_state=42, sampling_strategy=0.8)),
+    ("smote", BorderlineSMOTE(random_state=42, sampling_strategy=0.7)),
     ("classifier", clf)
 ])
 

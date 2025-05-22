@@ -61,31 +61,12 @@ def preprocess_dataframe(df, target, features):
 
 
 ########################## FLUXE DEL PREPROCESSAMENT #############################
-def preprocess_data(input_path, output_path):
+def preprocess_data(input_path, output_path, target, features):
     """Flux complet de preprocessament:
     1. Llegeix el CSV (ja netejat).
     2. Aplica transformacions i exporta CSV preprocessat.
     3. Retorna el DataFrame resultant.
     """
-    # Target a predir
-    target = "TIRED"
-
-    # Features que volem utilitzar per fer la predicció
-    features = [
-        "steps",
-        "calories",
-        "bpm",
-        "sedentary_minutes",
-        "resting_hr",
-        "minutesAsleep",
-        "bmi_tipo",
-        "gender",
-        "full_sleep_breathing_rate",
-        "stress_score",
-        "sleep_rem_ratio",
-        "sleep_efficiency",
-        "minutesAwake"
-    ]
 
     df = pd.read_csv(input_path)
     df_final = preprocess_dataframe(df, target, features)
@@ -95,4 +76,5 @@ def preprocess_data(input_path, output_path):
     print(f"Dades preprocessades guardades a: {output_path}")
 
     return df_final
+
 
