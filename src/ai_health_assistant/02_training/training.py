@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 
 from imblearn.ensemble import BalancedRandomForestClassifier
 
+
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
@@ -66,20 +67,32 @@ PARAM_GRIDS = {
 
     
     "RandomForest": {
-        "classifier__n_estimators": randint(400, 600),
-        "classifier__max_depth": randint(5, 7), # profundiat del random forest per evitar  overfitting
-        "classifier__max_features": ["sqrt", "log2", 0.5],
-        "classifier__min_samples_leaf": randint(1, 3), # tambe ajuda a fer el model robust
-        "classifier__class_weight": ["balanced", "balanced_subsample"]
+        # Parametre pel GridSearch (proves dels millors parametres)
+        "classifier__n_estimators": [1163], # [1163]
+        "classifier__max_depth": [8], # [8]
+        "classifier__max_features": ["log2"], # ["log2"]
+        "classifier__min_samples_leaf": [3], # [3]
+        "classifier__min_samples_split": [5], # [5]
+        "classifier__class_weight": ["balanced"] # ["balanced"]
+
+        # # Parametres pel RandomSearch
+        # "classifier__n_estimators": randint(400, 600),
+        # "classifier__max_depth": randint(5, 7),
+        # "classifier__max_features": ["sqrt", "log2", 0.5],
+        # "classifier__min_samples_leaf": randint(1, 3),
+        # "classifier__min_samples_split": randint(2, 8),
+        # "classifier__class_weight": ["balanced", "balanced_subsample"]
+
     },
 
+    # Els millors parametres trobats els posare al costat per tenir una referencia. Best F1 = 0.5598, Acc= 0.5022 
     "BalancedRandomForest": {
-        "classifier__n_estimators":      [1163],
-        "classifier__max_depth":         [8],
-        "classifier__max_features":      ["log2"],
-        "classifier__min_samples_leaf":  [3],
-        "classifier__min_samples_split": [5],
-        "classifier__class_weight":      ["balanced", "balanced_subsample"],
+        "classifier__n_estimators":      [1163], # [1163]
+        "classifier__max_depth":         [8], # [8]
+        "classifier__max_features":      ["log2"], # ["log2"]
+        "classifier__min_samples_leaf":  [3], # [3]
+        "classifier__min_samples_split": [5], # [5]
+        "classifier__class_weight":      ["balanced"], # ["balanced"]
     },
     "GradientBoosting": {
         "classifier__n_estimators": [200, 400],
@@ -92,8 +105,9 @@ results = []
 models = {}
 
 # Entrenament del model 
-model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM
+model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest
 clf = CLASSIFIERS[model_name]
+
 
 pipeline = ImbPipeline([
     ("smote", BorderlineSMOTE(random_state=42, sampling_strategy=0.95)),
@@ -101,7 +115,7 @@ pipeline = ImbPipeline([
 ])
 
 # Farem proves també amb el BalancedRandomForestClassifier
-pipeline_brf = ImbPipeline([
+pipeline_no_smote = ImbPipeline([
     ("classifier", clf)
 ])
 
@@ -110,9 +124,10 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_train, 
     X_test, 
     y_test,
-    pipeline_brf,
+    pipeline_no_smote,
     PARAM_GRIDS[model_name],
-    n_iter=200
+    n_iter=200,
+    search_type='grid' # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
 models[model_name] = best_est

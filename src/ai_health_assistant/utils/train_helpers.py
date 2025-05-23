@@ -18,29 +18,43 @@ from sklearn.decomposition import PCA
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
 
-def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring = None, cv = None, n_iter = 100):
+def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring = None, cv = None, n_iter = 100, search_type = 'random'):
     '''
-    Entrenament del model amb buscador de hiperparàmetres, en el cas de no posar scoring es fa
-    un search a f1 score de la classe 1. En cas de on posar cv es fa un StratifiedKFold. I 100 nombre de iteracions\n
+    Entrenament del model amb buscador de hiperparàmetres.\n
+    Paràmetres:
+    - scoring: per defecte F1 para clase 1.
+    - cv: validació creuada, per defecte StratifiedKFold amb 5 splits.
+    - n_iter: nombre de iteracions, per defecte 100.
+    - search_type: 'random' (per defecte) o 'grid' per fer un GridSearchCV
 
+    Si a paramgrid s'utilitza un diccionari amb diversos classifiers es pot aplicar com: param_grid[model_name]\n
     La funció retorna:\n
     - best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, best_score
     '''
     if scoring is None:
         scoring = make_scorer(f1_score, pos_label=1)
-  
     if cv is None:
-        cv= StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-    search = RandomizedSearchCV(
-        estimator=pipeline, 
-        param_distributions=param_grid,
-        n_iter=n_iter,
-        scoring=scoring, 
-        cv=cv,
-        random_state=42,
-        n_jobs=-1,
-        refit=True
+    if search_type == 'grid':
+        search = GridSearchCV(
+            estimator=pipeline,
+            param_grid=param_grid,
+            scoring=scoring,
+            cv=cv,
+            n_jobs=-1,
+            refit=True
+        )
+    else:
+        search = RandomizedSearchCV(
+            estimator=pipeline,
+            param_distributions=param_grid,
+            n_iter=n_iter,
+            scoring=scoring,
+            cv=cv,
+            random_state=42,
+            n_jobs=-1,
+            refit=True
         )
     
     search.fit(X_train, y_train)
