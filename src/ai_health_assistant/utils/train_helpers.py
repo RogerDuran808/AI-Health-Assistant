@@ -76,7 +76,7 @@ def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring
 def append_results (list_results, model, train_report, test_report, best_params, best_score):
     '''
     Crea un **dataframe amb els resultats** de la predicció i el model, fa un append a una llista
-    i retorna el dataframe. Les columnes a poder mostrar son:\n
+    i retorna el dataframe i el guarda el csv a results. Les columnes a poder mostrar son:\n
         - "Model"
         - "Best Params"
         - "Best CV"
@@ -114,6 +114,7 @@ def append_results (list_results, model, train_report, test_report, best_params,
     results_df = pd.DataFrame(list_results)
     print('\n')
     print(results_df)
+    results_df.to_csv(f'results/02_training/training_results.csv', index=False)
 
     return results_df
 
@@ -151,20 +152,17 @@ def plot_learning_curve(model_name, dict_models, X, y):
     print(f"Corva d'aprenentatge guardada a: results/02_training/{fname}")
 
 
-def mat_confusio(model_name, dict_models, X_test, y_test):
+def mat_confusio(title_name, y_true, y_pred):
     '''
     Matriu de confusió sobre el test, agafant els models registrats en el diccionari. \n
     Guarda la matri de confusió al directori de resultats/02_training
     '''
-    csf = dict_models[model_name]
-
-    y_pred = csf.predict(X_test)
-    cm = confusion_matrix(y_test, y_pred, labels=csf.classes_)
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=csf.classes_, )
+    cm = confusion_matrix(y_true, y_pred, labels=[0,1])
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0,1] )
     disp.plot(cmap='Blues')
-    plt.title(f"Matriu de confusió - {model_name} (Test)")
+    plt.title(f"Matriu de confusió - {title_name}")
     plt.show()
-    fname = f"confusion_matrix_{model_name}.png"
+    fname = f"confusion_matrix_{title_name}.png"
     plt.savefig(f'results/02_training/{fname}', bbox_inches='tight')
     plt.close()
     print(f"Confusion matrix guardada a: results/02_training/{fname}")

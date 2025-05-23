@@ -1,8 +1,12 @@
 import pandas as pd
 pd.set_option('display.max_columns', None)
 import numpy as np
+from scipy.stats import randint, uniform
+import joblib
 
 from sklearn.model_selection import train_test_split
+
+from imblearn.ensemble import BalancedRandomForestClassifier
 
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
@@ -40,12 +44,14 @@ CLASSIFIERS = {
     "MLP": MLPClassifier(random_state=42, max_iter=500),
     "SVM": SVC(random_state=42, probability=True),
     "RandomForest": RandomForestClassifier(random_state=42),
-    "GradientBoosting": GradientBoostingClassifier(random_state=42)
+    "GradientBoosting": GradientBoostingClassifier(random_state=42),
+    "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False)
 }
 
 # Param grids pel GridSearchCV
 # Complexitat reduida per tal que no porti un temps exegerat de execució
-# Un cop trobem el model bó podrem augmenter la complexitat del model
+# Anirem comprovant i ajustant els parametres dels models per veures quins en donen millors resultats.
+# Per això anirem ajustant cada possible classifier
 PARAM_GRIDS = {
     "MLP": {
         "classifier__hidden_layer_sizes": [(100,), (100, 50)],
@@ -57,12 +63,23 @@ PARAM_GRIDS = {
         "classifier__kernel": ["rbf"], # Si hi ha bons resultats provar d'altres
         "classifier__gamma": ["scale", "auto", 0.01]
     },
+
+    
     "RandomForest": {
-        "classifier__n_estimators": [300, 500, 800, 1200],
-        "classifier__max_depth": [None, 5, 10, 20], # profundiat del random forest per evitar  overfitting
-        "classifier__max_features": ["sqrt", "log2", 0.3],
-        "classifier__min_samples_leaf": [1, 2, 4], # tambe ajuda a fer el model robust
+        "classifier__n_estimators": randint(400, 600),
+        "classifier__max_depth": randint(5, 7), # profundiat del random forest per evitar  overfitting
+        "classifier__max_features": ["sqrt", "log2", 0.5],
+        "classifier__min_samples_leaf": randint(1, 3), # tambe ajuda a fer el model robust
         "classifier__class_weight": ["balanced", "balanced_subsample"]
+    },
+
+    "BalancedRandomForest": {
+        "classifier__n_estimators":      [1163],
+        "classifier__max_depth":         [8],
+        "classifier__max_features":      ["log2"],
+        "classifier__min_samples_leaf":  [3],
+        "classifier__min_samples_split": [5],
+        "classifier__class_weight":      ["balanced", "balanced_subsample"],
     },
     "GradientBoosting": {
         "classifier__n_estimators": [200, 400],
@@ -75,11 +92,16 @@ results = []
 models = {}
 
 # Entrenament del model 
-model_name = "RandomForest" # RandomForest, GradientBoosting, MLP, SVM
+model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM
 clf = CLASSIFIERS[model_name]
 
 pipeline = ImbPipeline([
-    ("smote", BorderlineSMOTE(random_state=42, sampling_strategy=0.7)),
+    ("smote", BorderlineSMOTE(random_state=42, sampling_strategy=0.95)),
+    ("classifier", clf)
+])
+
+# Farem proves també amb el BalancedRandomForestClassifier
+pipeline_brf = ImbPipeline([
     ("classifier", clf)
 ])
 
@@ -88,8 +110,9 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_train, 
     X_test, 
     y_test,
-    pipeline,
-    PARAM_GRIDS[model_name]
+    pipeline_brf,
+    PARAM_GRIDS[model_name],
+    n_iter=200
 )
 
 models[model_name] = best_est
@@ -112,11 +135,15 @@ plot_learning_curve(
 
 mat_confusio(
     model_name,
-    models,
-    X_test,
-    y_test
+    y_test,
+    y_test_pred
 )
 
 print(f"\n\nMillors parametrs pel model - {model_name}:\n")
 print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
 print('\n')
+
+# Guradem el model a la carpeta models
+joblib.dump(best_est, f'models/{model_name}_TIRED.joblib')
+
+
