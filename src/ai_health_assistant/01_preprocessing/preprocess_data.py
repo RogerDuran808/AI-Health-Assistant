@@ -33,7 +33,9 @@ FEATURES = [
     'bmi', 
     'age', 
     'gender', 
-    'bmi_tipo'
+    'bmi_tipo',
+    'stress_per_sleep_eff',
+    'hr_delta'
     ] 
 
 

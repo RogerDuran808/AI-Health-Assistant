@@ -97,8 +97,14 @@ def drop_additional_columns(df):
     ]
     return df.drop(columns=cols_to_drop, errors='ignore')
 
-
-
+def correct_columns(df):
+    """
+    Corregim les columne necessaries afectades:
+    - sleep_efficiency, ja que esta calculada a partir de les altres i es pot reajustar el calcul.
+    """
+    # Corregim sleep_efficiency
+    df['sleep_efficiency'] = (df['minutesAsleep'] / (df['minutesAsleep'] + df['minutesAwake'])) * 100
+    return df
 
 ######################### NETEJA DE DADES ###############################
 
@@ -118,6 +124,7 @@ def clean_data(input_path, output_path):
     df = fix_bmi(df)
     df = clip_outliers(df)
     df = drop_additional_columns(df)
+    df = correct_columns(df)
     df.to_csv(output_path, index=False)
     
     print(f"Dades netejades exportades a: {output_path}")

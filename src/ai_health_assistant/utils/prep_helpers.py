@@ -12,6 +12,19 @@ from sklearn.impute import SimpleImputer
 # Funcions per al preprocessament del dataset netejat
 #####################################################################
 
+def feature_engineering(df):
+    """ 
+    Apliquem feature engineering per tal de crear noves columnes i millorar el model
+    """
+    # --- Feature engineering rápido -------------------------------------------
+    df_fe = df.copy()
+
+    df_fe["stress_per_sleep_eff"] = df_fe["stress_score"] / (df_fe["sleep_efficiency"] + 1e-3)
+    df_fe["hr_delta"] = df_fe["bpm"] - df_fe["resting_hr"]
+        
+    df = df_fe
+    return df
+
 ###################### CREEM EL PREPROCESSADOR ######################
 def build_preprocessor(numeric_cols, categoric_cols):
     """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
@@ -60,6 +73,7 @@ def preprocess_dataframe(df, target, features):
     return df_final
 
 
+
 ########################## FLUXE DEL PREPROCESSAMENT #############################
 def preprocess_data(input_path, output_path, target, features):
     """Flux complet de preprocessament:
@@ -69,6 +83,7 @@ def preprocess_data(input_path, output_path, target, features):
     """
 
     df = pd.read_csv(input_path)
+    df = feature_engineering(df)
     df_final = preprocess_dataframe(df, target, features)
 
     df_final.to_csv(output_path, index=False)
