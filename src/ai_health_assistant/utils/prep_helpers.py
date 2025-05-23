@@ -15,13 +15,24 @@ from sklearn.impute import SimpleImputer
 def feature_engineering(df):
     """ 
     Apliquem feature engineering per tal de crear noves columnes i millorar el model
+    Al preprocessament seleccionarem les columnes que realemnt aportin valor
     """
     # --- Feature engineering rápido -------------------------------------------
     df_fe = df.copy()
 
     df_fe["stress_per_sleep_eff"] = df_fe["stress_score"] / (df_fe["sleep_efficiency"] + 1e-3)
     df_fe["hr_delta"] = df_fe["bpm"] - df_fe["resting_hr"]
-        
+
+    df_fe["steps_norm_cal"] = df_fe["steps"] / (df_fe["calories"] + 1e-3)
+
+    df_fe["wake_after_sleep_pct"] = (
+        df_fe["minutesAwake"] /
+        (df_fe["minutesAwake"] + df_fe["minutesAsleep"] + 1e-3)
+    )
+
+    df_fe["deep_sleep_score"] = df_fe["sleep_deep_ratio"] * df_fe["sleep_efficiency"]
+
+
     df = df_fe
     return df
 

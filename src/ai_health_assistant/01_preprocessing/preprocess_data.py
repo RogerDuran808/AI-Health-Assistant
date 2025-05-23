@@ -20,7 +20,9 @@ FEATURES = [
     'daily_temperature_variation', 
     'calories', 
     'bpm', 
-    'sedentary_minutes', 
+    'sedentary_minutes',
+    'lightly_active_minutes',
+    'very_active_minutes',
     'resting_hr', 
     'minutesAsleep', 
     'minutesAwake', 
@@ -34,8 +36,7 @@ FEATURES = [
     'age', 
     'gender', 
     'bmi_tipo',
-    'stress_per_sleep_eff',
-    'hr_delta'
+    'wake_after_sleep_pct'
     ] 
 
 
