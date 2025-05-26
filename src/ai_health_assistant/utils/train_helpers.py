@@ -23,6 +23,11 @@ from sklearn.decomposition import PCA
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
 
+from pathlib import Path
+import joblib
+
+
+
 def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring = None, cv = None, n_iter = 100, search_type = 'random'):
     '''
     Entrenament del model amb buscador de hiperparàmetres.\n
@@ -201,3 +206,27 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     # Si no, mostrem la gràfica
     plt.show()
 
+
+
+def save_model(best_estimator, model_name, save_external='no'):
+    """
+    Desa el model en:
+      1) ./models/{model_name}_TIRED.joblib
+      2) ../AI-Health-Assistant-WebApp/backend/models/{model_name}_TIRED.joblib
+      Per tal de poder-lo utilitzar en la webapp.
+    """
+    # RUTA DINS DEL REPOSITORI ACTUAL
+    local_dir = Path(__file__).parent.parent.parent.parent / "models"
+    local_path = local_dir / f"{model_name}_TIRED.joblib"
+
+    joblib.dump(best_estimator, local_path)  # Guardem el model a la ruta local
+    print(f"Model guardat localment a: {local_path}")
+
+    # RUTA EXTERNA A LA WEBAPP
+    if save_external.lower() == 'yes':
+        # La ruta es relativa a la ubicació de les meves carpetes
+        external_dir = (Path(__file__).parent.parent.parent.parent.parent / "AI-Health-Assistant-WebApp" / "backend" / "models")
+        external_path = external_dir / f"{model_name}_TIRED.joblib"
+
+        joblib.dump(best_estimator, external_path)  # Guradem el model a la ruta externa, a la aplicació web
+        print(f"Model guardat externament a: {external_path}")

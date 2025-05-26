@@ -34,7 +34,7 @@ FEATURES = [
     "sleep_light_ratio",
     "sleep_rem_ratio",
     "sleep_wake_ratio",
-    "nightly_temperature",
+    "daily_temperature_variation",
     "rmssd",
     "spo2",
     "full_sleep_breathing_rate",

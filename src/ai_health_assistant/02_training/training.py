@@ -16,7 +16,7 @@ from sklearn.neural_network import MLPClassifier
 from imblearn.over_sampling import SMOTE, BorderlineSMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
 
-from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve
+from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -85,7 +85,7 @@ PARAM_GRIDS = {
 
     },
 
-    # Els millors parametres trobats els posare al costat per tenir una referencia. Best F1 = 0.5598, Acc= 0.5022 
+    # Els millors parametres trobats els posare al costat per tenir una referencia. Best F1 = 0.5648, Acc= 0.5087 
     "BalancedRandomForest": {
         "classifier__n_estimators":      [1163], # [1163]
         "classifier__max_depth":         [8], # [8]
@@ -161,6 +161,8 @@ print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
 print('\n')
 
 # Guradem el model a la carpeta models
-joblib.dump(best_est, f'models/{model_name}_TIRED.joblib')
+# Amb la funcio definida, guardem el model entrenat a la carpeta de models local
+# i a la carpeta de models de la nostre webapp, per poder-lo carregar desde alla.
+save_model(best_est, model_name, save_external='yes')
 
 
