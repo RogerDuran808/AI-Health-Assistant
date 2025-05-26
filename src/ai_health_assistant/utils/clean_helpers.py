@@ -91,9 +91,7 @@ def drop_additional_columns(df):
     """
     cols_to_drop = [
         'ALERT', 'HAPPY', 'NEUTRAL', 'SAD', 'RESTED/RELAXED', 'TENSE/ANXIOUS',
-        'sleep_points_percentage', 'minutesToFallAsleep', 'minutesAfterWakeup',
-        'minutes_in_default_zone_3', 'minutes_in_default_zone_2', 'minutes_in_default_zone_1','minutes_below_default_zone_1',
-        'moderately_active_minutes'
+        'sleep_points_percentage'
     ]
     return df.drop(columns=cols_to_drop, errors='ignore')
 

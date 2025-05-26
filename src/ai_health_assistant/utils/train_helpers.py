@@ -1,7 +1,12 @@
 import pandas as pd
 import numpy as np
-import matplotlib
-matplotlib.use('Agg') # no interactiu sino causa err
+import sys
+if sys.prefix != sys.base_prefix:  # Si estem a l'entorn virtual no fa plot, ja que no em funciona
+    import matplotlib
+    matplotlib.use("Agg") 
+
+import matplotlib.pyplot as plt
+
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
@@ -83,15 +88,20 @@ def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring
         output_dict=True,
         zero_division=0
     )
+
+    print(f"\nTrain F1 (1): {train_report["1"]["f1-score"]:.4f} | Test F1 (1): {test_report["1"]["f1-score"]:.4f} | Train Acc: {train_report["accuracy"]:.4f} | Test Acc: {test_report["accuracy"]:.4f}")
+    print(classification_report(y_test, y_test_pred, digits=4))
+
     return best_est, y_train_pred, train_report, y_test_pred, test_report,  search.best_params_, search.best_score_
 
 
 
-def append_results (list_results, model, train_report, test_report, best_params, best_score):
+def append_results (list_results, model, train_report, test_report, best_params, best_score, experiment = None):
     '''
     Crea un **dataframe amb els resultats** de la predicció i el model, fa un append a una llista
     i retorna el dataframe i el guarda el csv a results. Les columnes a poder mostrar son:\n
         - "Model"
+        - "Experiment"
         - "Best Params"
         - "Best CV"
         - "Train F1 (1)"
@@ -103,11 +113,14 @@ def append_results (list_results, model, train_report, test_report, best_params,
         - "Test F1 (macro global)"
         - "Test Accuracy"
     '''
-    
-    TARGET= "TIRED"
+    if experiment is None:
+        experiment = np.nan
+
+    TARGET = "TIRED"
     list_results.append({
         "Target":                TARGET,
         "Model":                 model,
+        "Experiment":            experiment, # En cas de estar registrant algun experiment
         
         "Best Params":           best_params,
         "Best CV":               best_score,
@@ -123,17 +136,12 @@ def append_results (list_results, model, train_report, test_report, best_params,
         "Test Accuracy":         test_report["accuracy"],
     })
 
-    print(f"{model:20s} | Train F1 (1): {train_report["1"]["f1-score"]:.4f} | Test F1 (1): {test_report["1"]["f1-score"]:.4f} | Train Acc: {train_report["accuracy"]:.4f} | Test Acc: {test_report["accuracy"]:.4f}")
-
     results_df = pd.DataFrame(list_results)
-    print('\n')
-    print(results_df)
-    results_df.to_csv(f'results/02_training/training_results.csv', index=False)
 
     return results_df
 
 
-def plot_learning_curve(model_name, dict_models, X, y):
+def plot_learning_curve(model_name, dict_models, X, y, save = 'no'):
     estimator = dict_models[model_name]
     f1_cls1 = make_scorer(f1_score, pos_label=1)
 
@@ -158,15 +166,21 @@ def plot_learning_curve(model_name, dict_models, X, y):
     plt.ylabel('F1-1')
     plt.legend()
     plt.grid(True)
+    
+
+    if save.lower() == 'yes':
+        fname = f"learning_curve_{model_name}.png"
+        out_path = f"results/02_training/{fname}"
+        plt.savefig(out_path, bbox_inches='tight')
+        print(f"Corva d'aprenentatge guardada a: {out_path}")
+        plt.close()
+        return
+    
+    # Si no, mostrem la gràfica
     plt.show()
 
-    fname = f"learning_curve_{model_name}.png"
-    plt.savefig(f'results/02_training/{fname}', bbox_inches='tight')
-    plt.close()
-    print(f"Corva d'aprenentatge guardada a: results/02_training/{fname}")
 
-
-def mat_confusio(title_name, y_true, y_pred):
+def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     '''
     Matriu de confusió sobre el test, agafant els models registrats en el diccionari. \n
     Guarda la matri de confusió al directori de resultats/02_training
@@ -175,8 +189,15 @@ def mat_confusio(title_name, y_true, y_pred):
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0,1] )
     disp.plot(cmap='Blues')
     plt.title(f"Matriu de confusió - {title_name}")
+    
+    if save.lower() == 'yes':
+        fname = f"confusion_matrix_{title_name}.png"
+        out_path = f'results/02_training/{fname}'
+        plt.savefig(out_path, bbox_inches='tight')
+        print(f"Confusion matrix guardada a: {out_path}")
+        plt.close()
+        return
+    
+    # Si no, mostrem la gràfica
     plt.show()
-    fname = f"confusion_matrix_{title_name}.png"
-    plt.savefig(f'results/02_training/{fname}', bbox_inches='tight')
-    plt.close()
-    print(f"Confusion matrix guardada a: results/02_training/{fname}")
+

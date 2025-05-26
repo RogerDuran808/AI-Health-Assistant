@@ -145,13 +145,15 @@ plot_learning_curve(
     model_name,
     models,
     X,
-    y
+    y,
+    save='yes'
 )
 
 mat_confusio(
     model_name,
     y_test,
-    y_test_pred
+    y_test_pred,
+    save='yes'
 )
 
 print(f"\n\nMillors parametrs pel model - {model_name}:\n")
