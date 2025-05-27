@@ -1,0 +1,19 @@
+{
+  // VS Code: Ocultar en el Explorer, per tenir un entorn de treball més net
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/*.egg-info": true,
+    "build": true,
+    "dist": true,
+    ".venv": true
+  },
+
+  // VS Code SCM: Ocultar en el Source Control de VS code
+  "git.exclude": {
+    "**/__pycache__": true,
+    "**/*.egg-info": true
+  },
+  "git.showIgnoredFiles": false,
+  "git.untrackedChanges": "mixed"
+}
