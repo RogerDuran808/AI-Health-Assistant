@@ -4,3 +4,7 @@
 # Configuracio de la visualitzacio de l'entorn de treball
 .vscode/
 
+# Python
+__pycache__/
+*.egg-info/
+
