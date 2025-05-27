@@ -1,0 +1,6 @@
+# Entorn virtual
+.venv/
+
+# Configuracio de la visualitzacio de l'entorn de treball
+.vscode/
+

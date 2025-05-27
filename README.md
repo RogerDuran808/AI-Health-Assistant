@@ -6,9 +6,9 @@ Aquest projecte té com a objectiu dissenyar i implementar un assistent de salut
 
 ---
 
-## Objectius del Projecte
+## Objectius del Repositori
 
-1. Predir l'estat fisiològic de la persona (tensió i cansament) per prevenir la fatiga i lesions.
+1. Predir l'estat fisiològic de la persona (cansament) per prevenir la fatiga i lesions.
 2. Oferir recomanacions personalitzades a partir de les dades recollides, el context de la persona i l'estat predit.
 3. Implementar un LLM ajustat al domini de la salut (Fine-tuning de GPT-4).
 4. Proporcionar explicacions comprensibles i un pla d'acció diari.
@@ -23,10 +23,10 @@ El projecte es divideix en dues etapes fonamentals:
 
 - Dataset: LifeSnaps
 - Entrenament d’un model de *machine learning*.
-- Predicció de l’estat de **tensió/ansietat** i **cansament** d’una persona.
+- Predicció de l’estat del **cansament** d’una persona.
 - Utilització de dades fisiològiques (ex: HRV, ritme cardíac, patrons de son).
 
-### Etapa 2: Fine-tuning del LLM
+### Etapa 2: Fine-tuning del LLM (al repositori AI-Health-Assistant-WebApp)
 
 - Ajust de models de llenguatge amb dades del domini.
 - Integració amb la predicció del model de ML.
@@ -45,6 +45,7 @@ El projecte es divideix en dues etapes fonamentals:
 
 ```
 AI-Health-Assistant/
+├── .vscode/settings.json               # Configuració de la visualització de l'entorn de treball per un entorn més net
 ├── data/                               # Dades utilitzades per entrenar / cleaned data
 ├── models/                             # Model de ML
 ├── notebooks/                          # Notebooks de proves: EDA, preprocessament, entrenament de models, etc.
@@ -77,10 +78,12 @@ cd AI-Health-Assistant
 # 2. Crear i activar un entorn virtual
 python -m venv .venv
 
-# Windows: 
+# Windows (PowerShell): 
 .venv\Scripts\Activate.ps1
 
-# 3. Instal·lar el paquet en mode editable
+
+# 3. Instal·lar els requirements.txt i  el paquet en mode editable
+pip install -r requirements.txt
 pip install -e .
 ```
 
