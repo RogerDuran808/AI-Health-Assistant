@@ -121,5 +121,6 @@ print(classification_report(y_test, y_test_pred, digits=4))
 mat_confusio(
     "Umbral Ajustat BalancedRF",  
     y_test,
-    y_test_pred
+    y_test_pred,
+    save='yes'
     )

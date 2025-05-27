@@ -163,6 +163,6 @@ print('\n')
 # Guradem el model a la carpeta models
 # Amb la funcio definida, guardem el model entrenat a la carpeta de models local
 # i a la carpeta de models de la nostre webapp, per poder-lo carregar desde alla.
-save_model(best_est, model_name, save_external='yes')
+save_model(best_est, model_name, save_external='no')
 
 
