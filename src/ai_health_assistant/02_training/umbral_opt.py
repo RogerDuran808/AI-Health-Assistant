@@ -16,7 +16,7 @@ from imblearn.ensemble import BalancedRandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
 
 from scipy.stats import randint, uniform
-from ai_health_assistant.utils.train_helpers import mat_confusio, train_models
+from ai_health_assistant.utils.train_helpers import mat_confusio, train_models, optimize_threshold
 from sklearn.inspection import permutation_importance
 
 
@@ -125,7 +125,7 @@ balancing_method = SMOTETomek(random_state=42)  # Combina oversampling i undersa
 # Farem proves també amb el BalancedRandomForestClassifier
 pipeline = ImbPipeline([
     ("balancing", balancing_method),
-    ("clf", clf)
+    ("classifier", clf)
 ])
 
 ##############################################################################
@@ -191,7 +191,7 @@ print(classification_report(y_test, y_test_pred, digits=4))
 
 # Plot de la matriu de confusió
 mat_confusio(
-    "Umbral Ajustat BalancedRF",  
+    f"Umbral Ajustat {model_name}",  
     y_test,
     y_test_pred,
     save='yes'
