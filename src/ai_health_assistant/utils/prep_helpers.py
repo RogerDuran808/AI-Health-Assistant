@@ -4,8 +4,8 @@ from pathlib import Path
 
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import StandardScaler, OrdinalEncoder, PowerTransformer, OneHotEncoder
-from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OrdinalEncoder, PowerTransformer, OneHotEncoder, RobustScaler, QuantileTransformer
+from sklearn.impute import SimpleImputer, KNNImputer
 
 
 #################################################################################
@@ -41,9 +41,9 @@ def build_preprocessor(numeric_cols, categoric_cols):
     """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
     """
     numeric_pipe = Pipeline([
-        ("imputer", SimpleImputer(strategy="median")),
-        ("power", PowerTransformer(method="yeo-johnson", standardize=False)),
-        ("scaler", StandardScaler()),
+        ("imputer", KNNImputer(n_neighbors=5)),  # Mejor imputer para capturar relaciones
+        ("transformer", QuantileTransformer(output_distribution='normal')),  # Mejor para distribuciones no normales
+        ("scaler", RobustScaler()),  # Más robusto a outliers
     ])
 
     categoric_pipe = Pipeline([

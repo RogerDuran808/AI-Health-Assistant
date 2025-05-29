@@ -48,40 +48,22 @@ def fix_bmi(df):
     return df
 
 ################### CORRECCIÓ DE OUTILIERS ######################
-def clip_outliers(df):
-    # Corregim el dataset.
-    # Definim els rangs possibles
-    rangs_possibles = {
-        'nightly_temperature':       {'min': 30,    'max': 36},
-        'nremhr':                    {'min': 40,    'max': 100},
-        'rmssd':                     {'min': 1,     'max': 200},
-        'spo2':                      {'min': 95,     'max': 100},
-        'full_sleep_breathing_rate': {'min': 5,     'max': 27},
-        'stress_score':              {'min': 1,     'max': 100},
-        'sleep_points_percentage':   {'min': 0.01,  'max': 1},    # percentatge    
-        'daily_temperature_variation':{'min': -6,     'max': 2},
-        'calories':                  {'min': 1000,  'max': 6000},    # cal/dia, més de 6000 hauria de ser un error
-        'sedentary_minutes':         {'min': 1,     'max': 1200},    # 1200 son 20h de sedentarisme, descartem els errors de 24 h
-        'bpm':                       {'min': 40,     'max': 200},
-        'lightly_active_minutes':    {'min':1,      'max': 550},
-        'minutesAsleep':             {'min': 200,   'max': 800},   # mes de 800 i menys de 200 no hauria de ser co,u
-        'minutesAwake':              {'min': 1,     'max': 170},
-        'sleep_efficiency':          {'min': 65,    'max': 100},  # S'hauria de recalcular la sleep eficiency
-        'sleep_deep_ratio':          {'min': 0.01,  'max': 1},       # ratio [0–1]
-        'sleep_wake_ratio':          {'min': 0.01,  'max': 1},
-        'sleep_light_ratio':         {'min': 0.01,  'max': 1},
-        'sleep_rem_ratio':           {'min': 0.01,  'max': 1},
-        'steps':                     {'min': 100,   'max': 39000}
-    }
-    # Neteja per columnes
-    for col, valor in rangs_possibles.items():
-        # valors massa baixos
-        if valor['min'] is not None:
-            df.loc[df[col] < valor['min'], col] = np.nan
-        # valors massa alts
-        if valor['max'] is not None:
-            df.loc[df[col] > valor['max'], col] = np.nan
-    return df
+def handle_outliers_advanced(df):
+    """Método avanzado para tratar outliers utilizando IQR por cada grupo de clase"""
+    df_copy = df.copy()
+    for label in [0, 1]:  # Para cada clase
+        subset = df_copy[df_copy['TIRED'] == label]
+        for col in df_copy.select_dtypes(include=['number']).columns:
+            if col != 'TIRED':
+                Q1 = subset[col].quantile(0.25)
+                Q3 = subset[col].quantile(0.75)
+                IQR = Q3 - Q1
+                lower_bound = Q1 - 1.5 * IQR
+                upper_bound = Q3 + 1.5 * IQR
+                # Aplicar límites de forma específica para cada clase
+                df_copy.loc[(df_copy['TIRED'] == label) & (df_copy[col] < lower_bound), col] = lower_bound
+                df_copy.loc[(df_copy['TIRED'] == label) & (df_copy[col] > upper_bound), col] = upper_bound
+    return df_copy
 
 
 ################## DROP COLUMNES segons EDA ########################
@@ -120,7 +102,7 @@ def clean_data(input_path, output_path):
     df = pd.read_csv(input_path)
     df = drop_irrelevant(df)
     df = fix_bmi(df)
-    df = clip_outliers(df)
+    df = handle_outliers_advanced(df)
     df = drop_additional_columns(df)
     df = correct_columns(df)
     df.to_csv(output_path, index=False)
