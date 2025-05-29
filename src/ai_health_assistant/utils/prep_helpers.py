@@ -13,28 +13,32 @@ from sklearn.impute import SimpleImputer, KNNImputer
 #####################################################################
 
 def feature_engineering(df):
-    """ 
-    Apliquem feature engineering per tal de crear noves columnes i millorar el model
-    Al preprocessament seleccionarem les columnes que realemnt aportin valor
-    """
-    # --- Feature engineering rápido -------------------------------------------
+    """Feature engineering más avanzado con características más discriminativas"""
     df_fe = df.copy()
-
+    
+    # Mantener las características existentes
     df_fe["stress_per_sleep_eff"] = df_fe["stress_score"] / (df_fe["sleep_efficiency"] + 1e-3)
     df_fe["hr_delta"] = df_fe["bpm"] - df_fe["resting_hr"]
-
     df_fe["steps_norm_cal"] = df_fe["steps"] / (df_fe["calories"] + 1e-3)
-
-    df_fe["wake_after_sleep_pct"] = (
-        df_fe["minutesAwake"] /
-        (df_fe["minutesAwake"] + df_fe["minutesAsleep"] + 1e-3)
-    )
-
+    df_fe["wake_after_sleep_pct"] = df_fe["minutesAwake"] / (df_fe["minutesAwake"] + df_fe["minutesAsleep"] + 1e-3)
     df_fe["deep_sleep_score"] = df_fe["sleep_deep_ratio"] * df_fe["sleep_efficiency"]
-
-
-    df = df_fe
-    return df
+    
+    # Ratios y proporciones
+    df_fe["active_sedentary_ratio"] = (df_fe["very_active_minutes"] + df_fe["moderately_active_minutes"]) / (df_fe["sedentary_minutes"] + 1e-3)
+    df_fe["sleep_activity_balance"] = df_fe["minutesAsleep"] / (df_fe["very_active_minutes"] + df_fe["moderately_active_minutes"] + 1e-3)
+    
+    # Polinomiales y combinaciones
+    df_fe["bmi_hr_interaction"] = df_fe["bmi"] * df_fe["resting_hr"]
+    df_fe["sleep_quality_index"] = (df_fe["sleep_deep_ratio"] * 3 + df_fe["sleep_rem_ratio"] * 2) / (df_fe["sleep_wake_ratio"] + 1e-3)
+    
+    # Métricas de variabilidad
+    df_fe["hr_zone_variability"] = df_fe[["minutes_below_default_zone_1", "minutes_in_default_zone_1", 
+                                          "minutes_in_default_zone_2", "minutes_in_default_zone_3"]].std(axis=1)
+    
+    # Índices compuestos de fatiga
+    df_fe["fatigue_index"] = (df_fe["resting_hr"] / 60) + (1 - df_fe["sleep_efficiency"] / 100) + (df_fe["stress_score"] / 100)
+    
+    return df_fe
 
 ###################### CREEM EL PREPROCESSADOR ######################
 def build_preprocessor(numeric_cols, categoric_cols):
