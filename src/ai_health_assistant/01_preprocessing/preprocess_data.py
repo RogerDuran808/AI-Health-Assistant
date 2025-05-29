@@ -48,7 +48,6 @@ FEATURES = [
     'bmi_hr_interaction',
     'sleep_quality_index',
     'hr_zone_variability',
-    'fatigue_index'
 ] 
 
 
