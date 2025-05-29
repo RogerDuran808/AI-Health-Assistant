@@ -63,10 +63,6 @@ best_est, y_train_pred, train_report, y_val_pred, val_report, best_params, best_
     search_type='grid'
 )
 
-# Fem un print dels paràmetres que ha utilitzat en el cas de fer un search
-print('\nParametres utilitzats el model:')
-print(best_est)
-
 #---------------------------------------------------------
 # OPTIMITZEM UMBRAL amb una validació interna del mateix split del train
 #---------------------------------------------------------
@@ -103,7 +99,7 @@ print(classification_report(y_test, y_test_pred, digits=4))
 
 # Plot de la matriu de confusió
 mat_confusio(
-    f"Umbral Ajustat {model_name}",  
+    f"Umbral Ajustat {model_name}_v1",  
     y_test,
     y_test_pred,
     save='yes'

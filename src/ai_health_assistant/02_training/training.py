@@ -23,6 +23,7 @@ from lightgbm import LGBMClassifier
 from sklearn.metrics import make_scorer, fbeta_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
+from ai_health_assistant.utils.model_config import get_classifier_config
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -45,100 +46,12 @@ y = df[TARGET]
 # Estratifiquem respecte un dels targets per tal d'assegurar el bon split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-
-# Define classifiers
-CLASSIFIERS = {
-    "MLP": MLPClassifier(random_state=42, max_iter=500),
-    "SVM": SVC(random_state=42, probability=True),
-    "RandomForest": RandomForestClassifier(random_state=42),
-    "GradientBoosting": GradientBoostingClassifier(random_state=42),
-    "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False),
-    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0)
-}
-
-# Param grids pel GridSearchCV
-# Complexitat reduida per tal que no porti un temps exegerat de execució
-# Anirem comprovant i ajustant els parametres dels models per veures quins en donen millors resultats.
-# Per això anirem ajustant cada possible classifier
-PARAM_GRIDS = {
-    "MLP": {
-        "classifier__hidden_layer_sizes": [(100,), (100, 50)],
-        "classifier__alpha": [1e-4, 1e-3, 1e-2],
-
-    },
-    "SVM": {
-        "classifier__C": [0.1, 1, 10],
-        "classifier__kernel": ["rbf"], # Si hi ha bons resultats provar d'altres
-        "classifier__gamma": ["scale", "auto", 0.01]
-    },
-
-    
-    "RandomForest": {
-        # Parametre pel GridSearch (proves dels millors parametres)
-        "classifier__n_estimators": [1163], # [1163]
-        "classifier__max_depth": [8], # [8]
-        "classifier__max_features": ["log2"], # ["log2"]
-        "classifier__min_samples_leaf": [3], # [3]
-        "classifier__min_samples_split": [5], # [5]
-        "classifier__class_weight": ["balanced"] # ["balanced"]
-
-        # # Parametres pel RandomSearch
-        # "classifier__n_estimators": randint(400, 600),
-        # "classifier__max_depth": randint(5, 7),
-        # "classifier__max_features": ["sqrt", "log2", 0.5],
-        # "classifier__min_samples_leaf": randint(1, 3),
-        # "classifier__min_samples_split": randint(2, 8),
-        # "classifier__class_weight": ["balanced", "balanced_subsample"]
-
-    },
-
-    # Els millors parametres trobats els posare al costat per tenir una referencia. Best F1 = 0.65, Acc= 0.59 o F1=0.625 i Acc=0.72 
-    "BalancedRandomForest": {
-        "classifier__n_estimators":      [1163], # [1163]
-        "classifier__max_depth":         [8], # [8]
-        "classifier__max_features":      ["log2"], # ["log2"]
-        "classifier__min_samples_leaf":  [3], # [3]
-        "classifier__min_samples_split": [5], # [5]
-        "classifier__class_weight":      ["balanced"], # ["balanced"]
-    },
-
-    "GradientBoosting": {
-        "classifier__n_estimators": [200, 400],
-        "classifier__learning_rate": [0.05, 0.1],
-        "classifier__max_depth": [3, 5]
-    },
-
-    "LGBM": {
-    # "classifier__n_estimators": randint(500, 1001),
-    # "classifier__learning_rate": uniform(0.01, 0.1),
-    # "classifier__num_leaves": randint(31, 128),
-    # "classifier__reg_alpha": uniform(0, 0.5),
-    # "classifier__reg_lambda": uniform(0, 1),
-    # "classifier__min_child_samples": randint(5, 21),
-    # "classifier__subsample": uniform(0.8, 0.2),
-    # "classifier__colsample_bytree": uniform(0.8, 0.2)
-
-    # Millors parametrs pel model - LGBM:
-    'classifier__colsample_bytree': [0.9116586907214196], 
-    'classifier__learning_rate': [0.09826363431893397], 
-    'classifier__min_child_samples': [11], 
-    'classifier__n_estimators': [508], 
-    'classifier__num_leaves': [49], 
-    'classifier__reg_alpha': [0.3629778394351197], 
-    'classifier__reg_lambda':   [0.8971102599525771], 
-    'classifier__subsample': [0.9774172848530235]
-    }
-}
+# Definim el classifier i els parametres
+model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest ...
+clf, param_grid = get_classifier_config(model_name)
 
 results = []
 models = {}
-
-# Entrenament del model 
-model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest ...
-clf = CLASSIFIERS[model_name]
-
-
-
 
 #-------------------------------------------------------------------------------------
 # ALTRES METODES DE BALANCEJAMENT
@@ -147,7 +60,6 @@ balancing_method = SMOTETomek(random_state=42)  # Combina oversampling i undersa
 # Selecció de les millors caracteristiques 
 feature_selector = SelectFromModel(estimator=RandomForestClassifier(n_estimators=100, random_state=42))
 
-f2_scorer = make_scorer(fbeta_score, beta=2, pos_label=1)
 #-------------------------------------------------------------------------------------
 
 
@@ -169,13 +81,14 @@ advanced_pipeline = ImbPipeline([
     ("classifier", clf)
 ])
 
+
 best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, best_score = train_models(
     X_train, 
     y_train, 
     X_test, 
     y_test,
     pipeline,
-    PARAM_GRIDS[model_name],
+    param_grid,
     n_iter=30,
     search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
@@ -193,7 +106,7 @@ results_df = append_results(
 
 plot_learning_curve(
     model_name,
-    models,
+    best_est,
     X,
     y,
     save='yes'

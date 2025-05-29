@@ -146,12 +146,11 @@ def append_results (list_results, model, train_report, test_report, best_params,
     return results_df
 
 
-def plot_learning_curve(model_name, dict_models, X, y, save = 'no'):
-    estimator = dict_models[model_name]
+def plot_learning_curve(model_name, best_est, X, y, save = 'no'):
     f1_cls1 = make_scorer(f1_score, pos_label=1)
 
     train_sizes, train_scores, val_scores = learning_curve(
-        estimator, X, y,
+        best_est, X, y,
         cv=5,
         scoring=f1_cls1,
         train_sizes=np.linspace(0.1, 1.0, 5),
@@ -174,7 +173,7 @@ def plot_learning_curve(model_name, dict_models, X, y, save = 'no'):
     
 
     if save.lower() == 'yes':
-        fname = f"learning_curve_{model_name}.png"
+        fname = f"lc_{model_name}.png"
         out_path = f"results/02_training/{fname}"
         plt.savefig(out_path, bbox_inches='tight')
         print(f"Corva d'aprenentatge guardada a: {out_path}")
@@ -196,7 +195,7 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     plt.title(f"Matriu de confusió - {title_name}")
     
     if save.lower() == 'yes':
-        fname = f"confusion_matrix_{title_name}.png"
+        fname = f"cm_{title_name}.png"
         out_path = f'results/02_training/{fname}'
         plt.savefig(out_path, bbox_inches='tight')
         print(f"Confusion matrix guardada a: {out_path}")
@@ -208,7 +207,7 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
 
 def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
     """
-    Optimitz l'umbral de decisió per maximitzar la precisó mantenint el recall >= target_recall
+    Optimitza l'umbral de decisió (versio 2)per maximitzar la precisó mantenint el recall >= target_recall
     """
     y_scores = classifier.predict_proba(X_val)[:, 1]
     best_threshold = 0.5

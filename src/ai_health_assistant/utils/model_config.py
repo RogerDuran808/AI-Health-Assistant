@@ -21,16 +21,28 @@ CLASSIFIERS = {
 
 # Param grids o distribucions per fer el GridSearch o RandomSearch
 # Un cop s'han trobat els millors parametres, s'han guardat per no fer constantment la busqueda
+# Anirem comprovant i ajustant els parametres dels models per veures quins en donen millors resultats.
+# Per això anirem ajustant cada classifier avaluat.
+
 PARAM_GRIDS = {
     "MLP": {
         "classifier__hidden_layer_sizes": [(100,), (100, 50)],
         "classifier__alpha": [1e-4, 1e-3, 1e-2],
+
+        # # Parametres pel RandomSearch - MLP:
+        # "classifier__hidden_layer_sizes": [(100,), (100, 50), (100, 50, 25)],
+        # "classifier__alpha": uniform(1e-6, 1e-2)
     },
     
     "SVM": {
         "classifier__C": [0.1, 1, 10],
         "classifier__kernel": ["rbf"],
         "classifier__gamma": ["scale", "auto", 0.01]
+
+        # # Parametres pel RandomSearch - SVM:
+        # "classifier__C": uniform(0.1, 10),
+        # "classifier__kernel": ["rbf", "linear", "poly", "sigmoid"],
+        # "classifier__gamma": uniform(0.01, 1)
     },
     
     "RandomForest": {
@@ -41,6 +53,14 @@ PARAM_GRIDS = {
         "classifier__min_samples_leaf": [3],
         "classifier__min_samples_split": [5],
         "classifier__class_weight": ["balanced"]
+
+        # # Parametres pel RandomSearch - RandomForest:
+        # "classifier__n_estimators": randint(400, 600),
+        # "classifier__max_depth": randint(5, 7),
+        # "classifier__max_features": ["sqrt", "log2", 0.5],
+        # "classifier__min_samples_leaf": randint(1, 3),
+        # "classifier__min_samples_split": randint(2, 8),
+        # "classifier__class_weight": ["balanced", "balanced_subsample"]
     },
     
     "BalancedRandomForest": {
@@ -50,12 +70,25 @@ PARAM_GRIDS = {
         "classifier__min_samples_leaf": [3],
         "classifier__min_samples_split": [5],
         "classifier__class_weight": ["balanced"]
+
+        # # Parametres pel RandomSearch - BalancedRandomForest:
+        # "classifier__n_estimators": randint(400, 1600),
+        # "classifier__max_depth": randint(5, 10),
+        # "classifier__max_features": ["sqrt", "log2", 0.5],
+        # "classifier__min_samples_leaf": randint(1, 5),
+        # "classifier__min_samples_split": randint(2, 8),
+        # "classifier__class_weight": ["balanced", "balanced_subsample"]
     },
     
     "GradientBoosting": {
         "classifier__n_estimators": [200, 400],
         "classifier__learning_rate": [0.05, 0.1],
         "classifier__max_depth": [3, 5]
+
+        # # Busqueda de paràmetres RandomSearch - GradientBoosting:
+        # "classifier__n_estimators": randint(500, 1001),
+        # "classifier__learning_rate": uniform(0.01, 0.1),
+        # "classifier__max_depth": randint(3, 10)
     },
     
     "LGBM": {
@@ -68,6 +101,16 @@ PARAM_GRIDS = {
         'classifier__reg_alpha': [0.3629778394351197], 
         'classifier__reg_lambda': [0.8971102599525771], 
         'classifier__subsample': [0.9774172848530235]
+
+        # # Busqueda de paràmetres RandomSearch - LGBM:
+        # "classifier__n_estimators": randint(500, 1001),
+        # "classifier__learning_rate": uniform(0.01, 0.1),
+        # "classifier__num_leaves": randint(31, 128),
+        # "classifier__reg_alpha": uniform(0, 0.5),
+        # "classifier__reg_lambda": uniform(0, 1),
+        # "classifier__min_child_samples": randint(5, 21),
+        # "classifier__subsample": uniform(0.8, 0.2),
+        # "classifier__colsample_bytree": uniform(0.8, 0.2)
     }
 }
 
