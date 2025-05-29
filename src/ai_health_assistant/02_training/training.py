@@ -15,6 +15,12 @@ from sklearn.neural_network import MLPClassifier
 
 from imblearn.over_sampling import SMOTE, BorderlineSMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.combine import SMOTETomek
+from sklearn.feature_selection import SelectFromModel
+from lightgbm import LGBMClassifier
+
+from sklearn.metrics import make_scorer, fbeta_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
 
@@ -46,7 +52,8 @@ CLASSIFIERS = {
     "SVM": SVC(random_state=42, probability=True),
     "RandomForest": RandomForestClassifier(random_state=42),
     "GradientBoosting": GradientBoostingClassifier(random_state=42),
-    "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False)
+    "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False),
+    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain')
 }
 
 # Param grids pel GridSearchCV
@@ -98,7 +105,18 @@ PARAM_GRIDS = {
         "classifier__n_estimators": [200, 400],
         "classifier__learning_rate": [0.05, 0.1],
         "classifier__max_depth": [3, 5]
-    }
+    },
+    # Reduir la complexitat del GridSearchCV
+    "LGBM": {
+    "classifier__n_estimators": [800, 1000, 1200],
+    "classifier__learning_rate": [0.01, 0.05, 0.1],
+    "classifier__num_leaves": [31, 63, 127],
+    "classifier__reg_alpha": [0, 0.1, 0.5],
+    "classifier__reg_lambda": [0, 0.1, 1.0],
+    "classifier__min_child_samples": [5, 10, 20],
+    "classifier__subsample": [0.8, 0.9, 1.0],
+    "classifier__colsample_bytree": [0.8, 0.9, 1.0]
+}
 }
 
 results = []
@@ -109,13 +127,35 @@ model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, 
 clf = CLASSIFIERS[model_name]
 
 
+
+
+#################################################################################
+# ALTRES METODES DE BALANCEJAMENT
+balancing_method = SMOTETomek(random_state=42)  # Combina oversampling y undersampling
+
+# Implementar selección de características
+feature_selector = SelectFromModel(estimator=RandomForestClassifier(n_estimators=100, random_state=42))
+
+# Score per si volem donar més importància al recall que a la precisión
+f2_scorer = make_scorer(fbeta_score, beta=2, pos_label=1)  
+###################################################################################
+
+
+# Obting un F1=62.57 i un acc= 72%, amb un macro av. 70.14% [BalancedRandomForest]
 pipeline = ImbPipeline([
-    ("smote", BorderlineSMOTE(random_state=42, sampling_strategy=0.95)),
+    ("balancing", balancing_method),
     ("classifier", clf)
 ])
 
-# Farem proves també amb el BalancedRandomForestClassifier
+# Obting un F1=65.29 i un acc= 59.61%%, amb un macro av. 58.49% [BalancedRandomForest]
 pipeline_no_smote = ImbPipeline([
+    ("classifier", clf)
+])
+
+# Pipeline avanzado, per classificadors que no tenen balanceig incorporat
+advanced_pipeline = ImbPipeline([
+    ("feature_selection", feature_selector),
+    ("balancing", balancing_method),
     ("classifier", clf)
 ])
 
@@ -127,7 +167,7 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     pipeline_no_smote,
     PARAM_GRIDS[model_name],
     n_iter=200,
-    search_type='grid' # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
+    search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
 models[model_name] = best_est
