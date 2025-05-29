@@ -6,8 +6,12 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_recall_curve, f1_score, classification_report, make_scorer
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier 
 from imblearn.pipeline import Pipeline as ImbPipeline
-
+from imblearn.combine import SMOTETomek
+from lightgbm import LGBMClassifier
 from imblearn.ensemble import BalancedRandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
 
@@ -31,28 +35,97 @@ TARGET = 'TIRED'
 X = df.drop(columns=[TARGET])
 y = df[TARGET]
 
-# # Busqueda de paràmetres
-# param_dist = {
-#     "n_estimators":     randint(800, 1600),
-#     "max_depth":        [None, 6, 8, 10],
-#     "max_features":     ["sqrt", "log2", 0.25],
-#     "min_samples_leaf": randint(1, 5),
-#     "min_samples_split":randint(2, 10)
-# }
 
-# Millors paràmetres fins ara, ver amb el search_type = 'grid', per evitar errors | Ajustat F1 = 0.5679, Acc = 0.4585
-param_dist = {
-    "clf__n_estimators":     [1163],
-    "clf__max_depth":        [8],
-    "clf__max_features":     ["log2"],
-    "clf__min_samples_leaf": [3],
-    "clf__min_samples_split": [5],
-    "clf__class_weight": ["balanced"]
-}      
+
+# Definim classifiers
+CLASSIFIERS = {
+    "MLP": MLPClassifier(random_state=42, max_iter=500),
+    "SVM": SVC(random_state=42, probability=True),
+    "RandomForest": RandomForestClassifier(random_state=42),
+    "GradientBoosting": GradientBoostingClassifier(random_state=42),
+    "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False),
+    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0)
+}
+PARAM_GRIDS = {
+    "MLP": {
+        "classifier__hidden_layer_sizes": [(100,), (100, 50)],
+        "classifier__alpha": [1e-4, 1e-3, 1e-2],
+
+    },
+    "SVM": {
+        "classifier__C": [0.1, 1, 10],
+        "classifier__kernel": ["rbf"], # Si hi ha bons resultats provar d'altres
+        "classifier__gamma": ["scale", "auto", 0.01]
+    },
+
+    
+    "RandomForest": {
+        # Parametre pel GridSearch (proves dels millors parametres)
+        "classifier__n_estimators": [1163], # [1163]
+        "classifier__max_depth": [8], # [8]
+        "classifier__max_features": ["log2"], # ["log2"]
+        "classifier__min_samples_leaf": [3], # [3]
+        "classifier__min_samples_split": [5], # [5]
+        "classifier__class_weight": ["balanced"] # ["balanced"]
+
+        # # Parametres pel RandomSearch
+        # "classifier__n_estimators": randint(400, 600),
+        # "classifier__max_depth": randint(5, 7),
+        # "classifier__max_features": ["sqrt", "log2", 0.5],
+        # "classifier__min_samples_leaf": randint(1, 3),
+        # "classifier__min_samples_split": randint(2, 8),
+        # "classifier__class_weight": ["balanced", "balanced_subsample"]
+
+    },
+
+    # Els millors parametres trobats els posare al costat per tenir una referencia. Best F1 = 0.65, Acc= 0.59 o F1=0.625 i Acc=0.72 
+    "BalancedRandomForest": {
+        "classifier__n_estimators":      [1163], # [1163]
+        "classifier__max_depth":         [8], # [8]
+        "classifier__max_features":      ["log2"], # ["log2"]
+        "classifier__min_samples_leaf":  [3], # [3]
+        "classifier__min_samples_split": [5], # [5]
+        "classifier__class_weight":      ["balanced"], # ["balanced"]
+    },
+
+    "GradientBoosting": {
+        "classifier__n_estimators": [200, 400],
+        "classifier__learning_rate": [0.05, 0.1],
+        "classifier__max_depth": [3, 5]
+    },
+
+    "LGBM": {
+    # "classifier__n_estimators": randint(500, 1001),
+    # "classifier__learning_rate": uniform(0.01, 0.1),
+    # "classifier__num_leaves": randint(31, 128),
+    # "classifier__reg_alpha": uniform(0, 0.5),
+    # "classifier__reg_lambda": uniform(0, 1),
+    # "classifier__min_child_samples": randint(5, 21),
+    # "classifier__subsample": uniform(0.8, 0.2),
+    # "classifier__colsample_bytree": uniform(0.8, 0.2)
+
+    # Millors parametrs pel model - LGBM:
+    'classifier__colsample_bytree': [0.9116586907214196], 
+    'classifier__learning_rate': [0.09826363431893397], 
+    'classifier__min_child_samples': [11], 
+    'classifier__n_estimators': [508], 
+    'classifier__num_leaves': [49], 
+    'classifier__reg_alpha': [0.3629778394351197], 
+    'classifier__reg_lambda':   [0.8971102599525771], 
+    'classifier__subsample': [0.9774172848530235]
+    }
+}
+
+model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest ...
+clf = CLASSIFIERS[model_name]
+param_grid = PARAM_GRIDS[model_name]
+
+balancing_method = SMOTETomek(random_state=42)  # Combina oversampling i undersampling
 
 # Farem proves també amb el BalancedRandomForestClassifier
 pipeline = ImbPipeline([
-    ("clf", BalancedRandomForestClassifier(random_state=42, n_jobs=-1))
+    ("balancing", balancing_method),
+    ("clf", clf)
 ])
 
 ##############################################################################
@@ -67,15 +140,14 @@ X_temp, X_test, y_temp, y_test = train_test_split(
 X_train, X_val, y_train, y_val = train_test_split(
         X_temp, y_temp, test_size=0.20, stratify=y_temp, random_state=42)
 
-best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, best_score = train_models(
+best_est, y_train_pred, train_report, y_val_pred, val_report, best_params, best_score = train_models(
     X_train, 
     y_train, 
     X_val, 
     y_val,
     pipeline,
-    param_dist,
+    param_grid,
     n_iter=200,
-    cv=5,
     search_type='grid'
 )
 
@@ -99,14 +171,14 @@ proba_val = clf_cal.predict_proba(X_val)[:,1]
 prec, rec, thr = precision_recall_curve(y_val, proba_val)
 
 # # Calucl respecte f1, el problema es que em carrego la classe 0
-# f1 = 2*prec*rec/(prec+rec+1e-9)
-# best_thr = thr[np.argmax(f1)]
-# print(f"Umbral óptimo en validación: {best_thr:.3f}  ⇒  F1={f1.max():.4f}")
+f1 = 2*prec*rec/(prec+rec+1e-9)
+best_thr = thr[np.argmax(f1)]
+print(f"Umbral óptimo en validación: {best_thr:.3f}  ⇒  F1={f1.max():.4f}")
 
 # Calcul del umbral respecte f1_macro, dona resultats més estables
-f1_macro = [f1_score(y_val, proba_val >= t, average="macro") for t in thr]
-best_thr = thr[np.argmax(f1_macro)]
-print(f"Umbral óptimo (macro-F1): {best_thr:.3f}")
+# f1_macro = [f1_score(y_val, proba_val >= t, average="macro") for t in thr]
+# best_thr = thr[np.argmax(f1_macro)]
+# print(f"Umbral óptimo (macro-F1): {best_thr:.3f}")
 
 ###########################################################################
 # EVALUEM EL TEST original per evaluar el model

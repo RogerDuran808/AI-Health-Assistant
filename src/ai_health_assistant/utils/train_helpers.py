@@ -206,6 +206,26 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     # Si no, mostrem la gràfica
     plt.show()
 
+def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
+    """
+    Optimitz l'umbral de decisió per maximitzar la precisó mantenint el recall >= target_recall
+    """
+    y_scores = classifier.predict_proba(X_val)[:, 1]
+    best_threshold = 0.5
+    best_precision = 0
+    
+    # Probar diferents umbrals
+    for threshold in np.arange(0.1, 0.9, 0.01):
+        y_pred = (y_scores >= threshold).astype(int)
+        precision = precision_score(y_val, y_pred)
+        recall = recall_score(y_val, y_pred)
+        
+        # Si el recall cumpleix amb l'objectiu i la precisio es millor que la anterior
+        if recall >= target_recall and precision > best_precision:
+            best_precision = precision
+            best_threshold = threshold
+    
+    return best_threshold
 
 
 def save_model(best_estimator, model_name, save_external='no'):

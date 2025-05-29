@@ -53,7 +53,7 @@ CLASSIFIERS = {
     "RandomForest": RandomForestClassifier(random_state=42),
     "GradientBoosting": GradientBoostingClassifier(random_state=42),
     "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False),
-    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain')
+    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0)
 }
 
 # Param grids pel GridSearchCV
@@ -92,7 +92,7 @@ PARAM_GRIDS = {
 
     },
 
-    # Els millors parametres trobats els posare al costat per tenir una referencia. Best F1 = 0.5648, Acc= 0.5087 
+    # Els millors parametres trobats els posare al costat per tenir una referencia. Best F1 = 0.65, Acc= 0.59 o F1=0.625 i Acc=0.72 
     "BalancedRandomForest": {
         "classifier__n_estimators":      [1163], # [1163]
         "classifier__max_depth":         [8], # [8]
@@ -101,44 +101,54 @@ PARAM_GRIDS = {
         "classifier__min_samples_split": [5], # [5]
         "classifier__class_weight":      ["balanced"], # ["balanced"]
     },
+
     "GradientBoosting": {
         "classifier__n_estimators": [200, 400],
         "classifier__learning_rate": [0.05, 0.1],
         "classifier__max_depth": [3, 5]
     },
-    # Reduir la complexitat del GridSearchCV
+
     "LGBM": {
-    "classifier__n_estimators": [800, 1000, 1200],
-    "classifier__learning_rate": [0.01, 0.05, 0.1],
-    "classifier__num_leaves": [31, 63, 127],
-    "classifier__reg_alpha": [0, 0.1, 0.5],
-    "classifier__reg_lambda": [0, 0.1, 1.0],
-    "classifier__min_child_samples": [5, 10, 20],
-    "classifier__subsample": [0.8, 0.9, 1.0],
-    "classifier__colsample_bytree": [0.8, 0.9, 1.0]
-}
+    # "classifier__n_estimators": randint(500, 1001),
+    # "classifier__learning_rate": uniform(0.01, 0.1),
+    # "classifier__num_leaves": randint(31, 128),
+    # "classifier__reg_alpha": uniform(0, 0.5),
+    # "classifier__reg_lambda": uniform(0, 1),
+    # "classifier__min_child_samples": randint(5, 21),
+    # "classifier__subsample": uniform(0.8, 0.2),
+    # "classifier__colsample_bytree": uniform(0.8, 0.2)
+
+    # Millors parametrs pel model - LGBM:
+    'classifier__colsample_bytree': [0.9116586907214196], 
+    'classifier__learning_rate': [0.09826363431893397], 
+    'classifier__min_child_samples': [11], 
+    'classifier__n_estimators': [508], 
+    'classifier__num_leaves': [49], 
+    'classifier__reg_alpha': [0.3629778394351197], 
+    'classifier__reg_lambda':   [0.8971102599525771], 
+    'classifier__subsample': [0.9774172848530235]
+    }
 }
 
 results = []
 models = {}
 
 # Entrenament del model 
-model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest
+model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest ...
 clf = CLASSIFIERS[model_name]
 
 
 
 
-#################################################################################
+#-------------------------------------------------------------------------------------
 # ALTRES METODES DE BALANCEJAMENT
-balancing_method = SMOTETomek(random_state=42)  # Combina oversampling y undersampling
+balancing_method = SMOTETomek(random_state=42)  # Combina oversampling i undersampling
 
-# Implementar selección de características
+# Selecció de les millors caracteristiques 
 feature_selector = SelectFromModel(estimator=RandomForestClassifier(n_estimators=100, random_state=42))
 
-# Score per si volem donar més importància al recall que a la precisión
-f2_scorer = make_scorer(fbeta_score, beta=2, pos_label=1)  
-###################################################################################
+f2_scorer = make_scorer(fbeta_score, beta=2, pos_label=1)
+#-------------------------------------------------------------------------------------
 
 
 # Obting un F1=62.57 i un acc= 72%, amb un macro av. 70.14% [BalancedRandomForest]
@@ -148,7 +158,7 @@ pipeline = ImbPipeline([
 ])
 
 # Obting un F1=65.29 i un acc= 59.61%%, amb un macro av. 58.49% [BalancedRandomForest]
-pipeline_no_smote = ImbPipeline([
+pipeline_no_balance = ImbPipeline([
     ("classifier", clf)
 ])
 
@@ -164,9 +174,9 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_train, 
     X_test, 
     y_test,
-    pipeline_no_smote,
+    pipeline,
     PARAM_GRIDS[model_name],
-    n_iter=200,
+    n_iter=30,
     search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
