@@ -95,16 +95,16 @@ PARAM_GRIDS = {
     
     "LGBM": {
         # Millors paràmetres trobats:
-        'classifier__colsample_bytree': [0.2471437785301014], 
-        'classifier__learning_rate': [0.1372820822527561], 
-        'classifier__min_child_samples': [8], 
-        'classifier__n_estimators': [395], 
-        'classifier__num_leaves': [33], 
-        'classifier__reg_alpha': [0.4537832369630465], 
-        'classifier__reg_lambda': [0.3739383437233124], 
-        'classifier__subsample': [0.8155743845534447],
+        'classifier__colsample_bytree': [0.2531335526278176], 
+        'classifier__learning_rate': [0.0758102730739742], 
+        'classifier__min_child_samples': [13], 
+        'classifier__n_estimators': [560], 
+        'classifier__num_leaves': [40], 
+        'classifier__reg_alpha': [0.04349337995570507], 
+        'classifier__reg_lambda': [0.6126798196060481], 
+        'classifier__subsample': [0.7590327755184709],
         "classifier__boosting_type": ["dart"],
-        "classifier__scale_pos_weight": [1.6]
+        "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
 
         # # Busqueda de paràmetres RandomSearch - LGBM:
         # "classifier__n_estimators": randint(300, 1200),
@@ -114,7 +114,9 @@ PARAM_GRIDS = {
         # "classifier__reg_lambda": uniform(0, 1.5),
         # "classifier__min_child_samples": randint(5, 20),
         # "classifier__subsample": uniform(0.2, 1.5),
-        # "classifier__colsample_bytree": uniform(0.2, 1.5)
+        # "classifier__colsample_bytree": uniform(0.2, 1.5),
+        # "classifier__boosting_type": ["dart"],
+        # "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
     }
 }
 

@@ -89,7 +89,6 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_test,
     pipeline,
     param_grid,
-    n_iter=200,
     search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
