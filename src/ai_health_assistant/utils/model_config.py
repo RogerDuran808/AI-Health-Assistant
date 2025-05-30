@@ -9,6 +9,8 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from imblearn.ensemble import BalancedRandomForestClassifier
 from lightgbm import LGBMClassifier
 
+from scipy.stats import randint, uniform
+
 # Base classifiers without parameters
 CLASSIFIERS = {
     "MLP": MLPClassifier(random_state=42, max_iter=500),
@@ -86,31 +88,31 @@ PARAM_GRIDS = {
         "classifier__max_depth": [3, 5]
 
         # # Busqueda de paràmetres RandomSearch - GradientBoosting:
-        # "classifier__n_estimators": randint(500, 1001),
+        # "classifier__n_estimators": randint(500, 1000),
         # "classifier__learning_rate": uniform(0.01, 0.1),
         # "classifier__max_depth": randint(3, 10)
     },
     
     "LGBM": {
-        # Millors paràmetres trobats
-        'classifier__colsample_bytree': [0.9116586907214196], 
-        'classifier__learning_rate': [0.09826363431893397], 
-        'classifier__min_child_samples': [11], 
-        'classifier__n_estimators': [508], 
-        'classifier__num_leaves': [49], 
-        'classifier__reg_alpha': [0.3629778394351197], 
-        'classifier__reg_lambda': [0.8971102599525771], 
-        'classifier__subsample': [0.9774172848530235]
+        # Millors paràmetres trobats:
+        'classifier__colsample_bytree': [0.2471437785301014], 
+        'classifier__learning_rate': [0.1372820822527561], 
+        'classifier__min_child_samples': [8], 
+        'classifier__n_estimators': [395], 
+        'classifier__num_leaves': [33], 
+        'classifier__reg_alpha': [0.4537832369630465], 
+        'classifier__reg_lambda': [0.3739383437233124], 
+        'classifier__subsample': [0.8155743845534447]
 
         # # Busqueda de paràmetres RandomSearch - LGBM:
-        # "classifier__n_estimators": randint(500, 1001),
-        # "classifier__learning_rate": uniform(0.01, 0.1),
-        # "classifier__num_leaves": randint(31, 128),
+        # "classifier__n_estimators": randint(300, 1200),
+        # "classifier__learning_rate": uniform(0.01, 0.2),
+        # "classifier__num_leaves": randint(30, 150),
         # "classifier__reg_alpha": uniform(0, 0.5),
-        # "classifier__reg_lambda": uniform(0, 1),
-        # "classifier__min_child_samples": randint(5, 21),
-        # "classifier__subsample": uniform(0.8, 0.2),
-        # "classifier__colsample_bytree": uniform(0.8, 0.2)
+        # "classifier__reg_lambda": uniform(0, 1.5),
+        # "classifier__min_child_samples": randint(5, 20),
+        # "classifier__subsample": uniform(0.2, 1.5),
+        # "classifier__colsample_bytree": uniform(0.2, 1.5)
     }
 }
 

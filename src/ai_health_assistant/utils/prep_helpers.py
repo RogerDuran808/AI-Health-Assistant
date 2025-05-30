@@ -13,25 +13,25 @@ from sklearn.impute import SimpleImputer, KNNImputer
 #####################################################################
 
 def feature_engineering(df):
-    """Feature engineering más avanzado con características más discriminativas"""
+    """Feature engineering de diferents paràmetres per millorar la prediccio del model"""
     df_fe = df.copy()
     
-    # Mantener las características existentes
+    # Feature engineering de diferents paràmetres per millorar la prediccio de TIRED
     df_fe["stress_per_sleep_eff"] = df_fe["stress_score"] / (df_fe["sleep_efficiency"] + 1e-3)
     df_fe["hr_delta"] = df_fe["bpm"] - df_fe["resting_hr"]
     df_fe["steps_norm_cal"] = df_fe["steps"] / (df_fe["calories"] + 1e-3)
     df_fe["wake_after_sleep_pct"] = df_fe["minutesAwake"] / (df_fe["minutesAwake"] + df_fe["minutesAsleep"] + 1e-3)
     df_fe["deep_sleep_score"] = df_fe["sleep_deep_ratio"] * df_fe["sleep_efficiency"]
     
-    # Ratios y proporciones
+    # Ratios i proporcions
     df_fe["active_sedentary_ratio"] = (df_fe["very_active_minutes"] + df_fe["moderately_active_minutes"]) / (df_fe["sedentary_minutes"] + 1e-3)
     df_fe["sleep_activity_balance"] = df_fe["minutesAsleep"] / (df_fe["very_active_minutes"] + df_fe["moderately_active_minutes"] + 1e-3)
     
-    # Polinomiales y combinaciones
+    # Polinomials i combinacions
     df_fe["bmi_hr_interaction"] = df_fe["bmi"] * df_fe["resting_hr"]
     df_fe["sleep_quality_index"] = (df_fe["sleep_deep_ratio"] * 3 + df_fe["sleep_rem_ratio"] * 2) / (df_fe["sleep_wake_ratio"] + 1e-3)
     
-    # Métricas de variabilidad
+    # Variabilitat
     df_fe["hr_zone_variability"] = df_fe[["minutes_below_default_zone_1", "minutes_in_default_zone_1", 
                                           "minutes_in_default_zone_2", "minutes_in_default_zone_3"]].std(axis=1)
 
@@ -42,9 +42,9 @@ def build_preprocessor(numeric_cols, categoric_cols):
     """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
     """
     numeric_pipe = Pipeline([
-        ("imputer", KNNImputer(n_neighbors=5)),  # Mejor imputer para capturar relaciones
-        ("transformer", QuantileTransformer(output_distribution='normal')),  # Mejor para distribuciones no normales
-        ("scaler", RobustScaler()),  # Más robusto a outliers
+        ("imputer", KNNImputer(n_neighbors=5)),  # KNNImputer per capturar relacions
+        ("transformer", QuantileTransformer(output_distribution='normal')),  # QuantileTransformer per distribucions no normal      s
+        ("scaler", RobustScaler()),  # RobustScaler per a outliers
     ])
 
     categoric_pipe = Pipeline([

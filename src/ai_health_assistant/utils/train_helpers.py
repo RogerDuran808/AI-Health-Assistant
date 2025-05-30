@@ -7,43 +7,37 @@ if sys.prefix != sys.base_prefix:  # Si estem a l'entorn virtual no fa plot, ja 
 
 import matplotlib.pyplot as plt
 
-import matplotlib.pyplot as plt
+from sklearn.model_selection import  GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
 
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.impute import SimpleImputer, KNNImputer
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report, f1_score, make_scorer, confusion_matrix, ConfusionMatrixDisplay, accuracy_score, precision_score, recall_score
-from sklearn.inspection import permutation_importance
-from sklearn.decomposition import PCA
-from imblearn.over_sampling import SMOTE
-from imblearn.pipeline import Pipeline as ImbPipeline
+from sklearn.metrics import classification_report, f1_score, make_scorer, confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
 
 from pathlib import Path
 import joblib
 
 
 
-def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring = None, cv = None, n_iter = 100, search_type = 'random'):
+def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring = 'f1', cv = 'StratifiedKFold', n_iter = 100, search_type = 'random'):
     '''
     Entrenament del model amb buscador de hiperparàmetres.\n
-    Paràmetres:
+    
+    Arguments: 
+    - X_train: features del train
+    - y_train: target del train
+    - X_test: features del test
+    - y_test: target del test
+    - pipeline: pipeline almenys amb el classifier
+    - param_grid: parametres per fer el gridsearch (si es un diccionari amb diversos classifiers es pot aplicar com: param_grid[model_name])
     - scoring: per defecte F1 para clase 1.
     - cv: validació creuada, per defecte StratifiedKFold amb 5 splits.
     - n_iter: nombre de iteracions, per defecte 100.
     - search_type: 'random' (per defecte) o 'grid' per fer un GridSearchCV
-
-    Si a paramgrid s'utilitza un diccionari amb diversos classifiers es pot aplicar com: param_grid[model_name]\n
+    
     La funció retorna:\n
     - best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, best_score
     '''
-    if scoring is None:
+    if scoring == 'f1':
         scoring = make_scorer(f1_score, pos_label=1)
-    if cv is None:
+    if cv == 'StratifiedKFold':
         cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
     if search_type == 'grid':
@@ -94,6 +88,7 @@ def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring
         zero_division=0
     )
 
+    # Print del report (resumit amb els valors més importants)
     print(f"\nTrain F1 (1): {train_report["1"]["f1-score"]:.4f} | Test F1 (1): {test_report["1"]["f1-score"]:.4f} | Train Acc: {train_report["accuracy"]:.4f} | Test Acc: {test_report["accuracy"]:.4f}")
     print(classification_report(y_test, y_test_pred, digits=4))
 
@@ -104,19 +99,32 @@ def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring
 def append_results (list_results, model, train_report, test_report, best_params, best_score, experiment = None):
     '''
     Crea un **dataframe amb els resultats** de la predicció i el model, fa un append a una llista
-    i retorna el dataframe i el guarda el csv a results. Les columnes a poder mostrar son:\n
-        - "Model"
-        - "Experiment"
-        - "Best Params"
-        - "Best CV"
-        - "Train F1 (1)"
-        - "Train F1 (macro global)"
-        - "Train Accuracy"
-        - "Test Precision (1)"
-        - "Test Recall (1)"
-        - "Test F1 (1)"
-        - "Test F1 (macro global)"
-        - "Test Accuracy"
+    i retorna el dataframe i el guarda el csv a results. Les columnes a poder mostrar son:
+    - "Target"
+    - "Model"
+    - "Experiment"
+    - "Best Params"
+    - "Best CV"
+    - "Train F1 (1)"
+    - "Train F1 (macro global)"
+    - "Train Accuracy"
+    - "Test Precision (1)"
+    - "Test Recall (1)"
+    - "Test F1 (1)"
+    - "Test F1 (macro global)"
+    - "Test Accuracy"\n
+
+    Els arguments són:
+    - list_results: llista on guardem els resultats
+    - model: nom del model
+    - train_report: report de la predicció sobre el train
+    - test_report: report de la predicció sobre el test
+    - best_params: millors parametres trobats
+    - best_score: millor score trobat
+    - experiment: nom de l'experiment (opcional)\n
+
+    Retorna:
+    - results_df: dataframe amb els resultats
     '''
     if experiment is None:
         experiment = np.nan
@@ -146,13 +154,25 @@ def append_results (list_results, model, train_report, test_report, best_params,
     return results_df
 
 
-def plot_learning_curve(model_name, best_est, X, y, save = 'no'):
-    f1_cls1 = make_scorer(f1_score, pos_label=1)
+def plot_learning_curve(model_name, best_est, X, y, save = 'no', score = 'f1'):
+    '''
+    Genera una corva d'aprenentatge per veure com el model apren.\n
+    
+    Arguments:
+    - model_name: nom del model
+    - best_est: millor estimador trobat
+    - X: features
+    - y: target
+    - save: per defecte 'no' (mostra la gràfica) si es 'yes' guarda la gràfica (no la mostra)
+    - score: per defecte 'f1', sino posar quin score es vol utilitzar
+    '''
+    if score == 'f1':
+        score = make_scorer(f1_score, pos_label=1)
 
     train_sizes, train_scores, val_scores = learning_curve(
         best_est, X, y,
         cv=5,
-        scoring=f1_cls1,
+        scoring=score,
         train_sizes=np.linspace(0.1, 1.0, 5),
         n_jobs=-1,
         shuffle=True, random_state=42
@@ -163,11 +183,11 @@ def plot_learning_curve(model_name, best_est, X, y, save = 'no'):
     title = f"Corva d'aprenentatge - {model_name}"
 
     plt.figure()
-    plt.plot(train_sizes, train_mean, 'o-', label='Train F1')
-    plt.plot(train_sizes, val_mean,   'o-', label='CV F1')
+    plt.plot(train_sizes, train_mean, 'o-', label='Train')
+    plt.plot(train_sizes, val_mean,   'o-', label='CV')
     plt.title(title)
     plt.xlabel('Grandària del set')
-    plt.ylabel('F1-1')
+    plt.ylabel(f'Score ({score})')
     plt.legend()
     plt.grid(True)
     
@@ -207,7 +227,7 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
 
 def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
     """
-    Optimitza l'umbral de decisió (versio 2)per maximitzar la precisó mantenint el recall >= target_recall
+    Optimitza l'umbral de decisió (versio 2, forma alternativa per umbral_v2.py) per maximitzar la precisó mantenint el recall >= target_recall
     """
     y_scores = classifier.predict_proba(X_val)[:, 1]
     best_threshold = 0.5
@@ -229,10 +249,13 @@ def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
 
 def save_model(best_estimator, model_name, save_external='no'):
     """
-    Desa el model en:
+    Si save_external = 'yes', desa el model en:
       1) ./models/{model_name}_TIRED.joblib
       2) ../AI-Health-Assistant-WebApp/backend/models/{model_name}_TIRED.joblib
-      Per tal de poder-lo utilitzar en la webapp.
+      Per tal de poder-lo utilitzar en la webapp.\n
+
+    En cas de que save_external = 'no', nomes desa el model en:
+      1) ./models/{model_name}_TIRED.joblib
     """
     # RUTA DINS DEL REPOSITORI ACTUAL
     local_dir = Path(__file__).parent.parent.parent.parent / "models"
