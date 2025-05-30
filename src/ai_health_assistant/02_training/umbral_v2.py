@@ -29,7 +29,7 @@ X_train, X_val, y_train, y_val = train_test_split(
 
 # ---------------------------------------------------------
 # Definim el model a utilitzar
-model_name = "BalancedRandomForest"  # Opcions: MLP, SVM, RandomForest, GradientBoosting, BalancedRandomForest, LGBM
+model_name = "LGBM"  # Opcions: MLP, SVM, RandomForest, GradientBoosting, BalancedRandomForest, LGBM
 
 # Obtenim el classificador i els seus paràmetres des de la configuració centralitzada
 clf, param_grid = get_classifier_config(model_name)
@@ -62,7 +62,7 @@ print(classification_report(y_test, y_pred_optimized, digits=4))
 
 # Plot de la matriu de confusió
 mat_confusio(
-    f"Umbral Ajustat {model_name}_v2",  
+    f"UAjsut_{model_name}_v2",  
     y_test,
     y_pred_optimized,
     save='yes'
