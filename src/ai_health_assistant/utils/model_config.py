@@ -102,7 +102,9 @@ PARAM_GRIDS = {
         'classifier__num_leaves': [33], 
         'classifier__reg_alpha': [0.4537832369630465], 
         'classifier__reg_lambda': [0.3739383437233124], 
-        'classifier__subsample': [0.8155743845534447]
+        'classifier__subsample': [0.8155743845534447],
+        "classifier__boosting_type": ["dart"],
+        "classifier__scale_pos_weight": [1.6]
 
         # # Busqueda de paràmetres RandomSearch - LGBM:
         # "classifier__n_estimators": randint(300, 1200),
