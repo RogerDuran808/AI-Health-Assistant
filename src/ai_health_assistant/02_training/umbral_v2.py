@@ -62,7 +62,7 @@ print(classification_report(y_test, y_pred_optimized, digits=4))
 
 # Plot de la matriu de confusió
 mat_confusio(
-    f"UAjsut_{model_name}_v2",  
+    f"UAjust_{model_name}_v2",  
     y_test,
     y_pred_optimized,
     save='yes'
