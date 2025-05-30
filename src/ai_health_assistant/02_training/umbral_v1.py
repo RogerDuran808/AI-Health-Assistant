@@ -25,7 +25,7 @@ y = df[TARGET]
 
 # ---------------------------------------------------------
 # Definim el model a utilitzar
-model_name = "BalancedRandomForest" # Possibles models:"MLP", "SVM", "RandomForest", "GradientBoosting", "BalancedRandomForest", "LGBM"
+model_name = "LGBM" # Possibles models:"MLP", "SVM", "RandomForest", "GradientBoosting", "BalancedRandomForest", "LGBM"
 
 # Obtenim el classificador i els seus paràmetres des de la configuració centralitzada
 clf, param_grid = get_classifier_config(model_name)

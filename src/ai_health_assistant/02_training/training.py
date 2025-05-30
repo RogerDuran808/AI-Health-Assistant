@@ -47,7 +47,7 @@ y = df[TARGET]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
 # Definim el classifier i els parametres
-model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest ...
+model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest ...
 clf, param_grid = get_classifier_config(model_name)
 
 results = []
