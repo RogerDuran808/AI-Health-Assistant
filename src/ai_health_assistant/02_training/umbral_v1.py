@@ -25,7 +25,7 @@ y = df[TARGET]
 
 # ---------------------------------------------------------
 # Definim el model a utilitzar
-model_name = "LGBM"  # Opcions: MLP, SVM, RandomForest, GradientBoosting, BalancedRandomForest, LGBM
+model_name = "BalancedRandomForest" # Possibles models:"MLP", "SVM", "RandomForest", "GradientBoosting", "BalancedRandomForest", "LGBM"
 
 # Obtenim el classificador i els seus paràmetres des de la configuració centralitzada
 clf, param_grid = get_classifier_config(model_name)
@@ -34,8 +34,12 @@ clf, param_grid = get_classifier_config(model_name)
 # Definim el balancing method
 balancing_method = SMOTETomek(random_state=42)  # Combina oversampling i undersampling
 
-# Fl pipeline amb millors resultats:
-pipeline = ImbPipeline([
+# Provem els pipeline  que ens dongui millors resultats:
+pipeline_1 = ImbPipeline([
+    ("classifier", clf)
+])
+
+pipeline_2 = ImbPipeline([
     ("balancing", balancing_method),
     ("classifier", clf)
 ])
@@ -57,7 +61,7 @@ best_est, y_train_pred, train_report, y_val_pred, val_report, best_params, best_
     y_train, 
     X_val, 
     y_val,
-    pipeline,
+    pipeline_2,
     param_grid,
     n_iter=200,
     search_type='grid'
@@ -78,15 +82,11 @@ proba_val = clf_cal.predict_proba(X_val)[:,1]
 
 prec, rec, thr = precision_recall_curve(y_val, proba_val)
 
-# # Calucl respecte f1, el problema es que em carrego la classe 0
+# Calucl respecte f1, per maximitzar el F1 score
 f1 = 2*prec*rec/(prec+rec+1e-9)
 best_thr = thr[np.argmax(f1)]
 print(f"Umbral óptimo en validación: {best_thr:.3f}  ⇒  F1={f1.max():.4f}")
 
-# Calcul del umbral respecte f1_macro, dona resultats més estables
-# f1_macro = [f1_score(y_val, proba_val >= t, average="macro") for t in thr]
-# best_thr = thr[np.argmax(f1_macro)]
-# print(f"Umbral óptimo (macro-F1): {best_thr:.3f}")
 
 #---------------------------------------------------------
 # EVALUEM EL TEST original per evaluar el model
