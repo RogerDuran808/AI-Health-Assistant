@@ -34,10 +34,7 @@ def feature_engineering(df):
     # Métricas de variabilidad
     df_fe["hr_zone_variability"] = df_fe[["minutes_below_default_zone_1", "minutes_in_default_zone_1", 
                                           "minutes_in_default_zone_2", "minutes_in_default_zone_3"]].std(axis=1)
-    
-    # Índices compuestos de fatiga
-    df_fe["fatigue_index"] = (df_fe["resting_hr"] / 60) + (1 - df_fe["sleep_efficiency"] / 100) + (df_fe["stress_score"] / 100)
-    
+
     return df_fe
 
 ###################### CREEM EL PREPROCESSADOR ######################
