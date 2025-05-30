@@ -39,8 +39,6 @@ FEATURES = [
     "spo2",
     "full_sleep_breathing_rate",
     'wake_after_sleep_pct',
-    'stress_per_sleep_eff',
-    'hr_delta',
     'steps_norm_cal',
     'deep_sleep_score',
     'active_sedentary_ratio',
@@ -48,6 +46,9 @@ FEATURES = [
     'bmi_hr_interaction',
     'sleep_quality_index',
     'hr_zone_variability',
+    'recovery_factor',
+    'sleep_eff_rmssd',
+    'active_to_rest_transition'
 ] 
 
 

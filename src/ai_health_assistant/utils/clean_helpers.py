@@ -49,20 +49,27 @@ def fix_bmi(df):
 
 ################### CORRECCIÓ DE OUTILIERS ######################
 def handle_outliers_advanced(df):
-    """Método avanzado para tratar outliers utilizando IQR por cada grupo de clase"""
+    """Trata outliers considerando la importancia de características para el target"""
     df_copy = df.copy()
-    for label in [0, 1]:  # Para cada clase
-        subset = df_copy[df_copy['TIRED'] == label]
-        for col in df_copy.select_dtypes(include=['number']).columns:
-            if col != 'TIRED':
-                Q1 = subset[col].quantile(0.25)
-                Q3 = subset[col].quantile(0.75)
-                IQR = Q3 - Q1
-                lower_bound = Q1 - 1.5 * IQR
-                upper_bound = Q3 + 1.5 * IQR
-                # Aplicar límites de forma específica para cada clase
-                df_copy.loc[(df_copy['TIRED'] == label) & (df_copy[col] < lower_bound), col] = lower_bound
-                df_copy.loc[(df_copy['TIRED'] == label) & (df_copy[col] > upper_bound), col] = upper_bound
+    
+    # Calculamos correlación para determinar importancia
+    corr_with_target = df_copy.corr()[target].abs().sort_values(ascending=False)
+    
+    # Tratamos outliers de forma diferenciada según importancia
+    for col in df_copy.select_dtypes(include=['number']).columns:
+        if col != target:
+            importance = corr_with_target.get(col, 0)
+            # Para características más importantes, tratamiento más conservador
+            iqr_factor = 2.0 if importance > 0.2 else 1.5
+            
+            Q1 = df_copy[col].quantile(0.25)
+            Q3 = df_copy[col].quantile(0.75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - iqr_factor * IQR
+            upper_bound = Q3 + iqr_factor * IQR
+            
+            # Aplicamos winsorizing según importancia
+            df_copy[col] = df_copy[col].clip(lower_bound, upper_bound)
     return df_copy
 
 
