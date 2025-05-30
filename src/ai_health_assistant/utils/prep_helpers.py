@@ -43,6 +43,8 @@ def feature_engineering(df):
     # Características cíclicas
     df_fe["active_to_rest_transition"] = df_fe["activity_intensity"] / (df_fe["minutesAsleep"] + df_fe["minutesAwake"] + 1e-3)
 
+    df_fe["active_to_total_ratio"] = (df_fe["very_active_minutes"] + df_fe["moderately_active_minutes"] + df_fe["lightly_active_minutes"]) / (24*60)
+
     
     return df_fe
 

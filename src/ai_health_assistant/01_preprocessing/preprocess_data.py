@@ -48,7 +48,8 @@ FEATURES = [
     'hr_zone_variability',
     'recovery_factor',
     'sleep_eff_rmssd',
-    'active_to_rest_transition'
+    'active_to_rest_transition',
+    'active_to_total_ratio'
 ] 
 
 
