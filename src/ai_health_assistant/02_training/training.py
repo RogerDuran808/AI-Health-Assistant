@@ -23,7 +23,7 @@ from lightgbm import LGBMClassifier
 from sklearn.metrics import make_scorer, fbeta_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
-from ai_health_assistant.utils.model_config import get_classifier_config
+from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -55,7 +55,9 @@ models = {}
 
 #-------------------------------------------------------------------------------------
 # ALTRES METODES DE BALANCEJAMENT
-balancing_method = SMOTETomek(random_state=42)  # Combina oversampling i undersampling
+# Amb el que he obtingut millors resultats es SMOTETomek
+balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+balancing_method = BALANCING_METHODS[balance_name]
 
 # Selecció de les millors caracteristiques 
 feature_selector = SelectFromModel(estimator=RandomForestClassifier(n_estimators=100, random_state=42))

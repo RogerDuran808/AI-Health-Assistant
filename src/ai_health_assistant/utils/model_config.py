@@ -10,6 +10,10 @@ from imblearn.ensemble import BalancedRandomForestClassifier
 from lightgbm import LGBMClassifier
 
 from scipy.stats import randint, uniform
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.combine import SMOTETomek, SMOTEENN
+from imblearn.over_sampling import ADASYN, SMOTE, BorderlineSMOTE
+
 
 # Base classifiers without parameters
 CLASSIFIERS = {
@@ -118,6 +122,14 @@ PARAM_GRIDS = {
         # "classifier__boosting_type": ["dart"],
         # "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
     }
+}
+
+# Definimos varios métodos de balanceo para comparar
+BALANCING_METHODS = {
+    "SMOTETomek": SMOTETomek(random_state=42),
+    "SMOTEENN": SMOTEENN(random_state=42),
+    "ADASYN": ADASYN(random_state=42),
+    "BorderlineSMOTE": BorderlineSMOTE(random_state=42, k_neighbors=5)
 }
 
 def get_classifier_config(model_name):
