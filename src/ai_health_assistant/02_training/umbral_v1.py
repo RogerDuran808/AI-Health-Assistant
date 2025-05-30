@@ -99,7 +99,7 @@ print(classification_report(y_test, y_test_pred, digits=4))
 
 # Plot de la matriu de confusió
 mat_confusio(
-    f"Umbral Ajustat {model_name}_v1",  
+    f"UAjsut_{model_name}_v1",  
     y_test,
     y_test_pred,
     save='yes'
