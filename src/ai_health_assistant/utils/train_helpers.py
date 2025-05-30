@@ -7,6 +7,7 @@ if sys.prefix != sys.base_prefix:  # Si estem a l'entorn virtual no fa plot, ja 
 
 import matplotlib.pyplot as plt
 
+
 from sklearn.model_selection import  GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
 
 from sklearn.metrics import classification_report, f1_score, make_scorer, confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
