@@ -53,7 +53,7 @@ def build_preprocessor(numeric_cols, categoric_cols):
     """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
     """
     numeric_pipe = Pipeline([
-        ("imputer", KNNImputer(n_neighbors=5, weights='distance')),  # KNNImputer per capturar relacions
+        ("imputer", KNNImputer(n_neighbors=5)),  # KNNImputer per capturar relacions
         ("transformer", QuantileTransformer(output_distribution='normal', n_quantiles=1000)),  # QuantileTransformer per distribucions no normal      s
         ("scaler", RobustScaler()),  # RobustScaler per a outliers
     ])
