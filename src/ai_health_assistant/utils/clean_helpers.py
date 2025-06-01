@@ -61,15 +61,6 @@ def handle_outliers(df, target):
     return df_copy
 
 
-def correct_columns(df):
-    """
-    Corregim les columne necessaries afectades:
-    - sleep_efficiency, ja que esta calculada a partir de les altres i es pot reajustar el calcul.
-    """
-    # Corregim sleep_efficiency
-    df['sleep_efficiency'] = (df['minutesAsleep'] / (df['minutesAsleep'] + df['minutesAwake'])) * 100
-    return df
-
 ######################### NETEJA DE DADES ###############################
 
 def clean_data(input_path, output_path, target, features):
@@ -87,7 +78,6 @@ def clean_data(input_path, output_path, target, features):
     df = select_features(df, target, features)
     df = fix_bmi(df)
     df = handle_outliers(df, target)
-    df = correct_columns(df)
     df.to_csv(output_path, index=False)
     
     print(f"Dades netejades exportades a: {output_path}")
