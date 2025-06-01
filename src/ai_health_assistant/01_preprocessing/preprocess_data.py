@@ -1,12 +1,11 @@
 from ai_health_assistant.utils.prep_helpers import preprocess_data
-from pathlib import Path
 
 '''
 Preprocessament de les dades:
-Aquest script llegeix els conjunts d'entrenament i prova ja netejats,
-els preprocessa de forma separada per evitar data leakage, i els guarda
-en format preparat per a l'entrenament del model.
-'''
+Un cop netejades les dades, les preprocessem, per preparar-les per l'entrenament del model.
+Les funcions de preprocessament son les definides als prep_helpers.py
+
+'''   
 
 # Features que volem utilitzar per fer la predicció
 FEATURES = [
@@ -54,14 +53,12 @@ FEATURES = [
 ] 
 
 
-X_train, X_test, y_train, y_test, preprocessor = preprocess_data(
-    train_path='data/df_cleaned_train.csv',
-    test_path='data/df_cleaned_test.csv',
-    output_dir='data/preprocessed',
-    target='TIRED',
-    features=FEATURES
-)
-    
-print(f"- Mostres d'entrenament: {len(X_train)}")
-print(f"- Mostres de prova: {len(X_test)}")
-print(f"- Característiques: {X_train.shape[1]}")
+df_prep = preprocess_data(
+    input_path="data/df_cleaned.csv",
+    output_path="data/df_preprocessed.csv",
+    target="TIRED",
+    features=FEATURES)
+
+print(df_prep.info())
+
+
