@@ -19,7 +19,7 @@ def build_preprocessor(numeric_cols, categoric_cols):
     """
     numeric_pipe = Pipeline([
         ("imputer", KNNImputer(n_neighbors=5)),  # KNNImputer per capturar relacions
-        ("transformer", QuantileTransformer(output_distribution='normal')),  # QuantileTransformer per distribucions no normal
+        ("transformer", QuantileTransformer(output_distribution='normal', random_state=42)),  # QuantileTransformer per distribucions no normal
         ("scaler", RobustScaler()),  # RobustScaler per a outliers
     ])
 

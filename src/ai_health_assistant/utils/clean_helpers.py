@@ -64,25 +64,27 @@ def fix_bmi(X_train, X_test):
     return X_train, X_test
 
 ################### CORRECCIÓ DE OUTILIERS ######################
-def handle_outliers(X_train, y_train, target):
+def handle_outliers(X_train, X_test, multiplier=1.5):
     """Mètode per tractar els outliers utilitzant IQR per cada grup de classe"""
 
-    for label in [0, 1]:  # Per cada classe
-        subset = X_train[y_train == label]
+    numeric_cols = X_train.select_dtypes(include="number").columns
 
-        for col in X_train.select_dtypes(include=['number']).columns:
-            if col != target:
-                Q1 = subset[col].quantile(0.25)
-                Q3 = subset[col].quantile(0.75)
-                IQR = Q3 - Q1
-                lower_bound = Q1 - 1.5 * IQR
-                upper_bound = Q3 + 1.5 * IQR
+    # Compute bounds on training set only
+    bounds = {}
+    for col in numeric_cols:
+        q1, q3 = X_train[col].quantile([0.25, 0.75])
+        iqr = q3 - q1
+        bounds[col] = (q1 - multiplier * iqr, q3 + multiplier * iqr)
 
-                # Aplicar límits de forma específica per cada classe
-                X_train.loc[(y_train == label) & (X_train[col] < lower_bound), col] = lower_bound
-                X_train.loc[(y_train == label) & (X_train[col] > upper_bound), col] = upper_bound
+    # Apply clipping on copies to avoid side-effects
+    X_train_cap = X_train.copy()
+    X_test_cap = X_test.copy()
 
-    return X_train
+    for col, (lower, upper) in bounds.items():
+        X_train_cap[col] = X_train_cap[col].clip(lower=lower, upper=upper)
+        X_test_cap[col] = X_test_cap[col].clip(lower=lower, upper=upper)
+
+    return X_train_cap, X_test_cap
 
 
 ######################### NETEJA DE DADES ###############################
@@ -101,7 +103,7 @@ def clean_data(input_path, output_path, target, features):
     df = pd.read_csv(input_path)
     X_train, X_test, y_train, y_test = features_split(df, target, features)
     X_train, X_test = fix_bmi(X_train, X_test)
-    X_train = handle_outliers(X_train, y_train, target)
+    X_train, X_test = handle_outliers(X_train, X_test)
 
     df_train = pd.concat([X_train, y_train], axis=1)
     df_test = pd.concat([X_test, y_test], axis=1)
