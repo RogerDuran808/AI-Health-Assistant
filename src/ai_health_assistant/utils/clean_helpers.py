@@ -56,6 +56,44 @@ def features_split(df, target, features):
     )
     return X_train, X_test, y_train, y_test
 
+def drop_no_factible(df):
+    # Corregim el dataset.
+    # Definim els rangs possibles
+    rangs_possibles = {
+        "calories":                      {"min": 0, "max": 20000},
+        "steps":                         {"min": 0, "max": 150000},
+        "lightly_active_minutes":         {"min": 0, "max": 1440},
+        "moderately_active_minutes":     {"min": 0, "max": 1440},
+        "very_active_minutes":           {"min": 0, "max": 1440},
+        "sedentary_minutes":             {"min": 0, "max": 1440},
+        "resting_hr":                    {"min": 20, "max": 250},
+        "minutes_below_default_zone_1":  {"min": 0, "max": 1440},
+        "minutes_in_default_zone_1":     {"min": 0, "max": 1440},
+        "minutes_in_default_zone_2":     {"min": 0, "max": 1440},
+        "minutes_in_default_zone_3":     {"min": 0, "max": 1440},
+        "minutesToFallAsleep":           {"min": 0, "max": 1440},
+        "minutesAsleep":                 {"min": 0, "max": 1440},
+        "minutesAwake":                  {"min": 0, "max": 1440},
+        "minutesAfterWakeup":            {"min": 0, "max": 1440},
+        "sleep_efficiency":              {"min": 0, "max": 100},
+        "sleep_deep_ratio":              {"min": 0, "max": 1},
+        "sleep_light_ratio":             {"min": 0, "max": 1},
+        "sleep_rem_ratio":               {"min": 0, "max": 1},
+        "sleep_wake_ratio":              {"min": 0, "max": 1},
+        "daily_temperature_variation":   {"min": -15, "max": 15},
+        "rmssd":                         {"min": 0, "max": 500},
+        "spo2":                          {"min": 50, "max": 100},
+        "full_sleep_breathing_rate":     {"min": 1, "max": 60},
+    }
+    # Neteja per columnes
+    for col, valor in rangs_possibles.items():
+        # valors massa baixos
+        if valor['min'] is not None:
+            df.loc[df[col] < valor['min'], col] = np.nan
+        # valors massa alts
+        if valor['max'] is not None:
+            df.loc[df[col] > valor['max'], col] = np.nan
+    return df
 
 def fix_bmi(df):
     # Fem una correcció de la variable del bmi
@@ -86,6 +124,9 @@ def fix_bmi(df):
         right=False
     )
     return df
+
+
+
 
 ################### CORRECCIÓ DE OUTILIERS ######################
 def handle_outliers(X_train, X_test, multiplier=1.5):
@@ -126,6 +167,8 @@ def clean_data(input_path, output_path, target, features):
     """
     df = pd.read_csv(input_path)
     X_train, X_test, y_train, y_test = features_split(df, target, features)
+    X_train = drop_no_factible(X_train)
+    X_test = drop_no_factible(X_test)
     X_train = fix_bmi(X_train)
     X_test = fix_bmi(X_test)
     X_train, X_test = handle_outliers(X_train, X_test)

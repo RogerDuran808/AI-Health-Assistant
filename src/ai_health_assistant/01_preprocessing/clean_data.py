@@ -21,4 +21,5 @@ df_train, df_test = clean_data(
     )
 
 df = pd.concat([df_train, df_test], axis=0)
+df.to_csv('data/df_cleaned.csv', index=False)
 print(df.info())

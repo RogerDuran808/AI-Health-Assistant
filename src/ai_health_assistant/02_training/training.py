@@ -94,7 +94,7 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_test,
     pipeline,
     param_grid,
-    search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
+    search_type='random', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
 models[model_name] = best_est

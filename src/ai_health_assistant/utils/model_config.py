@@ -99,14 +99,14 @@ PARAM_GRIDS = {
     
     "LGBM": {
         # Millors paràmetres trobats:
-        'classifier__colsample_bytree': [0.2531335526278176], 
-        'classifier__learning_rate': [0.0758102730739742], 
-        'classifier__min_child_samples': [13], 
-        'classifier__n_estimators': [560], 
-        'classifier__num_leaves': [40], 
-        'classifier__reg_alpha': [0.04349337995570507], 
-        'classifier__reg_lambda': [0.6126798196060481], 
-        'classifier__subsample': [0.7590327755184709],
+        'classifier__colsample_bytree': [0.2678280051592841], 
+        'classifier__learning_rate': [0.015273394899450402], 
+        'classifier__min_child_samples': [5], 
+        'classifier__n_estimators': [673], 
+        'classifier__num_leaves': [94], 
+        'classifier__reg_alpha': [0.24018504093317733], 
+        'classifier__reg_lambda': [1.4779290759982566], 
+        'classifier__subsample': [0.7651084549069112],
         "classifier__boosting_type": ["dart"],
         "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
 
