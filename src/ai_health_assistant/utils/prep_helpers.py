@@ -25,10 +25,10 @@ FEATURES = [
     "minutes_in_default_zone_1",
     "minutes_in_default_zone_2",
     "minutes_in_default_zone_3",
-    "minutesToFallAsleep",
+    # "minutesToFallAsleep",
     "minutesAsleep",
     "minutesAwake",
-    "minutesAfterWakeup",
+    # "minutesAfterWakeup",
     "sleep_efficiency",
     "sleep_deep_ratio",
     "sleep_light_ratio",
@@ -150,7 +150,7 @@ def preprocess_dataframe(df_train, features):
 
 
 ########################## FLUXE DEL PREPROCESSAMENT #############################
-def preprocess_data(train_path, test_path, output_dir, target, features):
+def preprocess_data(train_path, test_path, output_dir, features, target):
     """
     Flux complet de preprocessament per als conjunts d'entrenament i prova:
     1. Llegeix els CSVs d'entrenament i prova
@@ -162,7 +162,6 @@ def preprocess_data(train_path, test_path, output_dir, target, features):
         train_path: Ruta al fitxer CSV d'entrenament
         test_path: Ruta al fitxer CSV de prova
         output_dir: Directori on es guardaran els resultats
-        target: Nom de la columna objectiu
         features: Llista de característiques a utilitzar
         
     Returns:
@@ -177,10 +176,14 @@ def preprocess_data(train_path, test_path, output_dir, target, features):
     df_train = feature_engineering(df_train)
     df_test = feature_engineering(df_test)
     
+
     # Preprocessem les dades
     preprocessor = preprocess_dataframe(
         df_train, features
     )
+
+    df_train = df_train[features + [target]]
+    df_test = df_test[features + [target]]
         
     df_train.to_csv(f"{output_dir}_train.csv", index=False)
     df_test.to_csv(f"{output_dir}_test.csv", index=False)
