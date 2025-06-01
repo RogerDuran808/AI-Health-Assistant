@@ -45,9 +45,7 @@ FEATURES = [
 
 df_clean = clean_data(
     input_path='data/daily_fitbit_sema_df_unprocessed.csv', 
-    output_path='data/df_cleaned.csv',
-    target=TARGET,
-    features=FEATURES
+    output_path='data/df_cleaned.csv'
     )
 
 print(df_clean.info())
