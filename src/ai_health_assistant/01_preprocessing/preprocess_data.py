@@ -13,7 +13,7 @@ en format preparat per a l'entrenament del model.
 df_train, df_test, preprocessor = preprocess_data(
     train_path='data/df_cleaned_train.csv',
     test_path='data/df_cleaned_test.csv',
-    output_dir='data/preprocessed',
+    output_dir='data/df_engineered',
     target=TARGET,
     features=FEATURES
 )

@@ -29,6 +29,14 @@ from ai_health_assistant.utils.prep_helpers import FEATURES, TARGET
 import warnings
 warnings.filterwarnings('ignore')
 
+#---------------------------------------------------------
+
+# Definim el model i el balanceig
+model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+
+#---------------------------------------------------------
+
 
 train_df = pd.read_csv('data/preprocessed_train.csv')
 test_df = pd.read_csv('data/preprocessed_test.csv')
@@ -41,16 +49,13 @@ y_test = test_df[TARGET]
 
 
 # Definim el classifier i els parametres
-model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest ...
 clf, param_grid = get_classifier_config(model_name)
 
 results = []
 models = {}
 
-#-------------------------------------------------------------------------------------
-# ALTRES METODES DE BALANCEJAMENT
+
 # Amb el que he obtingut millors resultats es SMOTETomek
-balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 balancing_method = BALANCING_METHODS[balance_name]
 
 # Selecció de les millors caracteristiques 
@@ -72,8 +77,8 @@ pipeline_no_balance = ImbPipeline([
 
 # Pipeline avanzado, per classificadors que no tenen balanceig incorporat
 advanced_pipeline = ImbPipeline([
-    ("feature_selection", feature_selector),
     ("balancing", balancing_method),
+    ("feature_selection", feature_selector),
     ("classifier", clf)
 ])
 
@@ -106,14 +111,11 @@ mat_confusio(
     save='yes'
 )
 
-X = pd.concat([X_train, X_test])
-y = pd.concat([y_train, y_test])
-
 plot_learning_curve(
     model_name,
     best_est,
-    X,
-    y,
+    X_train,
+    y_train,
     save='yes'
 )
 
