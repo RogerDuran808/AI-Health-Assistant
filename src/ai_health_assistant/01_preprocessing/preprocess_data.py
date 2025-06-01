@@ -38,6 +38,8 @@ FEATURES = [
     "rmssd",
     "spo2",
     "full_sleep_breathing_rate",
+    
+    # Feature engineering, noves columnes
     'wake_after_sleep_pct',
     'steps_norm_cal',
     'deep_sleep_score',
