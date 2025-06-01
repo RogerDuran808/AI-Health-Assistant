@@ -11,7 +11,6 @@ Corregim la variable del bmi i afegim categories de bmi_tipo
 Corregim els valors anòmals del dataset
 Finalment exportem a CSV
 '''
-TARGET = "TIRED"
 
 FEATURES = [
         "age",
@@ -45,7 +44,9 @@ FEATURES = [
 
 df_clean = clean_data(
     input_path='data/daily_fitbit_sema_df_unprocessed.csv', 
-    output_path='data/df_cleaned.csv'
+    output_path='data/df_cleaned.csv',
+    target='TIRED',
+    features=FEATURES
     )
 
 print(df_clean.info())

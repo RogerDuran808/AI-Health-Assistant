@@ -5,15 +5,10 @@ import numpy as np
 # Funcions per neteja de dades Fitbit LifeSnaps
 #####################################################################################
 
-def drop_irrelevant(df):
-    # Eliminem les columnes irrellevants per la predicció
-    cols_irr = [
-        'Unnamed: 0', 'id', 'date',
-        'mindfulness_session', 'step_goal', 'step_goal_label', 'activityType', 'badgeType', 'min_goal', 'max_goal',
-        'filteredDemographicVO2Max', 'exertion_points_percentage', 'responsiveness_points_percentage', 'distance', 'scl_avg', 'sleep_duration',
-        'ENTERTAINMENT', 'GYM', 'HOME', 'HOME_OFFICE', 'OTHER', 'OUTDOORS', 'TRANSIT', 'WORK/SCHOOL'
-    ]
-    return df.drop(columns=cols_irr, errors='ignore')
+def select_features(df, target, features):
+    df = df.copy()
+    selected_features = features + [target]
+    return df[selected_features]
 
 
 def fix_bmi(df):
@@ -48,34 +43,23 @@ def fix_bmi(df):
     return df
 
 ################### CORRECCIÓ DE OUTILIERS ######################
-def handle_outliers_advanced(df):
+def handle_outliers(df, target):
     """Método avanzado para tratar outliers utilizando IQR por cada grupo de clase"""
     df_copy = df.copy()
     for label in [0, 1]:  # Para cada clase
-        subset = df_copy[df_copy['TIRED'] == label]
+        subset = df_copy[df_copy[target] == label]
         for col in df_copy.select_dtypes(include=['number']).columns:
-            if col != 'TIRED':
+            if col != target:
                 Q1 = subset[col].quantile(0.25)
                 Q3 = subset[col].quantile(0.75)
                 IQR = Q3 - Q1
                 lower_bound = Q1 - 1.5 * IQR
                 upper_bound = Q3 + 1.5 * IQR
                 # Aplicar límites de forma específica para cada clase
-                df_copy.loc[(df_copy['TIRED'] == label) & (df_copy[col] < lower_bound), col] = lower_bound
-                df_copy.loc[(df_copy['TIRED'] == label) & (df_copy[col] > upper_bound), col] = upper_bound
+                df_copy.loc[(df_copy[target] == label) & (df_copy[col] < lower_bound), col] = lower_bound
+                df_copy.loc[(df_copy[target] == label) & (df_copy[col] > upper_bound), col] = upper_bound
     return df_copy
 
-
-################## DROP COLUMNES segons EDA ########################
-def drop_additional_columns(df):
-    """
-    Elimina columnes addicionals basades en resultats d'EDA.
-    """
-    cols_to_drop = [
-        'ALERT', 'HAPPY', 'NEUTRAL', 'SAD', 'RESTED/RELAXED', 'TENSE/ANXIOUS',
-        'sleep_points_percentage'
-    ]
-    return df.drop(columns=cols_to_drop, errors='ignore')
 
 def correct_columns(df):
     """
@@ -88,22 +72,21 @@ def correct_columns(df):
 
 ######################### NETEJA DE DADES ###############################
 
-def clean_data(input_path, output_path):
+def clean_data(input_path, output_path, target, features):
     """
     Flux complet de neteja:
       1) carrega dades
-      2) desfés les columnes irrellevants
+      2) selecciona les columnes disponibles al fitbit inspire 3
       3) corregeix BMI
       4) retalla outliers
-      5) descarta columnes addicionals
+      5) corregim les columnes necessaries
       6) escriu CSV net
     Retorna el DataFrame net.
     """
     df = pd.read_csv(input_path)
-    df = drop_irrelevant(df)
+    df = select_features(df, target, features)
     df = fix_bmi(df)
-    df = handle_outliers_advanced(df)
-    df = drop_additional_columns(df)
+    df = handle_outliers(df, target)
     df = correct_columns(df)
     df.to_csv(output_path, index=False)
     
