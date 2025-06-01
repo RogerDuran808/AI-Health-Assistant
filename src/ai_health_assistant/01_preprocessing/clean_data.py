@@ -42,11 +42,11 @@ FEATURES = [
         "full_sleep_breathing_rate",
     ]
 
-df_clean = clean_data(
+df_train, df_test, df = clean_data(
     input_path='data/daily_fitbit_sema_df_unprocessed.csv', 
-    output_path='data/df_cleaned.csv',
+    output_path='data/df_cleaned',
     target='TIRED',
     features=FEATURES
     )
 
-print(df_clean.info())
+print(df.info())

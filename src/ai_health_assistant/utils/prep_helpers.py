@@ -12,6 +12,31 @@ from sklearn.impute import SimpleImputer, KNNImputer
 # Funcions per al preprocessament del dataset netejat
 #####################################################################
 
+
+###################### CREEM EL PREPROCESSADOR ######################
+def build_preprocessor(numeric_cols, categoric_cols):
+    """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
+    """
+    numeric_pipe = Pipeline([
+        ("imputer", KNNImputer(n_neighbors=5)),  # KNNImputer per capturar relacions
+        ("transformer", QuantileTransformer(output_distribution='normal', n_quantiles=1000)),  # QuantileTransformer per distribucions no normal
+        ("scaler", RobustScaler()),  # RobustScaler per a outliers
+    ])
+
+    categoric_pipe = Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown='ignore', sparse_output=False))
+    ])
+
+    preprocessor = ColumnTransformer([
+        ("num", numeric_pipe, numeric_cols),
+        ("cat", categoric_pipe, categoric_cols),
+    ])
+
+    return preprocessor
+
+
+###################### FEATURE ENGINEERING ######################
 def feature_engineering(df):
     """Feature engineering de diferents paràmetres per millorar la prediccio del model"""
     df_fe = df.copy()
@@ -48,71 +73,94 @@ def feature_engineering(df):
     
     return df_fe
 
-###################### CREEM EL PREPROCESSADOR ######################
-def build_preprocessor(numeric_cols, categoric_cols):
-    """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
-    """
-    numeric_pipe = Pipeline([
-        ("imputer", KNNImputer(n_neighbors=5)),  # KNNImputer per capturar relacions
-        ("transformer", QuantileTransformer(output_distribution='normal', n_quantiles=1000)),  # QuantileTransformer per distribucions no normal      s
-        ("scaler", RobustScaler()),  # RobustScaler per a outliers
-    ])
-
-    categoric_pipe = Pipeline([
-        ("imputer", SimpleImputer(strategy="most_frequent")),
-        ("onehot", OneHotEncoder(handle_unknown='ignore', sparse_output=False))
-    ])
-
-    preprocessor = ColumnTransformer([
-        ("num", numeric_pipe, numeric_cols),
-        ("cat", categoric_pipe, categoric_cols),
-    ])
-
-    return preprocessor
 
 ########################### PREPROCESSEM LES DADES ##################################
-def preprocess_dataframe(df, target, features):
-    """Rep un DataFrame ja net (df_cleaned), aplica transformacions i retorna un
-    nou DataFrame preparat (df_preprocessed).
+def preprocess_dataframe(df_train, df_test, target, features):
     """
-    # Selecció de columnes
-    df = df[features + [target]].copy()
-    df.dropna(subset=[target], inplace=True)
+    Preprocessa els conjunts d'entrenament i prova per separat per evitar data leakage.
+    
+    Args:
+        df_train: DataFrame d'entrenament
+        df_test: DataFrame de prova
+        target: Nom de la columna objectiu
+        features: Llista de característiques a utilitzar
+        
+    Returns:
+        Tupla amb (X_train_processed, X_test_processed, y_train, y_test, preprocessor)
+    """
+    # Assegurem que només utilitzem les columnes especificades
+    X_train = df_train[features].copy()
+    X_test = df_test[features].copy()
 
-    # Separació X/y
-    y = df[target]
-    X = df.drop(columns=[target])
-
-    categoric_cols = X.select_dtypes(exclude=['number']).columns
-    numeric_cols = X.select_dtypes(include=['number']).columns
-
+    y_train = df_train[target].copy()
+    y_test = df_test[target].copy()
+    
+    # Identifiquem columnes numèriques i categòriques
+    categoric_cols = X_train.select_dtypes(exclude=['number']).columns
+    numeric_cols = X_train.select_dtypes(include=['number']).columns
+    
+    # Construïm el preprocessador
     preprocessor = build_preprocessor(numeric_cols, categoric_cols)
-
-    X_proc = preprocessor.fit_transform(X)
+    
+    # Apliquem el preprocessament als conjunts d'entrenament i prova
+    X_train_processed = preprocessor.fit_transform(X_train)
+    X_test_processed = preprocessor.transform(X_test) # Fem nomes un transform pel test
+    
+    # Obtenim els noms de les característiques processades
     feature_names = preprocessor.get_feature_names_out()
-
-    X_proc_df = pd.DataFrame(X_proc, columns=feature_names, index=df.index)
-    df_final = pd.concat([X_proc_df, y], axis=1)
-    return df_final
+    
+    # Convertim a DataFrames
+    X_train_processed = pd.DataFrame(X_train_processed, columns=feature_names, index=X_train.index)
+    X_test_processed = pd.DataFrame(X_test_processed, columns=feature_names, index=X_test.index)
+    
+    return X_train_processed, X_test_processed, y_train, y_test, preprocessor
 
 
 
 ########################## FLUXE DEL PREPROCESSAMENT #############################
-def preprocess_data(input_path, output_path, target, features):
-    """Flux complet de preprocessament:
-    1. Llegeix el CSV (ja netejat).
-    2. Aplica transformacions i exporta CSV preprocessat.
-    3. Retorna el DataFrame resultant.
+def preprocess_data(train_path, test_path, output_dir, target, features):
     """
-
-    df = pd.read_csv(input_path)
-    df = feature_engineering(df)
-    df_final = preprocess_dataframe(df, target, features)
-
-    df_final.to_csv(output_path, index=False)
+    Flux complet de preprocessament per als conjunts d'entrenament i prova:
+    1. Llegeix els CSVs d'entrenament i prova
+    2. Aplica feature engineering a cada conjunt per separat
+    3. Preprocessa els conjunts evitant data leakage
+    4. Guarda els resultats i retorna els DataFrames processats
     
-    print(f"Dades preprocessades guardades a: {output_path}")
-
-    return df_final
+    Args:
+        train_path: Ruta al fitxer CSV d'entrenament
+        test_path: Ruta al fitxer CSV de prova
+        output_dir: Directori on es guardaran els resultats
+        target: Nom de la columna objectiu
+        features: Llista de característiques a utilitzar
+        
+    Returns:
+        Tupla amb (X_train, X_test, y_train, y_test, preprocessor)
+    """
+    
+    # Llegim les dades
+    train_df = pd.read_csv(train_path)
+    test_df = pd.read_csv(test_path)
+    
+    # Apliquem feature engineering per separat
+    train_df = feature_engineering(train_df)
+    test_df = feature_engineering(test_df)
+    
+    # Preprocessem les dades
+    X_train, X_test, y_train, y_test, preprocessor = preprocess_dataframe(
+        train_df, test_df, target, features
+    )
+    
+    # Guardem els resultats
+    train_processed = pd.concat([X_train, y_train], axis=1)
+    test_processed = pd.concat([X_test, y_test], axis=1)
+    
+    train_processed.to_csv(f"{output_dir}_train.csv", index=False)
+    test_processed.to_csv(f"{output_dir}_test.csv", index=False)
+    
+    print(f"Dades preprocessades guardades a {output_dir}")
+    print(f"  - Train: {output_dir}_train.csv")
+    print(f"  - Test:  {output_dir}_test.csv")
+    
+    return X_train, X_test, y_train, y_test, preprocessor
 
 
