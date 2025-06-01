@@ -2,6 +2,40 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
+TARGET = 'TIRED'
+
+FEATURES = [
+        "age",
+        "gender",
+        "bmi",
+        "calories",
+        "steps",
+        "lightly_active_minutes",
+        "moderately_active_minutes",
+        "very_active_minutes",
+        "sedentary_minutes",
+        "resting_hr",
+        "minutes_below_default_zone_1",
+        "minutes_in_default_zone_1",
+        "minutes_in_default_zone_2",
+        "minutes_in_default_zone_3",
+        "minutesToFallAsleep",
+        "minutesAsleep",
+        "minutesAwake",
+        "minutesAfterWakeup",
+        "sleep_efficiency",
+        "sleep_deep_ratio",
+        "sleep_light_ratio",
+        "sleep_rem_ratio",
+        "sleep_wake_ratio",
+        "daily_temperature_variation",
+        "rmssd",
+        "spo2",
+        "full_sleep_breathing_rate",
+    ]
+    
+
+
 ########################################################################################
 # Funcions per neteja de dades Fitbit LifeSnaps
 #####################################################################################

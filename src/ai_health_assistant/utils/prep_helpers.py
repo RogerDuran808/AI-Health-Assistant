@@ -7,6 +7,52 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OrdinalEncoder, PowerTransformer, OneHotEncoder, RobustScaler, QuantileTransformer, robust_scale
 from sklearn.impute import SimpleImputer, KNNImputer
 
+TARGET = 'TIRED'
+
+# Features que volem utilitzar per fer la predicció
+FEATURES = [
+    "age",
+    "gender",
+    "bmi",
+    "calories",
+    "steps",
+    "lightly_active_minutes",
+    "moderately_active_minutes",
+    "very_active_minutes",
+    "sedentary_minutes",
+    "resting_hr",
+    "minutes_below_default_zone_1",
+    "minutes_in_default_zone_1",
+    "minutes_in_default_zone_2",
+    "minutes_in_default_zone_3",
+    "minutesToFallAsleep",
+    "minutesAsleep",
+    "minutesAwake",
+    "minutesAfterWakeup",
+    "sleep_efficiency",
+    "sleep_deep_ratio",
+    "sleep_light_ratio",
+    "sleep_rem_ratio",
+    "sleep_wake_ratio",
+    "daily_temperature_variation",
+    "rmssd",
+    "spo2",
+    "full_sleep_breathing_rate",
+    
+    # Feature engineering, noves columnes
+    'wake_after_sleep_pct',
+    'steps_norm_cal',
+    'deep_sleep_score',
+    'active_sedentary_ratio',
+    'sleep_activity_balance',
+    'bmi_hr_interaction',
+    'sleep_quality_index',
+    'hr_zone_variability',
+    'recovery_factor',
+    'sleep_eff_rmssd',
+    'active_to_rest_transition',
+    'active_to_total_ratio'
+] 
 
 #################################################################################
 # Funcions per al preprocessament del dataset netejat
@@ -14,9 +60,14 @@ from sklearn.impute import SimpleImputer, KNNImputer
 
 
 ###################### CREEM EL PREPROCESSADOR ######################
-def build_preprocessor(numeric_cols, categoric_cols):
+def build_preprocessor(df):
     """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
     """
+
+    numeric_cols = df.select_dtypes(include=['number']).columns
+    categoric_cols = df.select_dtypes(exclude=['number']).columns
+    
+
     numeric_pipe = Pipeline([
         ("imputer", SimpleImputer(strategy="mean")),  #  Imputer
         ("transformer", QuantileTransformer(output_distribution='normal', random_state=42)),  # QuantileTransformer per distribucions no normal
@@ -95,12 +146,8 @@ def preprocess_dataframe(df_train, df_test, target, features):
     y_train = df_train[target].copy()
     y_test = df_test[target].copy()
     
-    # Identifiquem columnes numèriques i categòriques
-    categoric_cols = X_train.select_dtypes(exclude=['number']).columns
-    numeric_cols = X_train.select_dtypes(include=['number']).columns
-    
     # Construïm el preprocessador
-    preprocessor = build_preprocessor(numeric_cols, categoric_cols)
+    preprocessor = build_preprocessor(X_train)
     
     # Apliquem el preprocessament als conjunts d'entrenament i prova
     X_train_processed = preprocessor.fit_transform(X_train)
@@ -161,6 +208,8 @@ def preprocess_data(train_path, test_path, output_dir, target, features):
     print(f"  - Train: {output_dir}_train.csv")
     print(f"  - Test:  {output_dir}_test.csv")
     
-    return df_train, df_test
+    return df_train, df_test, preprocessor
+
+
 
 

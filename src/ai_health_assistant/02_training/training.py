@@ -24,19 +24,14 @@ from sklearn.metrics import make_scorer, fbeta_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
+from ai_health_assistant.utils.prep_helpers import FEATURES, TARGET
 
 import warnings
 warnings.filterwarnings('ignore')
 
 
-################ Quan tinguem la bona forma de entrenar el model ##################
-
-
 train_df = pd.read_csv('data/preprocessed_train.csv')
 test_df = pd.read_csv('data/preprocessed_test.csv')
-    
-# Separar características y objetivo
-TARGET = 'TIRED'
     
 X_train = train_df.drop(columns=[TARGET])
 y_train = train_df[TARGET]
