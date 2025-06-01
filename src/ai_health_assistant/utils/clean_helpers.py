@@ -75,8 +75,8 @@ def handle_outliers(X_train, y_train, target):
                 Q1 = subset[col].quantile(0.25)
                 Q3 = subset[col].quantile(0.75)
                 IQR = Q3 - Q1
-                lower_bound = Q1 - 2 * IQR
-                upper_bound = Q3 + 2 * IQR
+                lower_bound = Q1 - 1.5 * IQR
+                upper_bound = Q3 + 1.5 * IQR
 
                 # Aplicar límits de forma específica per cada classe
                 X_train.loc[(y_train == label) & (X_train[col] < lower_bound), col] = lower_bound
@@ -105,12 +105,12 @@ def clean_data(input_path, output_path, target, features):
 
     df_train = pd.concat([X_train, y_train], axis=1)
     df_test = pd.concat([X_test, y_test], axis=1)
-    df_full = pd.concat([df_train, df_test], axis=0)
 
     df_train.to_csv(f'{output_path}_train.csv', index=False)
     df_test.to_csv(f'{output_path}_test.csv', index=False)
-    df_full.to_csv(f'{output_path}.csv', index=False)
 
-    print(f"Dades netejades exportades a: {output_path}")
+    print(f"Dades netejades guardades a {output_path}")
+    print(f"  - Train: {output_path}_train.csv")
+    print(f"  - Test:  {output_path}_test.csv")
     
-    return df_train, df_test, df_full
+    return df_train, df_test

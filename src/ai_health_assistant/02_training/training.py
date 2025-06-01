@@ -123,7 +123,6 @@ plot_learning_curve(
 )
 
 
-
 print(f"\n\nMillors parametrs pel model - {model_name}:\n")
 print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
 print('\n')

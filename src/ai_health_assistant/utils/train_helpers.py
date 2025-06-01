@@ -176,7 +176,8 @@ def plot_learning_curve(model_name, best_est, X, y, save = 'no', score = 'f1'):
         scoring=score,
         train_sizes=np.linspace(0.1, 1.0, 5),
         n_jobs=-1,
-        shuffle=True, random_state=42
+        shuffle=True, 
+        random_state=42,
     )
     train_mean = train_scores.mean(axis=1)
     val_mean   = val_scores.mean(axis=1)

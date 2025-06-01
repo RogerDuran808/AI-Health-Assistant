@@ -1,5 +1,5 @@
 from ai_health_assistant.utils.clean_helpers import clean_data
-
+import pandas as pd
 
 ########################## Neteja de les dades ################################
 '''
@@ -42,11 +42,12 @@ FEATURES = [
         "full_sleep_breathing_rate",
     ]
 
-df_train, df_test, df = clean_data(
+df_train, df_test = clean_data(
     input_path='data/daily_fitbit_sema_df_unprocessed.csv', 
     output_path='data/df_cleaned',
     target='TIRED',
     features=FEATURES
     )
 
+df = pd.concat([df_train, df_test], axis=0)
 print(df.info())

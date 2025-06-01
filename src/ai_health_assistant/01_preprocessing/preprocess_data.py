@@ -1,5 +1,5 @@
 from ai_health_assistant.utils.prep_helpers import preprocess_data
-from pathlib import Path
+import pandas as pd
 
 '''
 Preprocessament de les dades:
@@ -53,15 +53,13 @@ FEATURES = [
     'active_to_total_ratio'
 ] 
 
-
-X_train, X_test, y_train, y_test, preprocessor = preprocess_data(
+df_train, df_test = preprocess_data(
     train_path='data/df_cleaned_train.csv',
     test_path='data/df_cleaned_test.csv',
     output_dir='data/preprocessed',
     target='TIRED',
     features=FEATURES
 )
-    
-print(f"- Mostres d'entrenament: {len(X_train)}")
-print(f"- Mostres de prova: {len(X_test)}")
-print(f"- Característiques: {X_train.shape[1]}")
+
+df = pd.concat([df_train, df_test], axis=0)
+print(df.info())

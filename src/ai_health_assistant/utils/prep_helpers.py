@@ -19,7 +19,7 @@ def build_preprocessor(numeric_cols, categoric_cols):
     """
     numeric_pipe = Pipeline([
         ("imputer", KNNImputer(n_neighbors=5)),  # KNNImputer per capturar relacions
-        ("transformer", QuantileTransformer(output_distribution='normal', n_quantiles=1000)),  # QuantileTransformer per distribucions no normal
+        ("transformer", QuantileTransformer(output_distribution='normal')),  # QuantileTransformer per distribucions no normal
         ("scaler", RobustScaler()),  # RobustScaler per a outliers
     ])
 
@@ -151,16 +151,16 @@ def preprocess_data(train_path, test_path, output_dir, target, features):
     )
     
     # Guardem els resultats
-    train_processed = pd.concat([X_train, y_train], axis=1)
-    test_processed = pd.concat([X_test, y_test], axis=1)
+    df_train = pd.concat([X_train, y_train], axis=1)
+    df_test = pd.concat([X_test, y_test], axis=1)
     
-    train_processed.to_csv(f"{output_dir}_train.csv", index=False)
-    test_processed.to_csv(f"{output_dir}_test.csv", index=False)
+    df_train.to_csv(f"{output_dir}_train.csv", index=False)
+    df_test.to_csv(f"{output_dir}_test.csv", index=False)
     
     print(f"Dades preprocessades guardades a {output_dir}")
     print(f"  - Train: {output_dir}_train.csv")
     print(f"  - Test:  {output_dir}_test.csv")
     
-    return X_train, X_test, y_train, y_test, preprocessor
+    return df_train, df_test
 
 
