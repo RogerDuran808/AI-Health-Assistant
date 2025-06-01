@@ -24,7 +24,7 @@ from sklearn.metrics import make_scorer, fbeta_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
-from ai_health_assistant.utils.prep_helpers import FEATURES, TARGET
+from ai_health_assistant.utils.prep_helpers import FEATURES, TARGET, build_preprocessor
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -38,15 +38,16 @@ balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 #---------------------------------------------------------
 
 
-train_df = pd.read_csv('data/preprocessed_train.csv')
-test_df = pd.read_csv('data/preprocessed_test.csv')
+df_train = pd.read_csv('data/df_engineered_train.csv')
+df_test = pd.read_csv('data/df_engineered_test.csv')
     
-X_train = train_df.drop(columns=[TARGET])
-y_train = train_df[TARGET]
+X_train = df_train[FEATURES]
+y_train = df_train[TARGET]
     
-X_test = test_df.drop(columns=[TARGET])
-y_test = test_df[TARGET]
+X_test = df_test[FEATURES]
+y_test = df_test[TARGET]
 
+preprocessor = build_preprocessor(X_train)
 
 # Definim el classifier i els parametres
 clf, param_grid = get_classifier_config(model_name)
@@ -66,17 +67,20 @@ feature_selector = SelectFromModel(estimator=RandomForestClassifier(n_estimators
 
 # Obting un F1=62.57 i un acc= 72%, amb un macro av. 70.14% [BalancedRandomForest]
 pipeline = ImbPipeline([
+    ("preprocessor", preprocessor),
     ("balancing", balancing_method),
     ("classifier", clf)
 ])
 
 # Obting un F1=65.29 i un acc= 59.61%%, amb un macro av. 58.49% [BalancedRandomForest]
 pipeline_no_balance = ImbPipeline([
+    ("preprocessor", preprocessor),
     ("classifier", clf)
 ])
 
 # Pipeline avanzado, per classificadors que no tenen balanceig incorporat
 advanced_pipeline = ImbPipeline([
+    ("preprocessor", preprocessor),
     ("balancing", balancing_method),
     ("feature_selection", feature_selector),
     ("classifier", clf)
