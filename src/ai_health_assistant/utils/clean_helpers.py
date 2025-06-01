@@ -23,7 +23,7 @@ def features_split(df, target, features):
     return X_train, X_test, y_train, y_test
 
 
-def fix_bmi(X_train, X_test):
+def fix_bmi(df):
     # Fem una correcció de la variable del bmi
     limits = (0, 18.5, 24.9, 29.9, 34.9)  # límits segons les dades que tenim i el bmi
     categories_BMI = [
@@ -33,35 +33,25 @@ def fix_bmi(X_train, X_test):
         'Obes'
     ]
     # Com que els valors >=25 es troben igualment a la categoria de Sobrepes, els imputem com a 25
-    X_train.loc[X_train['bmi'] == '>=25', 'bmi'] = 25
-    X_test.loc[X_test['bmi'] == '>=25', 'bmi'] = 25
+    df.loc[df['bmi'] == '>=25', 'bmi'] = 25
 
     # Assignar a 18.4 els valors '<19' perquè caiguin dins 'Infrapes'
-    X_train.loc[X_train['bmi'] == '<19', 'bmi'] = 18.4
-    X_test.loc[X_test['bmi'] == '<19', 'bmi'] = 18.4
+    df.loc[df['bmi'] == '<19', 'bmi'] = 18.4
 
     # Assignar a 30 els valors '>=30' perquè caiguin dins 'Obes'
     # Suposarem que no hi ha valors superiors a 35 i, per tant, no hi haurà cap més categoria de bmi
-    X_train.loc[X_train['bmi'] == '>=30', 'bmi'] = 30
-    X_test.loc[X_test['bmi'] == '>=30', 'bmi'] = 30
+    df.loc[df['bmi'] == '>=30', 'bmi'] = 30
 
     # Convertim a float
-    X_train['bmi'] = pd.to_numeric(X_train['bmi'], errors='coerce')
-    X_test['bmi'] = pd.to_numeric(X_test['bmi'], errors='coerce')
+    df['bmi'] = pd.to_numeric(df['bmi'], errors='coerce')
 
-    X_train['bmi_tipo'] = pd.cut(
-        X_train['bmi'],
+    df['bmi_tipo'] = pd.cut(
+        df['bmi'],
         bins=limits,
         labels=categories_BMI,
         right=False
     )
-    X_test['bmi_tipo'] = pd.cut(
-        X_test['bmi'],
-        bins=limits,
-        labels=categories_BMI,
-        right=False
-    )
-    return X_train, X_test
+    return df
 
 ################### CORRECCIÓ DE OUTILIERS ######################
 def handle_outliers(X_train, X_test, multiplier=1.5):
@@ -102,7 +92,8 @@ def clean_data(input_path, output_path, target, features):
     """
     df = pd.read_csv(input_path)
     X_train, X_test, y_train, y_test = features_split(df, target, features)
-    X_train, X_test = fix_bmi(X_train, X_test)
+    X_train = fix_bmi(X_train)
+    X_test = fix_bmi(X_test)
     X_train, X_test = handle_outliers(X_train, X_test)
 
     df_train = pd.concat([X_train, y_train], axis=1)
