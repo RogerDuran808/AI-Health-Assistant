@@ -75,8 +75,8 @@ def handle_outliers(X_train, y_train, target):
                 Q1 = subset[col].quantile(0.25)
                 Q3 = subset[col].quantile(0.75)
                 IQR = Q3 - Q1
-                lower_bound = Q1 - 0 * IQR
-                upper_bound = Q3 + 0 * IQR
+                lower_bound = Q1 - 2 * IQR
+                upper_bound = Q3 + 2 * IQR
 
                 # Aplicar límits de forma específica per cada classe
                 X_train.loc[(y_train == label) & (X_train[col] < lower_bound), col] = lower_bound

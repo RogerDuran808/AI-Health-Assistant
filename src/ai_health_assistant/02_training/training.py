@@ -32,19 +32,18 @@ warnings.filterwarnings('ignore')
 ################ Quan tinguem la bona forma de entrenar el model ##################
 
 
-# Load the dataset
-df = pd.read_csv('data/df_preprocessed.csv')
-
-# Comprovem quina es les estructura de les nostres dades faltants en el target
+train_df = pd.read_csv('data/preprocessed_train.csv')
+test_df = pd.read_csv('data/preprocessed_test.csv')
+    
+# Separar características y objetivo
 TARGET = 'TIRED'
+    
+X_train = train_df.drop(columns=[TARGET])
+y_train = train_df[TARGET]
+    
+X_test = test_df.drop(columns=[TARGET])
+y_test = test_df[TARGET]
 
-# Difinim X i el target y
-# Prediccio de TIRED
-X = df.drop(columns=[TARGET])
-y = df[TARGET]
-
-# Estratifiquem respecte un dels targets per tal d'assegurar el bon split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
 # Definim el classifier i els parametres
 model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest ...
@@ -105,6 +104,16 @@ results_df = append_results(
     best_score
 )
 
+mat_confusio(
+    model_name,
+    y_test,
+    y_test_pred,
+    save='yes'
+)
+
+X = pd.concat([X_train, X_test])
+y = pd.concat([y_train, y_test])
+
 plot_learning_curve(
     model_name,
     best_est,
@@ -113,12 +122,7 @@ plot_learning_curve(
     save='yes'
 )
 
-mat_confusio(
-    model_name,
-    y_test,
-    y_test_pred,
-    save='yes'
-)
+
 
 print(f"\n\nMillors parametrs pel model - {model_name}:\n")
 print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
