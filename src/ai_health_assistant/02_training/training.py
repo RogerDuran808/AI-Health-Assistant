@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 #---------------------------------------------------------
 
 # Definim el model i el balanceig
-model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 
 #---------------------------------------------------------
