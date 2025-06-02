@@ -115,7 +115,7 @@ def append_results (list_results, model, train_report, test_report, best_params,
     - "Test F1 (macro global)"
     - "Test Accuracy"\n
 
-    Els arguments són:
+    Arguments:
     - list_results: llista on guardem els resultats
     - model: nom del model
     - train_report: report de la predicció sobre el train
@@ -124,7 +124,7 @@ def append_results (list_results, model, train_report, test_report, best_params,
     - best_score: millor score trobat
     - experiment: nom de l'experiment (opcional)\n
 
-    Retorna:
+    Return:
     - results_df: dataframe amb els resultats
     '''
     if experiment is None:
