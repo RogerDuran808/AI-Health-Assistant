@@ -1,26 +1,11 @@
 import pandas as pd
 pd.set_option('display.max_columns', None)
 import numpy as np
-from scipy.stats import randint, uniform
-import joblib
 
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
-from imblearn.ensemble import BalancedRandomForestClassifier
-
-
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
-
-from imblearn.over_sampling import SMOTE, BorderlineSMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
-from imblearn.under_sampling import RandomUnderSampler
-from imblearn.combine import SMOTETomek
 from sklearn.feature_selection import SelectFromModel
-from lightgbm import LGBMClassifier
-
-from sklearn.metrics import make_scorer, fbeta_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
