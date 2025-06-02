@@ -88,14 +88,13 @@ def feature_engineering(df):
     df_fe["hr_zone_variability"] = df_fe[["minutes_below_default_zone_1", "minutes_in_default_zone_1", 
                                           "minutes_in_default_zone_2", "minutes_in_default_zone_3"]].std(axis=1)
 
-    # Ratios más informativos para fatiga
+    # Ratios més informatius per a la fatiga
     df_fe["activity_intensity"] = df_fe["very_active_minutes"] * 3 + df_fe["moderately_active_minutes"] * 2 + df_fe["lightly_active_minutes"]
     df_fe["recovery_factor"] = df_fe["minutesAsleep"] / (df_fe["activity_intensity"] + 1e-3)
 
-    # Características polinómicas importantes
+    
     df_fe["sleep_eff_rmssd"] = df_fe["sleep_efficiency"] * df_fe["rmssd"]
     
-    # Características cíclicas
     df_fe["active_to_rest_transition"] = df_fe["activity_intensity"] / (df_fe["minutesAsleep"] + df_fe["minutesAwake"] + 1e-3)
 
     df_fe["active_to_total_ratio"] = (df_fe["very_active_minutes"] + df_fe["moderately_active_minutes"] + df_fe["lightly_active_minutes"]) / (24*60)
@@ -144,24 +143,23 @@ def build_preprocessor(df, features):
 
 
 
-
 ########################## FLUXE DEL PREPROCESSAMENT #############################
 def preprocess_data(train_path, test_path, output_dir, features, target):
     """
-    Flux complet de preprocessament per als conjunts d'entrenament i prova:
+    Preprocessa els conjunts d'entrenament i prova per a la predicció:
     1. Llegeix els CSVs d'entrenament i prova
     2. Aplica feature engineering a cada conjunt per separat
-    3. Preprocessa els conjunts evitant data leakage
-    4. Guarda els resultats i retorna els DataFrames processats
+    3. Guarda els resultats i retorna els DataFrames preparatss
     
     Args:
-        train_path: Ruta al fitxer CSV d'entrenament
-        test_path: Ruta al fitxer CSV de prova
-        output_dir: Directori on es guardaran els resultats
-        features: Llista de característiques a utilitzar
+    - train_path: Ruta al fitxer CSV train netejat
+    - test_path: Ruta al fitxer CSV test netejat
+    - output_dir: Directori on es guardaran els resultats
+    - features: Llista de característiques a utilitzar
         
     Returns:
-        Tupla amb (X_train, X_test, y_train, y_test, preprocessor)
+    - df_train: DataFrame preparat pel preprocessament (df_engineered_train.csv)
+    - df_test: DataFrame preparat pel preprocessament (df_engineered_test.csv)
     """
     
     # Llegim les dades

@@ -26,14 +26,14 @@ def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring
     - y_train: target del train
     - X_test: features del test
     - y_test: target del test
-    - pipeline: pipeline almenys amb el classifier
+    - pipeline: pipeline almenys amb el preprocessador i el classifier
     - param_grid: parametres per fer el gridsearch (si es un diccionari amb diversos classifiers es pot aplicar com: param_grid[model_name])
     - scoring: per defecte F1 para clase 1.
     - cv: validació creuada, per defecte StratifiedKFold amb 5 splits.
     - n_iter: nombre de iteracions, per defecte 100.
-    - search_type: 'random' (per defecte) o 'grid' per fer un GridSearchCV
+    - search_type: 'random' (per defecte) o es pot fer 'grid' per fer un GridSearchCV
     
-    La funció retorna:\n
+    Return:\n
     - best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, best_score
     '''
     if scoring == 'f1':
@@ -155,29 +155,32 @@ def append_results (list_results, model, train_report, test_report, best_params,
     return results_df
 
 
-def plot_learning_curve(model_name, best_est, X, y, save = 'no', score = 'f1'):
+def plot_learning_curve(model_name, best_est, X_train, y_train, save = 'no', score = 'f1'):
     '''
-    Genera una corva d'aprenentatge per veure com el model apren.\n
+    Genera una corva d'aprenentatge per veure com el model apren sobre el train.\n
     
     Arguments:
     - model_name: nom del model
     - best_est: millor estimador trobat
     - X: features
     - y: target
-    - save: per defecte 'no' (mostra la gràfica) si es 'yes' guarda la gràfica (no la mostra)
+    - save: per defecte 'no' (mostra la gràfica per notebooks) si es 'yes' guarda la gràfica (no la mostra)
     - score: per defecte 'f1', sino posar quin score es vol utilitzar
     '''
     if score == 'f1':
-        score = make_scorer(f1_score, pos_label=1)
+        scorer = make_scorer(f1_score, pos_label=1)
+    else:
+        scorer = score
 
     train_sizes, train_scores, val_scores = learning_curve(
-        best_est, X, y,
+        best_est, X_train, y_train,
         cv=5,
-        scoring=score,
+        scoring=scorer,
         train_sizes=np.linspace(0.1, 1.0, 5),
         n_jobs=-1,
         shuffle=True, 
         random_state=42,
+        verbose=0
     )
     train_mean = train_scores.mean(axis=1)
     val_mean   = val_scores.mean(axis=1)
