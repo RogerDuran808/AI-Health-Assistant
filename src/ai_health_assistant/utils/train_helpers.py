@@ -255,16 +255,16 @@ def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
 def save_model(best_estimator, model_name, save_external='no'):
     """
     Si save_external = 'yes', desa el model en:
-      1) ./models/{model_name}_TIRED.joblib
-      2) ../AI-Health-Assistant-WebApp/backend/models/{model_name}_TIRED.joblib
+      1) ./models/{model_name}_model.joblib
+      2) ../AI-Health-Assistant-WebApp/backend/models/{model_name}_model.joblib
       Per tal de poder-lo utilitzar en la webapp.\n
 
     En cas de que save_external = 'no', nomes desa el model en:
-      1) ./models/{model_name}_TIRED.joblib
+      1) ./models/{model_name}_model.joblib
     """
     # RUTA DINS DEL REPOSITORI ACTUAL
     local_dir = Path(__file__).parent.parent.parent.parent / "models"
-    local_path = local_dir / f"{model_name}_TIRED.joblib"
+    local_path = local_dir / f"{model_name}_model.joblib"
 
     joblib.dump(best_estimator, local_path)  # Guardem el model a la ruta local
     print(f"Model guardat localment a: {local_path}")
@@ -273,7 +273,7 @@ def save_model(best_estimator, model_name, save_external='no'):
     if save_external.lower() == 'yes':
         # La ruta es relativa a la ubicació de les meves carpetes
         external_dir = (Path(__file__).parent.parent.parent.parent.parent / "AI-Health-Assistant-WebApp" / "backend" / "models")
-        external_path = external_dir / f"{model_name}_TIRED.joblib"
+        external_path = external_dir / f"{model_name}_model.joblib"
 
         joblib.dump(best_estimator, external_path)  # Guradem el model a la ruta externa, a la aplicació web
         print(f"Model guardat externament a: {external_path}")
