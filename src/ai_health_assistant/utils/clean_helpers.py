@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 
 TARGET = 'TIRED'
 
+# Columnes disponibles al fitbit inspire 3
 FEATURES = [
         "age",
         "gender",
@@ -41,12 +42,13 @@ FEATURES = [
 #####################################################################################
 
 def features_split(df, target, features):
-    """Selecciona les columnes disponibles del dispositiu fitbit i fem el train test split"""
     df = df[features + [target]].copy()
-    # Assegurar-nos que no hi hagi NaN en el target abans de fer el split
+    # Abans de fer el split eliminem les fileres amb valors NaN
     df = df.dropna(subset=[target])
 
     x_cols = df.drop(columns=[target]).columns.tolist()
+
+    # Fem el split per evitar data leakage
     X_train, X_test, y_train, y_test = train_test_split(
         df[x_cols],
         df[target],
