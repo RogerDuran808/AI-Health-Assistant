@@ -53,12 +53,12 @@ PARAM_GRIDS = {
     
     "RandomForest": {
         # Millors paràmetres trobats
-        "classifier__n_estimators": [1163],
-        "classifier__max_depth": [8],
-        "classifier__max_features": ["log2"],
-        "classifier__min_samples_leaf": [3],
-        "classifier__min_samples_split": [5],
-        "classifier__class_weight": ["balanced"]
+        "classifier__n_estimators": [765],
+        "classifier__max_depth": [4],
+        "classifier__max_features": [0.43559419734887395],
+        "classifier__min_samples_leaf": [1],
+        "classifier__min_samples_split": [2],
+        "classifier__class_weight": ["balanced_subsample"]
 
         # # Parametres pel RandomSearch - RandomForest:
         # "classifier__n_estimators": randint(400, 600),
