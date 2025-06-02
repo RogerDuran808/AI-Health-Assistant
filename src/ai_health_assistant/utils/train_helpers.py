@@ -15,7 +15,6 @@ from sklearn.metrics import classification_report, f1_score, make_scorer, confus
 from pathlib import Path
 import joblib
 import os
-from openpyxl.workbook import Workbook
 
 
 def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring = 'f1', cv = 'StratifiedKFold', n_iter = 100, search_type = 'random'):
@@ -254,11 +253,11 @@ def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
     return best_threshold
 
 
-def update_metrics_file(métricas: dict, filename="results/02_training/metrics.xlsx"):
+def update_metrics_file(métricas: dict, filename="results/02_training/metrics.csv"):
     columnas = ["Model", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy"]
     
     if os.path.exists(filename):
-        df = pd.read_excel(filename, engine="openpyxl")
+        df = pd.read_csv(filename)
     else:
         df = pd.DataFrame(columns=columnas)
     
@@ -272,7 +271,7 @@ def update_metrics_file(métricas: dict, filename="results/02_training/metrics.x
     else:
         df = pd.concat([df, fila_nueva], ignore_index=True)
     
-    df.to_excel(filename, index=False, engine="openpyxl")
+    df.to_csv(filename, index=False)
 
 
 
