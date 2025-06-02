@@ -15,6 +15,7 @@ from sklearn.metrics import classification_report, f1_score, make_scorer, confus
 from pathlib import Path
 import joblib
 import os
+from openpyxl.workbook import Workbook
 
 
 def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring = 'f1', cv = 'StratifiedKFold', n_iter = 100, search_type = 'random'):

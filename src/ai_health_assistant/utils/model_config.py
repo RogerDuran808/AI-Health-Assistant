@@ -67,22 +67,22 @@ PARAM_GRIDS = {
     },
     
     "RandomForest": {
-        "classifier__n_estimators": randint(50, 151),      # 50-150 árboles
-        "classifier__max_depth": randint(4, 11),           # 4-10
-        "classifier__min_samples_split": randint(2, 11),
-        "classifier__min_samples_leaf": randint(1, 6),
-        "classifier__max_features": ["sqrt", "log2"],
-        "classifier__bootstrap": [True],                   # OOB y más rápido
-        "classifier__criterion": ["gini", "entropy"],
-
-        # # Millors paràmetres trobats
+        # "classifier__n_estimators": randint(50, 151),  
+        # "classifier__max_depth": randint(4, 11), 
+        # "classifier__min_samples_split": randint(2, 11),
+        # "classifier__min_samples_leaf": randint(1, 6),
+        # "classifier__max_features": ["sqrt", "log2"],
         # "classifier__bootstrap": [True],
-        # "classifier__criterion": ["entropy"],
-        # "classifier__max_depth": [6],
-        # "classifier__max_features": ["sqrt"],
-        # "classifier__min_samples_leaf": [2],
-        # "classifier__min_samples_split": [6],
-        # "classifier__n_estimators": [79]
+        # "classifier__criterion": ["gini", "entropy"],
+
+        # Millors paràmetres trobats
+        "classifier__bootstrap": [True],
+        "classifier__criterion": ["entropy"],
+        "classifier__max_depth": [6],
+        "classifier__max_features": ["sqrt"],
+        "classifier__min_samples_leaf": [2],
+        "classifier__min_samples_split": [6],
+        "classifier__n_estimators": [79]
     },
     
     "BalancedRandomForest": {
@@ -104,24 +104,24 @@ PARAM_GRIDS = {
     },
     
     "GradientBoosting": {
-        "classifier__n_estimators": randint(50, 201), 
-        "classifier__learning_rate": loguniform(0.05, 0.3),
-        "classifier__max_depth": randint(2, 4), 
-        "classifier__min_samples_split": randint(2, 11),
-        "classifier__min_samples_leaf": randint(1, 6),
-        "classifier__subsample": uniform(0.8, 0.2), 
-        "classifier__max_features": ["sqrt", "log2"],
-        "classifier__loss": ["log_loss"],
+        # "classifier__n_estimators": randint(50, 201), 
+        # "classifier__learning_rate": loguniform(0.05, 0.3),
+        # "classifier__max_depth": randint(2, 4), 
+        # "classifier__min_samples_split": randint(2, 11),
+        # "classifier__min_samples_leaf": randint(1, 6),
+        # "classifier__subsample": uniform(0.8, 0.2), 
+        # "classifier__max_features": ["sqrt", "log2"],
+        # "classifier__loss": ["log_loss"],
 
-        # # Millors paràmetres trobats:
-        # 'classifier__learning_rate': [0.07720558711161865],
-        # 'classifier__loss': ['log_loss'],
-        # 'classifier__max_depth': [2],
-        # 'classifier__max_features': ['sqrt'],
-        # 'classifier__min_samples_leaf': [5],
-        # 'classifier__min_samples_split': [8],
-        # 'classifier__n_estimators': [66],
-        # 'classifier__subsample': [0.842289601399309]
+        # Millors paràmetres trobats:
+        'classifier__learning_rate': [0.07720558711161865],
+        'classifier__loss': ['log_loss'],
+        'classifier__max_depth': [2],
+        'classifier__max_features': ['sqrt'],
+        'classifier__min_samples_leaf': [5],
+        'classifier__min_samples_split': [8],
+        'classifier__n_estimators': [66],
+        'classifier__subsample': [0.842289601399309]
     },
     
     "LGBM": {
