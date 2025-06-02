@@ -62,6 +62,7 @@ def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring
             refit=True
         )
     
+    print(f"Entrenant model...")
     search.fit(X_train, y_train)
     
     # Millor estimador

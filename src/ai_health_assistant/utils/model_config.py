@@ -9,11 +9,10 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from imblearn.ensemble import BalancedRandomForestClassifier
 from lightgbm import LGBMClassifier
 
-from scipy.stats import randint, uniform
+from scipy.stats import randint, uniform, loguniform
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.combine import SMOTETomek, SMOTEENN
 from imblearn.over_sampling import ADASYN, SMOTE, BorderlineSMOTE
-
 
 # Diccionari de classificadors
 CLASSIFIERS = {
@@ -32,12 +31,24 @@ CLASSIFIERS = {
 
 PARAM_GRIDS = {
     "MLP": {
-        "classifier__hidden_layer_sizes": [(100,), (100, 50)],
-        "classifier__alpha": [1e-4, 1e-3, 1e-2],
+        "classifier__activation": ["tanh"],
+        "classifier__alpha": [0.0006621289195469929],
+        "classifier__batch_size": [256],
+        "classifier__early_stopping": [True],
+        "classifier__hidden_layer_sizes": [(70, 30)],
+        "classifier__learning_rate_init": [0.0033388912653937236],
+        "classifier__max_iter": [200],
+        "classifier__solver": ["adam"],
 
         # # Parametres pel RandomSearch - MLP:
-        # "classifier__hidden_layer_sizes": [(100,), (100, 50), (100, 50, 25)],
-        # "classifier__alpha": uniform(1e-6, 1e-2)
+        # "classifier__hidden_layer_sizes": [(50,), (100,), (70, 30)],
+        # "classifier__activation": ["relu", "tanh"],
+        # "classifier__alpha": loguniform(1e-5, 1e-3),
+        # "classifier__learning_rate_init": loguniform(1e-3, 1e-2),
+        # "classifier__batch_size": [128, 256],
+        # "classifier__max_iter": [200],      
+        # "classifier__early_stopping": [True],
+        # "classifier__solver": ["adam"],   
     },
     
     "SVM": {

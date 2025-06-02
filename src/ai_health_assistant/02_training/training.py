@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 #---------------------------------------------------------
 
 # Definim el model i el balanceig
-model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "MLP" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 
 #---------------------------------------------------------
@@ -79,8 +79,8 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_test,
     pipeline,
     param_grid,
-    n_iter=30,
-    search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
+    n_iter=200,
+    search_type='random', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
 models[model_name] = best_est
