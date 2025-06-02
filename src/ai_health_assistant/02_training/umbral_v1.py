@@ -13,14 +13,19 @@ from ai_health_assistant.utils.train_helpers import mat_confusio, train_models, 
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
 from ai_health_assistant.utils.prep_helpers import build_preprocessor
 
+# ---------------------------------------------------------
+
+# Definim el model a utilitzar
+model_name = "BalancedRandomForest" # Possibles models:"MLP", "SVM", "RandomForest", "GradientBoosting", "BalancedRandomForest", "LGBM"
+balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+
+# ---------------------------------------------------------
+
 # Load el dataset
 df_train = pd.read_csv('data/df_engineered_train.csv')
 df_test = pd.read_csv('data/df_engineered_test.csv')
 
-# ---------------------------------------------------------
-# Definim el model a utilitzar
-model_name = "BalancedRandomForest" # Possibles models:"MLP", "SVM", "RandomForest", "GradientBoosting", "BalancedRandomForest", "LGBM"
-balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+
 
 # Comprovem quina es les estructura de les nostres dades faltants en el target
 TARGET = 'TIRED'

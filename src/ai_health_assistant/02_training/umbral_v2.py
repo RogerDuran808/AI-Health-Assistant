@@ -9,10 +9,14 @@ from ai_health_assistant.utils.prep_helpers import build_preprocessor, TARGET
 from ai_health_assistant.utils.model_config import BALANCING_METHODS
 
 # ---------------------------------------------------------
+
 # Definim el model a utilitzar
 model_name = "BalancedRandomForest"  # Opcions: MLP, SVM, RandomForest, GradientBoosting, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+
 # ---------------------------------------------------------
+
+
 
 # Load el dataset
 df_train = pd.read_csv('data/df_engineered_train.csv')

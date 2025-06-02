@@ -32,7 +32,7 @@ warnings.filterwarnings('ignore')
 #---------------------------------------------------------
 
 # Definim el model i el balanceig
-model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 
 #---------------------------------------------------------
@@ -92,7 +92,7 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_train, 
     X_test, 
     y_test,
-    pipeline_no_balance,
+    pipeline,
     param_grid,
     n_iter=30,
     search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
