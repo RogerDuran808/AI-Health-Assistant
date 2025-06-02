@@ -1,3 +1,9 @@
+"""
+Helpers per a la preparació dels dades per a la predicció. Inclou funcions per a fer la transformació de les dades, imputar valors, i escalar els valors.
+Així com la aplicació de feature engineering i la selecció de les features per a la predicció.
+"""
+
+
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -99,16 +105,25 @@ def feature_engineering(df):
 
 
 ###################### CREEM EL PREPROCESSADOR ######################
-def build_preprocessor(df):
-    """Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat a continuació.
+def build_preprocessor(df, features):
     """
+    Crea i retorna el ColumnTransformer que aplica imputacions, transformacions i escalat.\n
+    
+    Args:
+    - df: DataFrame a preprocessar
+    - features: Llista de característiques a utilitzar
+    
+    Returns:
+    - ColumnTransformer, preprocessador creat
+    """
+    X_train = df[features].copy()
 
-    numeric_cols = df.select_dtypes(include=['number']).columns
-    categoric_cols = df.select_dtypes(exclude=['number']).columns
+    numeric_cols = X_train.select_dtypes(include=['number']).columns
+    categoric_cols = X_train.select_dtypes(exclude=['number']).columns
     
 
     numeric_pipe = Pipeline([
-        ("imputer", SimpleImputer(strategy="mean")),  #  Imputer
+        ("imputer", SimpleImputer(strategy="mean")),  #  Imputer, he provat amb Simple Imputer('median') i KNN Imputer
         ("transformer", QuantileTransformer(output_distribution='normal', random_state=42)),  # QuantileTransformer per distribucions no normal
         ("scaler", RobustScaler()),  # RobustScaler per a outliers
     ])
@@ -127,26 +142,6 @@ def build_preprocessor(df):
 
 
 
-########################### PREPROCESSEM LES DADES ##################################
-def preprocess_dataframe(df_train, features):
-    """
-    Preprocessa els conjunts d'entrenament i prova per separat per evitar data leakage.
-    
-    Args:
-        df_train: DataFrame d'entrenament
-        features: Llista de característiques a utilitzar
-        
-    Returns:
-        Preprocessor
-    """
-    # Assegurem que només utilitzem les columnes especificades
-    X_train = df_train[features].copy()
-    
-    # Construïm el preprocessador
-    preprocessor = build_preprocessor(X_train)
-    
-    
-    return preprocessor
 
 
 
@@ -176,16 +171,12 @@ def preprocess_data(train_path, test_path, output_dir, features, target):
     # Apliquem feature engineering per separat
     df_train = feature_engineering(df_train)
     df_test = feature_engineering(df_test)
-    
 
-    # Preprocessem les dades
-    preprocessor = preprocess_dataframe(
-        df_train, features
-    )
-
+    # Seleccionem les features i la target pel preprocessament
     df_train = df_train[features + [target]]
     df_test = df_test[features + [target]]
-        
+    
+    # Guardem els CSV engineered: netejats i amb feature engineering
     df_train.to_csv(f"{output_dir}_train.csv", index=False)
     df_test.to_csv(f"{output_dir}_test.csv", index=False)
     
@@ -193,7 +184,7 @@ def preprocess_data(train_path, test_path, output_dir, features, target):
     print(f"  - Train: {output_dir}_train.csv")
     print(f"  - Test:  {output_dir}_test.csv")
     
-    return df_train, df_test, preprocessor
+    return df_train, df_test
 
 
 

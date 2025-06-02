@@ -1,6 +1,6 @@
 """
-Configuration file for machine learning models, including classifiers and their parameter grids.
-This file centralizes all model configurations for better maintainability and reusability.
+Fitxer de configuració dels models d'aprenentatge automàtic, incloent classificadors i els seus param grids.
+Aquest fitxer centralitza totes les configuracions dels models per millorar la maintainabilitat i la reutilització.
 """
 
 from sklearn.neural_network import MLPClassifier
@@ -15,11 +15,11 @@ from imblearn.combine import SMOTETomek, SMOTEENN
 from imblearn.over_sampling import ADASYN, SMOTE, BorderlineSMOTE
 
 
-# Base classifiers without parameters
+# Diccionari de classificadors
 CLASSIFIERS = {
     "MLP": MLPClassifier(random_state=42, max_iter=500),
-    "SVM": SVC(random_state=42, probability=True),
-    "RandomForest": RandomForestClassifier(random_state=42),
+    "SVM": SVC(random_state=42, probability=True, class_weight='balanced'),
+    "RandomForest": RandomForestClassifier(random_state=42, class_weight='balanced'),
     "GradientBoosting": GradientBoostingClassifier(random_state=42),
     "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False),
     "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0)
@@ -70,6 +70,7 @@ PARAM_GRIDS = {
     },
     
     "BalancedRandomForest": {
+        # Millors paràmetres trobats
         "classifier__n_estimators": [1163],
         "classifier__max_depth": [8],
         "classifier__max_features": ["log2"],
@@ -129,17 +130,19 @@ BALANCING_METHODS = {
     "SMOTETomek": SMOTETomek(random_state=42),
     "SMOTEENN": SMOTEENN(random_state=42),
     "ADASYN": ADASYN(random_state=42),
-    "BorderlineSMOTE": BorderlineSMOTE(random_state=42, k_neighbors=5)
+    "BorderlineSMOTE": BorderlineSMOTE(random_state=42, k_neighbors=5),
+    "SMOTE": SMOTE(random_state=42)
 }
 
 def get_classifier_config(model_name):
     """
     Obtenim el classifier i els seus parametres pel seu nom\n
         
-    Returns:
-        classifier, param_grid del model seleccionat
+    Return:
+    - classifier: classifier seleccionat
+    - param_grid: parametres del classifier seleccionat
     """
     if model_name not in CLASSIFIERS:
-        raise ValueError(f"Model no en la llista: {model_name}. Models disponibles: {list(CLASSIFIERS.keys())}")
+        raise ValueError(f"El model no està en la llista: {model_name}. Models disponibles: {list(CLASSIFIERS.keys())}")
         
     return CLASSIFIERS[model_name], PARAM_GRIDS.get(model_name, {})

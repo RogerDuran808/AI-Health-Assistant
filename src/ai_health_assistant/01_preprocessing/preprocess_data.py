@@ -4,13 +4,14 @@ import pandas as pd
 '''
 Preprocessament de les dades:
 Aquest script llegeix els conjunts d'entrenament i prova ja netejats,
-els preprocessa de forma separada per evitar data leakage, i els guarda
-en format preparat per a l'entrenament del model.
+aplica feature engineering a cada conjunt per separat, i els guarda
+en format preparat per a l'entrenament del model i el preprocessament del model
+realitzat en el fitxer training.py.
 '''
 
 
 
-df_train, df_test, preprocessor = preprocess_data(
+df_train, df_test = preprocess_data(
     train_path='data/df_cleaned_train.csv',
     test_path='data/df_cleaned_test.csv',
     output_dir='data/df_engineered',

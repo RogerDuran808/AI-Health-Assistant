@@ -9,7 +9,7 @@ from sklearn.feature_selection import SelectFromModel
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
-from ai_health_assistant.utils.prep_helpers import TARGET, build_preprocessor
+from ai_health_assistant.utils.prep_helpers import TARGET, build_preprocessor, FEATURES
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -26,13 +26,13 @@ balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 df_train = pd.read_csv('data/df_engineered_train.csv')
 df_test = pd.read_csv('data/df_engineered_test.csv')
     
-X_train = df_train.drop(columns=[TARGET])
+X_train = df_train[FEATURES]
 y_train = df_train[TARGET]
     
-X_test = df_test.drop(columns=[TARGET])
+X_test = df_test[FEATURES]
 y_test = df_test[TARGET]
 
-preprocessor = build_preprocessor(X_train)
+preprocessor = build_preprocessor(df_train, FEATURES)
 
 # Definim el classifier i els parametres
 clf, param_grid = get_classifier_config(model_name)
