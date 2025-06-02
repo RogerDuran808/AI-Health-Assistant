@@ -24,7 +24,7 @@ from sklearn.metrics import make_scorer, fbeta_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
-from ai_health_assistant.utils.prep_helpers import FEATURES, TARGET, build_preprocessor
+from ai_health_assistant.utils.prep_helpers import TARGET, build_preprocessor
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -32,7 +32,7 @@ warnings.filterwarnings('ignore')
 #---------------------------------------------------------
 
 # Definim el model i el balanceig
-model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 
 #---------------------------------------------------------
@@ -41,10 +41,10 @@ balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 df_train = pd.read_csv('data/df_engineered_train.csv')
 df_test = pd.read_csv('data/df_engineered_test.csv')
     
-X_train = df_train[FEATURES]
+X_train = df_train.drop(columns=[TARGET])
 y_train = df_train[TARGET]
     
-X_test = df_test[FEATURES]
+X_test = df_test.drop(columns=[TARGET])
 y_test = df_test[TARGET]
 
 preprocessor = build_preprocessor(X_train)
@@ -92,9 +92,10 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_train, 
     X_test, 
     y_test,
-    pipeline,
+    pipeline_no_balance,
     param_grid,
-    search_type='random', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
+    n_iter=30,
+    search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
 models[model_name] = best_est

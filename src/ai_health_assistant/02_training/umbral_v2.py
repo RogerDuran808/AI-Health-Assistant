@@ -5,41 +5,46 @@ from ai_health_assistant.utils.model_config import get_classifier_config
 from imblearn.pipeline import Pipeline as ImbPipeline
 from imblearn.combine import SMOTETomek
 from sklearn.metrics import classification_report
+from ai_health_assistant.utils.prep_helpers import build_preprocessor, TARGET
+from ai_health_assistant.utils.model_config import BALANCING_METHODS
+
+# ---------------------------------------------------------
+# Definim el model a utilitzar
+model_name = "BalancedRandomForest"  # Opcions: MLP, SVM, RandomForest, GradientBoosting, BalancedRandomForest, LGBM
+balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+# ---------------------------------------------------------
 
 # Load el dataset
-df = pd.read_csv('data/df_preprocessed.csv')
+df_train = pd.read_csv('data/df_engineered_train.csv')
+df_test = pd.read_csv('data/df_engineered_test.csv')
 
 # Comprovem quina es les estructura de les nostres dades faltants en el target
-TARGET = 'TIRED'
 
 # Difinim X i el target y
 # Prediccio de TIRED
-X = df.drop(columns=[TARGET])
-y = df[TARGET]
+X_temp = df_train.drop(columns=[TARGET])
+y_temp= df_train[TARGET]
 
-# Fem un X i y temporals que serveixen per fer la divisió anterior del 80% i per tal de separar el 20% amb el qual testejarem
-X_temp, X_test, y_temp, y_test = train_test_split(
-        X, y, test_size=0.20, stratify=y, random_state=42)
+X_test = df_test.drop(columns=[TARGET])
+y_test= df_test[TARGET]
 
 # Fem una altre divisió del 80% per entrenament i per fer la validació
 X_train, X_val, y_train, y_val = train_test_split(
         X_temp, y_temp, test_size=0.20, stratify=y_temp, random_state=42)
 
+preprocessor = build_preprocessor(X_train)
 
 
-# ---------------------------------------------------------
-# Definim el model a utilitzar
-model_name = "LGBM"  # Opcions: MLP, SVM, RandomForest, GradientBoosting, BalancedRandomForest, LGBM
 
 # Obtenim el classificador i els seus paràmetres des de la configuració centralitzada
 clf, param_grid = get_classifier_config(model_name)
-# ---------------------------------------------------------
 
 # Definim el balancing method
-balancing_method = SMOTETomek(random_state=42)  # Combina oversampling i undersampling
+balancing_method = BALANCING_METHODS[balance_name]  # Combina oversampling i undersampling
 
 # Fl pipeline amb millors resultats:
 pipeline = ImbPipeline([
+    ("preprocessor", preprocessor),
     ("balancing", balancing_method),
     ("classifier", clf)
 ])
