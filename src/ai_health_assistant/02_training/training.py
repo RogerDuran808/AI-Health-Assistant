@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.feature_selection import SelectFromModel
 
-from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
+from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model, update_metrics_file
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
 from ai_health_assistant.utils.prep_helpers import TARGET, build_preprocessor, FEATURES
 
@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 #---------------------------------------------------------
 
 # Definim el model i el balanceig
-model_name = "MLP" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "RandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 
 #---------------------------------------------------------
@@ -114,7 +114,10 @@ print(f"\n\nMillors parametrs pel model - {model_name}:\n")
 print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
 print('\n')
 
-# Guradem el model a la carpeta models
+# Guradem el model a la carpeta models i mètriques
+print(results_df.to_dict('records')[0])
+update_metrics_file(results_df.to_dict('records')[0])
+
 # Amb la funcio definida, guardem el model entrenat a la carpeta de models local
 # i a la carpeta de models de la nostre webapp, per poder-lo carregar desde alla.
 save_model(best_est, model_name, save_external='no')

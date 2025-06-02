@@ -253,6 +253,28 @@ def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
     return best_threshold
 
 
+def update_metrics_file(métricas: dict, filename="metrics.xlsx"):
+    columnas = ["Model", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy"]
+    
+    if os.path.exists(filename):
+        df = pd.read_excel(filename, engine="openpyxl")
+    else:
+        df = pd.DataFrame(columns=columnas)
+    
+    fila_nueva = pd.DataFrame([métricas], columns=columnas)
+    nombre_modelo = métricas["Model"]
+    hay_antes = df["Model"] == nombre_modelo
+    
+    if hay_antes.any():
+        df = df[~hay_antes].copy()
+        df = pd.concat([df, fila_nueva], ignore_index=True)
+    else:
+        df = pd.concat([df, fila_nueva], ignore_index=True)
+    
+    df.to_excel(filename, index=False, engine="openpyxl")
+
+
+
 def save_model(best_estimator, model_name, save_external='no'):
     """
     Si save_external = 'yes', desa el model en:

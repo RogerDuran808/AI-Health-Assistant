@@ -52,24 +52,28 @@ PARAM_GRIDS = {
     },
     
     "SVM": {
-        "classifier__C": [0.1, 1, 10],
-        "classifier__kernel": ["rbf"],
-        "classifier__gamma": ["scale", "auto", 0.01]
+        # "classifier__C": [0.1, 1, 10],
+        # "classifier__kernel": ["rbf"],
+        # "classifier__gamma": ["scale", "auto", 0.01]
 
         # # Parametres pel RandomSearch - SVM:
-        # "classifier__C": uniform(0.1, 10),
-        # "classifier__kernel": ["rbf", "linear", "poly", "sigmoid"],
-        # "classifier__gamma": uniform(0.01, 1)
+        "classifier__kernel": ["rbf", "poly", "sigmoid"],
+        "classifier__C": loguniform(1e-2, 1e3),
+        "classifier__gamma": loguniform(1e-4, 1e0),
+        "classifier__degree": randint(2, 6),       
+        "classifier__coef0": uniform(-1, 2),              
+        "classifier__class_weight": [None, "balanced"],
+        "classifier__probability": [True] 
     },
     
     "RandomForest": {
-        # Millors paràmetres trobats
-        "classifier__n_estimators": [765],
-        "classifier__max_depth": [4],
-        "classifier__max_features": [0.43559419734887395],
-        "classifier__min_samples_leaf": [1],
-        "classifier__min_samples_split": [2],
-        "classifier__class_weight": ["balanced_subsample"]
+        "classifier__n_estimators": randint(50, 151),      # 50-150 árboles
+        "classifier__max_depth": randint(4, 11),           # 4-10
+        "classifier__min_samples_split": randint(2, 11),
+        "classifier__min_samples_leaf": randint(1, 6),
+        "classifier__max_features": ["sqrt", "log2"],
+        "classifier__bootstrap": [True],                   # OOB y más rápido
+        "classifier__criterion": ["gini", "entropy"],
 
         # # Parametres pel RandomSearch - RandomForest:
         # "classifier__n_estimators": randint(400, 600),
