@@ -14,6 +14,7 @@ FEATURES = [
     "age",
     "gender",
     "bmi",
+    # "bmi_tipo",
     "calories",
     "steps",
     "lightly_active_minutes",

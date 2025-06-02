@@ -50,7 +50,7 @@ feature_selector = SelectFromModel(estimator=RandomForestClassifier(n_estimators
 #-------------------------------------------------------------------------------------
 
 
-# Obting un F1=62.57 i un acc= 72%, amb un macro av. 70.14% [BalancedRandomForest]
+# Obting un F1=57,93% i un acc= 72%, amb un macro av. 70.14% [BalancedRandomForest]
 pipeline = ImbPipeline([
     ("preprocessor", preprocessor),
     ("balancing", balancing_method),

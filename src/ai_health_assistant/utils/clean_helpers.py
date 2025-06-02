@@ -130,28 +130,32 @@ def fix_bmi(df):
 
 
 
-################### CORRECCIÓ DE OUTILIERS ######################
+################### CORRECCIÓ D'OUTILIERS ######################
 def handle_outliers(X_train, X_test, multiplier=1.5):
-    """Mètode per tractar els outliers utilitzant IQR per cada grup de classe"""
+    """
+    Mètode per tractar els outliers utilitzant IQR per cada grup de classe.
+
+    Aquest mètode calcula els límits inferior i superior per cada columna numèrica
+    de les dades d'entrenament i les aplica a les dades d'entrenament i test.
+    """
 
     numeric_cols = X_train.select_dtypes(include="number").columns
 
-    # Compute bounds on training set only
+    # Bounds nomes del training set per no tenir data leakage
     bounds = {}
     for col in numeric_cols:
         q1, q3 = X_train[col].quantile([0.25, 0.75])
         iqr = q3 - q1
         bounds[col] = (q1 - multiplier * iqr, q3 + multiplier * iqr)
 
-    # Apply clipping on copies to avoid side-effects
-    X_train_cap = X_train.copy()
-    X_test_cap = X_test.copy()
+    X_train = X_train.copy()
+    X_test = X_test.copy()
 
     for col, (lower, upper) in bounds.items():
-        X_train_cap[col] = X_train_cap[col].clip(lower=lower, upper=upper)
-        X_test_cap[col] = X_test_cap[col].clip(lower=lower, upper=upper)
+        X_train[col] = X_train[col].clip(lower=lower, upper=upper)
+        X_test[col] = X_test[col].clip(lower=lower, upper=upper)
 
-    return X_train_cap, X_test_cap
+    return X_train, X_test
 
 
 ######################### NETEJA DE DADES ###############################
@@ -160,10 +164,10 @@ def clean_data(input_path, output_path, target, features):
     """
     Flux complet de neteja:
       1) carrega dades
-      2) selecciona les columnes disponibles al fitbit inspire 3
-      3) corregeix BMI
-      4) retalla outliers
-      5) corregim les columnes necessàries
+      2) selecciona les columnes disponibles al fitbit inspire 3 i fem l'split
+      3) eliminem les columnes no factibles
+      4) corregeix BMI
+      5) retalla outliers
       6) escriu CSV net
     Retorna els DataFrames netejats de train i test, i el concatenat.
     """
