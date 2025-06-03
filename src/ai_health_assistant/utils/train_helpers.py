@@ -285,28 +285,22 @@ def update_experiments_file(metrics: pd.DataFrame, filename="../results/02_exper
         metrics: DataFrame con las métricas del experimento
         filename: Ruta al archivo de experimentos
     """
-    columnas = [
-        "Experiment", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy",
-        "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", 
-        "Test F1 (macro global)", "Test Accuracy", "Best Params"
-    ]
+    columnas = ["Experiment", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Best Params"]
 
     if os.path.exists(filename):
         df = pd.read_csv(filename)
     else:
         df = pd.DataFrame(columns=columnas)
-    
-    fila_nova = metrics[columnas].copy()
-    experiment_name = metrics["Experiment"].iloc[0]
-    rewrite = df["Experiment"] == experiment_name
-    
-    if rewrite.any():
-        df.loc[rewrite, columnas] = fila_nova.values
-    else:
-        df = pd.concat([df, fila_nova], ignore_index=True)
-    
+
+    fila_nova = metrics[columnas].iloc[0:1].copy()
+    experiment_name = fila_nova["Experiment"].iloc[0]
+
+    # Elimina files amb el mateix nom d'experiment abans d'afegir la nova
+    df = df[df["Experiment"] != experiment_name]
+    df = pd.concat([df, fila_nova], ignore_index=True)
+
     df = df.sort_values(by="Test F1 (1)", ascending=False)
-    
+
     df.to_csv(filename, index=False)
     print(f'\nMétriques guardades a {filename}\n')
 
