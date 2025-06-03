@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 #---------------------------------------------------------
 
 # Definim el model i el balanceig
-model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "SVM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 
 #---------------------------------------------------------
@@ -64,7 +64,7 @@ pipeline_no_balance = ImbPipeline([
 ])
 
 # Pipeline avanzado, per classificadors que no tenen balanceig incorporat
-advanced_pipeline = ImbPipeline([
+pipeline_selection = ImbPipeline([
     ("preprocessor", preprocessor),
     ("balancing", balancing_method),
     ("feature_selection", feature_selector),
@@ -77,7 +77,7 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_train, 
     X_test, 
     y_test,
-    pipeline,
+    pipeline_no_balance,
     param_grid,
     n_iter=200,
     search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
@@ -115,7 +115,6 @@ print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
 print('\n')
 
 # Guradem el model a la carpeta models i mètriques
-print(results_df.to_dict('records')[0])
 update_metrics_file(results_df.to_dict('records')[0])
 
 # Amb la funcio definida, guardem el model entrenat a la carpeta de models local

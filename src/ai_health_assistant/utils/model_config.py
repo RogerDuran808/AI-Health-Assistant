@@ -14,7 +14,7 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.combine import SMOTETomek, SMOTEENN
 from imblearn.over_sampling import ADASYN, SMOTE, BorderlineSMOTE
 
-# Diccionari de classificadors
+##################### CLASSIFIERS #####################
 CLASSIFIERS = {
     "MLP": MLPClassifier(random_state=42, max_iter=500),
     "SVM": SVC(random_state=42, probability=True, class_weight='balanced'),
@@ -24,11 +24,11 @@ CLASSIFIERS = {
     "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0)
 }
 
+##################### PARAM GRIDS #####################
 # Param grids o distribucions per fer el GridSearch o RandomSearch
 # Un cop s'han trobat els millors parametres, s'han guardat per no fer constantment la busqueda
 # Anirem comprovant i ajustant els parametres dels models per veures quins en donen millors resultats.
 # Per això anirem ajustant cada classifier avaluat.
-
 PARAM_GRIDS = {
     "MLP": {
         "classifier__activation": ["tanh"],
@@ -52,21 +52,27 @@ PARAM_GRIDS = {
     },
     
     "SVM": {
+        # Millors paràmetres trobats
+        "classifier__C": [10],
+        "classifier__kernel": ["rbf"],
+        "classifier__gamma": [0.01]
+
+        # # Paràmetres pel GridSearch - SVM:
         # "classifier__C": [0.1, 1, 10],
         # "classifier__kernel": ["rbf"],
         # "classifier__gamma": ["scale", "auto", 0.01]
 
-        # # Parametres pel RandomSearch - SVM:
-        "classifier__kernel": ["rbf", "poly", "sigmoid"],
-        "classifier__C": loguniform(1e-2, 1e3),
-        "classifier__gamma": loguniform(1e-4, 1e0),
-        "classifier__degree": randint(2, 6),       
-        "classifier__coef0": uniform(-1, 2),              
-        "classifier__class_weight": [None, "balanced"],
-        "classifier__probability": [True] 
     },
     
     "RandomForest": {
+        # Millors paràmetres trobats
+        "classifier__max_depth": [6],
+        "classifier__max_features": ["log2"],
+        "classifier__min_samples_leaf": [2],
+        "classifier__n_estimators": [517],
+        "classifier__class_weight": ["balanced_subsample"]
+
+        # Parametres pel RandomSearch - RandomForest:
         # "classifier__n_estimators": randint(50, 151),  
         # "classifier__max_depth": randint(4, 11), 
         # "classifier__min_samples_split": randint(2, 11),
@@ -75,14 +81,7 @@ PARAM_GRIDS = {
         # "classifier__bootstrap": [True],
         # "classifier__criterion": ["gini", "entropy"],
 
-        # Millors paràmetres trobats
-        "classifier__bootstrap": [True],
-        "classifier__criterion": ["entropy"],
-        "classifier__max_depth": [6],
-        "classifier__max_features": ["sqrt"],
-        "classifier__min_samples_leaf": [2],
-        "classifier__min_samples_split": [6],
-        "classifier__n_estimators": [79]
+        
     },
     
     "BalancedRandomForest": {
@@ -104,15 +103,6 @@ PARAM_GRIDS = {
     },
     
     "GradientBoosting": {
-        # "classifier__n_estimators": randint(50, 201), 
-        # "classifier__learning_rate": loguniform(0.05, 0.3),
-        # "classifier__max_depth": randint(2, 4), 
-        # "classifier__min_samples_split": randint(2, 11),
-        # "classifier__min_samples_leaf": randint(1, 6),
-        # "classifier__subsample": uniform(0.8, 0.2), 
-        # "classifier__max_features": ["sqrt", "log2"],
-        # "classifier__loss": ["log_loss"],
-
         # Millors paràmetres trobats:
         'classifier__learning_rate': [0.07720558711161865],
         'classifier__loss': ['log_loss'],
@@ -122,6 +112,16 @@ PARAM_GRIDS = {
         'classifier__min_samples_split': [8],
         'classifier__n_estimators': [66],
         'classifier__subsample': [0.842289601399309]
+
+        # Parametres pel RandomSearch - GradientBoosting:
+        # "classifier__n_estimators": randint(50, 201), 
+        # "classifier__learning_rate": loguniform(0.05, 0.3),
+        # "classifier__max_depth": randint(2, 4), 
+        # "classifier__min_samples_split": randint(2, 11),
+        # "classifier__min_samples_leaf": randint(1, 6),
+        # "classifier__subsample": uniform(0.8, 0.2), 
+        # "classifier__max_features": ["sqrt", "log2"],
+        # "classifier__loss": ["log_loss"],
     },
     
     "LGBM": {
@@ -151,7 +151,8 @@ PARAM_GRIDS = {
     }
 }
 
-# Definimos varios métodos de balanceo para comparar
+##################### BALANCING METHODS #####################
+# Definim varis metodes de balanceig per comparar
 BALANCING_METHODS = {
     "SMOTETomek": SMOTETomek(random_state=42),
     "SMOTEENN": SMOTEENN(random_state=42),
@@ -160,6 +161,7 @@ BALANCING_METHODS = {
     "SMOTE": SMOTE(random_state=42)
 }
 
+################### FUNCIO OBTENCIO DEL CLF I PARAMS ###################
 def get_classifier_config(model_name):
     """
     Obtenim el classifier i els seus parametres pel seu nom\n

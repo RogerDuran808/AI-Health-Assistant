@@ -98,7 +98,7 @@ def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring
 
 
 
-def append_results (list_results, model, train_report, test_report, best_params, best_score, experiment = None):
+def append_results (list_results, model_name, train_report, test_report, best_params, best_score, experiment = None):
     '''
     Crea un **dataframe amb els resultats** de la predicció i el model, fa un append a una llista
     i retorna el dataframe i el guarda el csv a results. Les columnes a poder mostrar son:
@@ -134,8 +134,8 @@ def append_results (list_results, model, train_report, test_report, best_params,
     TARGET = "TIRED"
     list_results.append({
         "Target":                TARGET,
-        "Model":                 model,
-        "Experiment":            experiment, # En cas de estar registrant algun experiment
+        "Model":                 model_name,
+        "Experiment":            f"{model_name}_{experiment}", # En cas de estar registrant algun experiment
         
         "Best Params":           best_params,
         "Best CV":               best_score,
@@ -151,7 +151,7 @@ def append_results (list_results, model, train_report, test_report, best_params,
         "Test Accuracy":         test_report["accuracy"],
     })
 
-    results_df = pd.DataFrame(list_results)
+    results_df = pd.DataFrame(list_results).round(5)
 
     return results_df
 
@@ -200,7 +200,7 @@ def plot_learning_curve(model_name, best_est, X_train, y_train, save = 'no', sco
 
     if save.lower() == 'yes':
         fname = f"lc_{model_name}.png"
-        out_path = f"results/02_training/{fname}"
+        out_path = f"results/03_training/{fname}"
         plt.savefig(out_path, bbox_inches='tight')
         print(f"Corva d'aprenentatge guardada a: {out_path}")
         plt.close()
@@ -213,7 +213,7 @@ def plot_learning_curve(model_name, best_est, X_train, y_train, save = 'no', sco
 def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     '''
     Matriu de confusió sobre el test, agafant els models registrats en el diccionari. \n
-    Guarda la matri de confusió al directori de resultats/02_training
+    Guarda la matri de confusió al directori de resultats/03_training
     '''
     cm = confusion_matrix(y_true, y_pred, labels=[0,1])
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0,1] )
@@ -222,7 +222,7 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     
     if save.lower() == 'yes':
         fname = f"cm_{title_name}.png"
-        out_path = f'results/02_training/{fname}'
+        out_path = f'results/03_training/{fname}'
         plt.savefig(out_path, bbox_inches='tight')
         print(f"Confusion matrix guardada a: {out_path}")
         plt.close()
@@ -253,29 +253,49 @@ def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
     return best_threshold
 
 
-def update_metrics_file(métricas: dict, filename="results/02_training/metrics.csv"):
-    columnas = ["Model", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Description"]
+def update_metrics_file(métricas: dict, filename="results/03_training/metrics.csv"):
+    columnas = ["Model", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Description", "Best Params"]
     
     if os.path.exists(filename):
         df = pd.read_csv(filename)
     else:
         df = pd.DataFrame(columns=columnas)
     
-    fila_nueva = pd.DataFrame([métricas], columns=columnas)
-    nombre_modelo = métricas["Model"]
-    rewrite = df["Model"] == nombre_modelo
+    fila_nova = pd.DataFrame([métricas], columns=columnas)
+    model_name = métricas["Model"]
+    rewrite = df["Model"] == model_name
     
     if rewrite.any():
         df = df[~rewrite].copy()
-        df = pd.concat([df, fila_nueva], ignore_index=True)
+        df = pd.concat([df, fila_nova], ignore_index=True)
     else:
-        df = pd.concat([df, fila_nueva], ignore_index=True)
+        df = pd.concat([df, fila_nova], ignore_index=True)
     
     df = df.sort_values(by="Test F1 (1)", ascending=False)
     
     df.to_csv(filename, index=False)
 
-
+def update_experiments_file(métricas: dict, filename="results/02_experiments/experiments.csv"):
+    columnas = ["Experiment", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Best Params"]
+    
+    if os.path.exists(filename):
+        df = pd.read_csv(filename)
+    else:
+        df = pd.DataFrame(columns=columnas)
+    
+    fila_nova = pd.DataFrame([métricas], columns=columnas)
+    experiment_name = métricas["Experiment"]
+    rewrite = df["Experiment"] == experiment_name
+    
+    if rewrite.any():
+        df = df[~rewrite].copy()
+        df = pd.concat([df, fila_nova], ignore_index=True)
+    else:
+        df = pd.concat([df, fila_nova], ignore_index=True)
+    
+    df = df.sort_values(by="Test F1 (1)", ascending=False)
+    
+    df.to_csv(filename, index=False)
 
 def save_model(best_estimator, model_name, save_external='no'):
     """
