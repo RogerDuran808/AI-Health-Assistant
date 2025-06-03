@@ -17,14 +17,29 @@ warnings.filterwarnings('ignore')
 #---------------------------------------------------------
 
 # Definim el model i el balanceig
-model_name = "GradientBoosting" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
-balance_name = 'SMOTEENN' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+
+# Seleccionar les features a utilitzar
+features = 'top10_fi' # all, top10_perm 
 
 #---------------------------------------------------------
 
 
 df_train = pd.read_csv('data/df_engineered_train.csv')
 df_test = pd.read_csv('data/df_engineered_test.csv')
+
+# Seleccio de features, columnes trobades a 02_LifeSnaps_Training_Experiments.ipynb
+top15_perm = ['bmi', 'recovery_factor', 'minutesAsleep', 'full_sleep_breathing_rate', 'daily_temperature_variation', 'minutes_in_default_zone_1', 'wake_after_sleep_pct', 'calories', 'active_to_rest_transition', 'rmssd', 'sleep_activity_balance', 'deep_sleep_score', 'steps_norm_cal', 'sleep_wake_ratio', 'sleep_rem_ratio']
+top10_fi = ['calories', 'bmi_hr_interaction', 'bmi', 'resting_hr', 'steps_norm_cal', 'daily_temperature_variation', 'recovery_factor', 'hr_zone_variability', 'lightly_active_minutes', 'minutesAsleep']    
+
+# Seleccio de features
+if features == 'top15_perm':
+    FEATURES = top15_perm
+elif features == 'top10_fi':
+    FEATURES = top10_fi
+else:
+    FEATURES = FEATURES
     
 X_train = df_train[FEATURES]
 y_train = df_train[TARGET]
@@ -37,31 +52,31 @@ preprocessor = build_preprocessor(df_train, FEATURES)
 # Definim el classifier i els parametres
 clf, param_grid = get_classifier_config(model_name)
 
+#----------------------------------
+
 results = []
 
 # Amb el que he obtingut millors resultats es SMOTETomek
 balancing_method = BALANCING_METHODS[balance_name]
 
-# Selecció de les millors caracteristiques 
+################ SELECCIÓ DE CARACTERISTIQUS ##############
 feature_selector = SelectFromModel(estimator=RandomForestClassifier(n_estimators=100, random_state=42))
 
+
 #-------------------------------------------------------------------------------------
-
-
-# Obting un F1=57,93% i un acc= 72%, amb un macro av. 70.14% [BalancedRandomForest]
 pipeline = ImbPipeline([
     ("preprocessor", preprocessor),
     ("balancing", balancing_method),
     ("classifier", clf)
 ])
 
-# Obting un F1=65.29 i un acc= 59.61%%, amb un macro av. 58.49% [BalancedRandomForest]
+
 pipeline_no_balance = ImbPipeline([
     ("preprocessor", preprocessor),
     ("classifier", clf)
 ])
 
-# Pipeline avanzado, per classificadors que no tenen balanceig incorporat
+
 pipeline_selection = ImbPipeline([
     ("preprocessor", preprocessor),
     ("balancing", balancing_method),
@@ -75,7 +90,7 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_train, 
     X_test, 
     y_test,
-    pipeline,
+    pipeline_no_balance,
     param_grid,
     n_iter=200,
     search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
