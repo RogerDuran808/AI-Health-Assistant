@@ -254,7 +254,7 @@ def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
 
 
 def update_metrics_file(métricas: dict, filename="results/02_training/metrics.csv"):
-    columnas = ["Model", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy"]
+    columnas = ["Model", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Description"]
     
     if os.path.exists(filename):
         df = pd.read_csv(filename)
@@ -263,13 +263,15 @@ def update_metrics_file(métricas: dict, filename="results/02_training/metrics.c
     
     fila_nueva = pd.DataFrame([métricas], columns=columnas)
     nombre_modelo = métricas["Model"]
-    hay_antes = df["Model"] == nombre_modelo
+    rewrite = df["Model"] == nombre_modelo
     
-    if hay_antes.any():
-        df = df[~hay_antes].copy()
+    if rewrite.any():
+        df = df[~rewrite].copy()
         df = pd.concat([df, fila_nueva], ignore_index=True)
     else:
         df = pd.concat([df, fila_nueva], ignore_index=True)
+    
+    df = df.sort_values(by="Test F1 (1)", ascending=False)
     
     df.to_csv(filename, index=False)
 

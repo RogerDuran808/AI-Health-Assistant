@@ -13,7 +13,7 @@ print(f"Mostrant la fila amb índex {idx}:\n", prova, "\n")
 X_test = prova.drop(columns=['TIRED'])
 
 # Carrega els models serialitzats
-model = joblib.load('models/LGBM_TIRED.joblib')
+model = joblib.load('models/LGBM_model.joblib')
 
 # Predicció per a cada etiqueta
 pred      = model.predict(X_test)[0]
