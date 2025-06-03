@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 #---------------------------------------------------------
 
 # Definim el model i el balanceig
-model_name = "SVM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "GradientBoosting" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 
 #---------------------------------------------------------
@@ -38,8 +38,6 @@ preprocessor = build_preprocessor(df_train, FEATURES)
 clf, param_grid = get_classifier_config(model_name)
 
 results = []
-models = {}
-
 
 # Amb el que he obtingut millors resultats es SMOTETomek
 balancing_method = BALANCING_METHODS[balance_name]
@@ -71,20 +69,19 @@ pipeline_selection = ImbPipeline([
     ("classifier", clf)
 ])
 
-
+# Entrenament del model - Cerca de parametres segons depenent del grid o random search
 best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, best_score = train_models(
     X_train, 
     y_train, 
     X_test, 
     y_test,
-    pipeline_no_balance,
+    pipeline,
     param_grid,
     n_iter=200,
     search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
-models[model_name] = best_est
-
+# Guardem els resultats en un df
 results_df = append_results(
     results,
     model_name,
@@ -94,6 +91,7 @@ results_df = append_results(
     best_score
 )
 
+# Guardem la matriu de confusió si save='yes'
 mat_confusio(
     model_name,
     y_test,
@@ -101,6 +99,7 @@ mat_confusio(
     save='yes'
 )
 
+# Guardem la corva d'aprenentatge si save='yes'
 plot_learning_curve(
     model_name,
     best_est,
@@ -109,16 +108,11 @@ plot_learning_curve(
     save='yes'
 )
 
-
-print(f"\n\nMillors parametrs pel model - {model_name}:\n")
-print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
-print('\n')
-
-# Guradem el model a la carpeta models i mètriques
-update_metrics_file(results_df.to_dict('records')[0])
+# Guradem les mètriques del model amb els millors parametres a 03_training/metrics.csv
+update_metrics_file(results_df)
 
 # Amb la funcio definida, guardem el model entrenat a la carpeta de models local
-# i a la carpeta de models de la nostre webapp, per poder-lo carregar desde alla.
+# i a la carpeta de models de la nostre webapp, per poder-lo carregar si save_external='yes'
 save_model(best_est, model_name, save_external='no')
 
 

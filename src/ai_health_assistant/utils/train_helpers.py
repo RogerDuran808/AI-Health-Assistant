@@ -17,6 +17,7 @@ import joblib
 import os
 
 
+############## Entrenament del model ###############################
 def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring = 'f1', cv = 'StratifiedKFold', n_iter = 100, search_type = 'random'):
     '''
     Entrenament del model amb buscador de hiperparàmetres.\n
@@ -97,12 +98,11 @@ def train_models(X_train, y_train, X_test, y_test, pipeline, param_grid, scoring
     return best_est, y_train_pred, train_report, y_test_pred, test_report,  search.best_params_, search.best_score_
 
 
-
+############## Append Results ###############################
 def append_results (list_results, model_name, train_report, test_report, best_params, best_score, experiment = None):
     '''
     Crea un **dataframe amb els resultats** de la predicció i el model, fa un append a una llista
     i retorna el dataframe i el guarda el csv a results. Les columnes a poder mostrar son:
-    - "Target"
     - "Model"
     - "Experiment"
     - "Best Params"
@@ -131,9 +131,7 @@ def append_results (list_results, model_name, train_report, test_report, best_pa
     if experiment is None:
         experiment = np.nan
 
-    TARGET = "TIRED"
     list_results.append({
-        "Target":                TARGET,
         "Model":                 model_name,
         "Experiment":            f"{model_name}_{experiment}", # En cas de estar registrant algun experiment
         
@@ -155,7 +153,7 @@ def append_results (list_results, model_name, train_report, test_report, best_pa
 
     return results_df
 
-
+############## Corva d'aprenentatge ###############################
 def plot_learning_curve(model_name, best_est, X_train, y_train, save = 'no', score = 'f1'):
     '''
     Genera una corva d'aprenentatge per veure com el model apren sobre el train.\n
@@ -209,7 +207,7 @@ def plot_learning_curve(model_name, best_est, X_train, y_train, save = 'no', sco
     # Si no, mostrem la gràfica
     plt.show()
 
-
+############## Matriu de confusió ###############################
 def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     '''
     Matriu de confusió sobre el test, agafant els models registrats en el diccionari. \n
@@ -231,6 +229,7 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     # Si no, mostrem la gràfica
     plt.show()
 
+############## Optimitza l'umbral de decisió ###############################
 def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
     """
     Optimitza l'umbral de decisió (versio 2, forma alternativa per umbral_v2.py) per maximitzar la precisó mantenint el recall >= target_recall
@@ -253,50 +252,65 @@ def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
     return best_threshold
 
 
-def update_metrics_file(métricas: dict, filename="results/03_training/metrics.csv"):
-    columnas = ["Model", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Description", "Best Params"]
-    
+############### Registre Metriques ###############################
+def update_metrics_file(metrics: pd.DataFrame, filename="results/03_training/metrics.csv"):
+    columnas = ["Model", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Best Params"]
+
     if os.path.exists(filename):
         df = pd.read_csv(filename)
     else:
         df = pd.DataFrame(columns=columnas)
     
-    fila_nova = pd.DataFrame([métricas], columns=columnas)
-    model_name = métricas["Model"]
+    fila_nova = metrics[columnas].copy()
+    model_name = metrics["Model"].iloc[0]
     rewrite = df["Model"] == model_name
     
     if rewrite.any():
-        df = df[~rewrite].copy()
-        df = pd.concat([df, fila_nova], ignore_index=True)
+        df.loc[rewrite, columnas] = fila_nova.values
     else:
         df = pd.concat([df, fila_nova], ignore_index=True)
     
     df = df.sort_values(by="Test F1 (1)", ascending=False)
     
     df.to_csv(filename, index=False)
+    print(f'\nMétriques guardades a {filename}\n')
 
-def update_experiments_file(métricas: dict, filename="results/02_experiments/experiments.csv"):
-    columnas = ["Experiment", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Best Params"]
+
+def update_experiments_file(metrics: pd.DataFrame, filename="../results/02_experiments/experiments.csv"):
+    """
+    Actualiza el archivo de experimentos con nuevas métricas.
+    Si el experimento ya existe, actualiza sus métricas. Si no, lo añade.
     
+    Args:
+        metrics: DataFrame con las métricas del experimento
+        filename: Ruta al archivo de experimentos
+    """
+    columnas = [
+        "Experiment", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy",
+        "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", 
+        "Test F1 (macro global)", "Test Accuracy", "Best Params"
+    ]
+
     if os.path.exists(filename):
         df = pd.read_csv(filename)
     else:
         df = pd.DataFrame(columns=columnas)
     
-    fila_nova = pd.DataFrame([métricas], columns=columnas)
-    experiment_name = métricas["Experiment"]
+    fila_nova = metrics[columnas].copy()
+    experiment_name = metrics["Experiment"].iloc[0]
     rewrite = df["Experiment"] == experiment_name
     
     if rewrite.any():
-        df = df[~rewrite].copy()
-        df = pd.concat([df, fila_nova], ignore_index=True)
+        df.loc[rewrite, columnas] = fila_nova.values
     else:
         df = pd.concat([df, fila_nova], ignore_index=True)
     
     df = df.sort_values(by="Test F1 (1)", ascending=False)
     
     df.to_csv(filename, index=False)
+    print(f'\nMétriques guardades a {filename}\n')
 
+############### Guardem Models ###############################
 def save_model(best_estimator, model_name, save_external='no'):
     """
     Si save_external = 'yes', desa el model en:
@@ -312,7 +326,7 @@ def save_model(best_estimator, model_name, save_external='no'):
     local_path = local_dir / f"{model_name}_model.joblib"
 
     joblib.dump(best_estimator, local_path)  # Guardem el model a la ruta local
-    print(f"Model guardat localment a: {local_path}")
+    print(f"\nModel guardat localment a: {local_path}\n")
 
     # RUTA EXTERNA A LA WEBAPP
     if save_external.lower() == 'yes':
@@ -321,4 +335,4 @@ def save_model(best_estimator, model_name, save_external='no'):
         external_path = external_dir / f"{model_name}_model.joblib"
 
         joblib.dump(best_estimator, external_path)  # Guradem el model a la ruta externa, a la aplicació web
-        print(f"Model guardat externament a: {external_path}")
+        print(f"\nModel guardat externament a: {external_path}\n")
