@@ -277,14 +277,6 @@ def update_metrics_file(metrics: pd.DataFrame, filename="results/03_training/met
 
 
 def update_experiments_file(metrics: pd.DataFrame, filename="../results/02_experiments/experiments.csv"):
-    """
-    Actualiza el archivo de experimentos con nuevas métricas.
-    Si el experimento ya existe, actualiza sus métricas. Si no, lo añade.
-    
-    Args:
-        metrics: DataFrame con las métricas del experimento
-        filename: Ruta al archivo de experimentos
-    """
     columnas = ["Experiment", "Train F1 (1)", "Train F1 (macro global)", "Train Accuracy", "Test Precision (1)", "Test Recall (1)", "Test F1 (1)", "Test F1 (macro global)", "Test Accuracy", "Best Params"]
 
     if os.path.exists(filename):
@@ -292,12 +284,14 @@ def update_experiments_file(metrics: pd.DataFrame, filename="../results/02_exper
     else:
         df = pd.DataFrame(columns=columnas)
 
-    fila_nova = metrics[columnas].iloc[0:1].copy()
-    experiment_name = fila_nova["Experiment"].iloc[0]
-
-    # Elimina files amb el mateix nom d'experiment abans d'afegir la nova
-    df = df[df["Experiment"] != experiment_name]
-    df = pd.concat([df, fila_nova], ignore_index=True)
+    for _, fila_nova in metrics[columnas].iterrows():
+        experiment_name = fila_nova["Experiment"]
+        rewrite = df["Experiment"] == experiment_name
+        if rewrite.any():
+            for col in columnas:
+                df.loc[rewrite, col] = fila_nova[col]
+        else:
+            df = pd.concat([df, pd.DataFrame([fila_nova])], ignore_index=True)
 
     df = df.sort_values(by="Test F1 (1)", ascending=False)
 
