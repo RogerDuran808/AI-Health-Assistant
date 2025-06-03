@@ -1,53 +1,23 @@
-from ai_health_assistant.utils.prep_helpers import preprocess_data
+from ai_health_assistant.utils.prep_helpers import preprocess_data, FEATURES, TARGET
+import pandas as pd
 
 '''
 Preprocessament de les dades:
-Un cop netejades les dades, les preprocessem, per preparar-les per l'entrenament del model.
-Les funcions de preprocessament son les definides als prep_helpers.py
-
+Aquest script llegeix els conjunts d'entrenament i prova ja netejats,
+aplica feature engineering a cada conjunt per separat, i els guarda
+en format preparat per a l'entrenament del model i el preprocessament del model
+realitzat en el fitxer training.py.
 '''
-# Target a predir
-TARGET = "TIRED"
-
-# Features que volem utilitzar per fer la predicció
-FEATURES = [
-    "age",
-    "gender",
-    "bmi",
-    "calories",
-    "steps",
-    "lightly_active_minutes",
-    "moderately_active_minutes",
-    "very_active_minutes",
-    "sedentary_minutes",
-    "resting_hr",
-    "minutes_below_default_zone_1",
-    "minutes_in_default_zone_1",
-    "minutes_in_default_zone_2",
-    "minutes_in_default_zone_3",
-    "minutesToFallAsleep",
-    "minutesAsleep",
-    "minutesAwake",
-    "minutesAfterWakeup",
-    "sleep_efficiency",
-    "sleep_deep_ratio",
-    "sleep_light_ratio",
-    "sleep_rem_ratio",
-    "sleep_wake_ratio",
-    "daily_temperature_variation",
-    "rmssd",
-    "spo2",
-    "full_sleep_breathing_rate",
-    'wake_after_sleep_pct'
-] 
 
 
-df_prep = preprocess_data(
-    input_path="data/df_cleaned.csv",
-    output_path="data/df_preprocessed.csv",
-    target=TARGET,
-    features=FEATURES)
 
-print(df_prep.info())
+df_train, df_test = preprocess_data(
+    train_path='data/df_cleaned_train.csv',
+    test_path='data/df_cleaned_test.csv',
+    output_dir='data/df_engineered',
+    features=FEATURES,
+    target=TARGET
+)
 
-
+df = pd.concat([df_train, df_test], axis=0)
+print(df.info())

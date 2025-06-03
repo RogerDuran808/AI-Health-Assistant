@@ -1,137 +1,87 @@
 import pandas as pd
 pd.set_option('display.max_columns', None)
 import numpy as np
-from scipy.stats import randint, uniform
-import joblib
 
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
-from imblearn.ensemble import BalancedRandomForestClassifier
-
-
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
-
-from imblearn.over_sampling import SMOTE, BorderlineSMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
+from sklearn.feature_selection import SelectFromModel
 
-from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model
+from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model, update_metrics_file
+from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
+from ai_health_assistant.utils.prep_helpers import TARGET, build_preprocessor, FEATURES
 
 import warnings
 warnings.filterwarnings('ignore')
 
+#---------------------------------------------------------
 
-################ Quan tinguem la bona forma de entrenar el model ##################
+# Definim el model i el balanceig
+model_name = "GradientBoosting" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+balance_name = 'SMOTEENN' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 
-
-# Load the dataset
-df = pd.read_csv('data/df_preprocessed.csv')
-
-# Comprovem quina es les estructura de les nostres dades faltants en el target
-TARGET = 'TIRED'
-
-# Difinim X i el target y
-# Prediccio de TIRED
-X = df.drop(columns=[TARGET])
-y = df[TARGET]
-
-# Estratifiquem respecte un dels targets per tal d'assegurar el bon split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+#---------------------------------------------------------
 
 
-# Define classifiers
-CLASSIFIERS = {
-    "MLP": MLPClassifier(random_state=42, max_iter=500),
-    "SVM": SVC(random_state=42, probability=True),
-    "RandomForest": RandomForestClassifier(random_state=42),
-    "GradientBoosting": GradientBoostingClassifier(random_state=42),
-    "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False)
-}
-
-# Param grids pel GridSearchCV
-# Complexitat reduida per tal que no porti un temps exegerat de execució
-# Anirem comprovant i ajustant els parametres dels models per veures quins en donen millors resultats.
-# Per això anirem ajustant cada possible classifier
-PARAM_GRIDS = {
-    "MLP": {
-        "classifier__hidden_layer_sizes": [(100,), (100, 50)],
-        "classifier__alpha": [1e-4, 1e-3, 1e-2],
-
-    },
-    "SVM": {
-        "classifier__C": [0.1, 1, 10],
-        "classifier__kernel": ["rbf"], # Si hi ha bons resultats provar d'altres
-        "classifier__gamma": ["scale", "auto", 0.01]
-    },
-
+df_train = pd.read_csv('data/df_engineered_train.csv')
+df_test = pd.read_csv('data/df_engineered_test.csv')
     
-    "RandomForest": {
-        # Parametre pel GridSearch (proves dels millors parametres)
-        "classifier__n_estimators": [1163], # [1163]
-        "classifier__max_depth": [8], # [8]
-        "classifier__max_features": ["log2"], # ["log2"]
-        "classifier__min_samples_leaf": [3], # [3]
-        "classifier__min_samples_split": [5], # [5]
-        "classifier__class_weight": ["balanced"] # ["balanced"]
+X_train = df_train[FEATURES]
+y_train = df_train[TARGET]
+    
+X_test = df_test[FEATURES]
+y_test = df_test[TARGET]
 
-        # # Parametres pel RandomSearch
-        # "classifier__n_estimators": randint(400, 600),
-        # "classifier__max_depth": randint(5, 7),
-        # "classifier__max_features": ["sqrt", "log2", 0.5],
-        # "classifier__min_samples_leaf": randint(1, 3),
-        # "classifier__min_samples_split": randint(2, 8),
-        # "classifier__class_weight": ["balanced", "balanced_subsample"]
+preprocessor = build_preprocessor(df_train, FEATURES)
 
-    },
-
-    # Els millors parametres trobats els posare al costat per tenir una referencia. Best F1 = 0.5648, Acc= 0.5087 
-    "BalancedRandomForest": {
-        "classifier__n_estimators":      [1163], # [1163]
-        "classifier__max_depth":         [8], # [8]
-        "classifier__max_features":      ["log2"], # ["log2"]
-        "classifier__min_samples_leaf":  [3], # [3]
-        "classifier__min_samples_split": [5], # [5]
-        "classifier__class_weight":      ["balanced"], # ["balanced"]
-    },
-    "GradientBoosting": {
-        "classifier__n_estimators": [200, 400],
-        "classifier__learning_rate": [0.05, 0.1],
-        "classifier__max_depth": [3, 5]
-    }
-}
+# Definim el classifier i els parametres
+clf, param_grid = get_classifier_config(model_name)
 
 results = []
-models = {}
 
-# Entrenament del model 
-model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest
-clf = CLASSIFIERS[model_name]
+# Amb el que he obtingut millors resultats es SMOTETomek
+balancing_method = BALANCING_METHODS[balance_name]
+
+# Selecció de les millors caracteristiques 
+feature_selector = SelectFromModel(estimator=RandomForestClassifier(n_estimators=100, random_state=42))
+
+#-------------------------------------------------------------------------------------
 
 
+# Obting un F1=57,93% i un acc= 72%, amb un macro av. 70.14% [BalancedRandomForest]
 pipeline = ImbPipeline([
-    ("smote", BorderlineSMOTE(random_state=42, sampling_strategy=0.95)),
+    ("preprocessor", preprocessor),
+    ("balancing", balancing_method),
     ("classifier", clf)
 ])
 
-# Farem proves també amb el BalancedRandomForestClassifier
-pipeline_no_smote = ImbPipeline([
+# Obting un F1=65.29 i un acc= 59.61%%, amb un macro av. 58.49% [BalancedRandomForest]
+pipeline_no_balance = ImbPipeline([
+    ("preprocessor", preprocessor),
     ("classifier", clf)
 ])
 
+# Pipeline avanzado, per classificadors que no tenen balanceig incorporat
+pipeline_selection = ImbPipeline([
+    ("preprocessor", preprocessor),
+    ("balancing", balancing_method),
+    ("feature_selection", feature_selector),
+    ("classifier", clf)
+])
+
+# Entrenament del model - Cerca de parametres segons depenent del grid o random search
 best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, best_score = train_models(
     X_train, 
     y_train, 
     X_test, 
     y_test,
-    pipeline_no_smote,
-    PARAM_GRIDS[model_name],
+    pipeline,
+    param_grid,
     n_iter=200,
-    search_type='grid' # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
+    search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
-models[model_name] = best_est
-
+# Guardem els resultats en un df
 results_df = append_results(
     results,
     model_name,
@@ -141,14 +91,7 @@ results_df = append_results(
     best_score
 )
 
-plot_learning_curve(
-    model_name,
-    models,
-    X,
-    y,
-    save='yes'
-)
-
+# Guardem la matriu de confusió si save='yes'
 mat_confusio(
     model_name,
     y_test,
@@ -156,13 +99,20 @@ mat_confusio(
     save='yes'
 )
 
-print(f"\n\nMillors parametrs pel model - {model_name}:\n")
-print(results_df[results_df['Model'] == model_name]['Best Params'].values[0])
-print('\n')
+# Guardem la corva d'aprenentatge si save='yes'
+plot_learning_curve(
+    model_name,
+    best_est,
+    X_train,
+    y_train,
+    save='yes'
+)
 
-# Guradem el model a la carpeta models
+# Guradem les mètriques del model amb els millors parametres a 03_training/metrics.csv
+update_metrics_file(results_df)
+
 # Amb la funcio definida, guardem el model entrenat a la carpeta de models local
-# i a la carpeta de models de la nostre webapp, per poder-lo carregar desde alla.
+# i a la carpeta de models de la nostre webapp, per poder-lo carregar si save_external='yes'
 save_model(best_est, model_name, save_external='no')
 
 
