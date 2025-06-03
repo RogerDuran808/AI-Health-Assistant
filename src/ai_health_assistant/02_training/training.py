@@ -18,7 +18,7 @@ warnings.filterwarnings('ignore')
 
 # Definim el model i el balanceig
 model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
-balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
+balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE, SMOTE
 
 # Seleccionar les features a utilitzar
 features = 'top10_fi' # all, top10_perm 
