@@ -94,11 +94,11 @@ PARAM_GRIDS = {
         # "classifier__class_weight": ["balanced"]
 
         # Parametres pel RandomSearch - BalancedRandomForest:
-        "classifier__n_estimators": randint(400, 1600),
-        "classifier__max_depth": randint(5, 10),
+        "classifier__n_estimators": randint(900, 1200),
+        "classifier__max_depth": randint(10, 14),
         "classifier__max_features": ["sqrt", "log2", 0.5],
-        "classifier__min_samples_leaf": randint(1, 5),
-        "classifier__min_samples_split": randint(2, 8),
+        "classifier__min_samples_leaf": randint(8, 12),
+        "classifier__min_samples_split": randint(2,4),
         "classifier__class_weight": ["balanced", "balanced_subsample"]
     },
     

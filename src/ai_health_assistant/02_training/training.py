@@ -19,7 +19,7 @@ warnings.filterwarnings('ignore')
 # Definicions d'entrenament
 model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE, SMOTE
-pipeline_name = 'basic' # basic, no_balance
+pipeline_name = 'no_balance' # basic, no_balance
 features = 'top10_fi' # all, top10_perm, top10_fi
 
 #===========================================================
@@ -69,6 +69,7 @@ results = []
 
 #--------------------------------------------------
 
+# Selecció del pipeline
 if pipeline_name == 'no_balance':
     pipeline = ImbPipeline([
         ("preprocessor", preprocessor),
@@ -91,7 +92,7 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_test,
     pipeline,
     param_grid,
-    n_iter=200,
+    n_iter=10,
     search_type='random', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
