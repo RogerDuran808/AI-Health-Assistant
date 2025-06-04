@@ -2,7 +2,7 @@
 Fitxer de configuració dels models d'aprenentatge automàtic, incloent classificadors i els seus param grids.
 Aquest fitxer centralitza totes les configuracions dels models per millorar la maintainabilitat i la reutilització.
 """
-
+import numpy as np
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
@@ -21,7 +21,7 @@ CLASSIFIERS = {
     "RandomForest": RandomForestClassifier(random_state=42, class_weight='balanced'),
     "GradientBoosting": GradientBoostingClassifier(random_state=42),
     "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False),
-    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0)
+    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0, objective='binary')
 }
 
 ##################### PARAM GRIDS #####################
@@ -125,29 +125,29 @@ PARAM_GRIDS = {
     },
     
     "LGBM": {
-        # Millors paràmetres trobats:
-        'classifier__colsample_bytree': [0.2678280051592841], 
-        'classifier__learning_rate': [0.015273394899450402], 
-        'classifier__min_child_samples': [5], 
-        'classifier__n_estimators': [673], 
-        'classifier__num_leaves': [94], 
-        'classifier__reg_alpha': [0.24018504093317733], 
-        'classifier__reg_lambda': [1.4779290759982566], 
-        'classifier__subsample': [0.7651084549069112],
-        "classifier__boosting_type": ["dart"],
-        "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
-
-        # # Busqueda de paràmetres RandomSearch - LGBM:
-        # "classifier__n_estimators": randint(300, 1200),
-        # "classifier__learning_rate": uniform(0.01, 0.2),
-        # "classifier__num_leaves": randint(30, 150),
-        # "classifier__reg_alpha": uniform(0, 0.5),
-        # "classifier__reg_lambda": uniform(0, 1.5),
-        # "classifier__min_child_samples": randint(5, 20),
-        # "classifier__subsample": uniform(0.2, 1.5),
-        # "classifier__colsample_bytree": uniform(0.2, 1.5),
+        # # Millors paràmetres trobats:
+        # 'classifier__colsample_bytree': [0.2678280051592841], 
+        # 'classifier__learning_rate': [0.015273394899450402], 
+        # 'classifier__min_child_samples': [5], 
+        # 'classifier__n_estimators': [673], 
+        # 'classifier__num_leaves': [94], 
+        # 'classifier__reg_alpha': [0.24018504093317733], 
+        # 'classifier__reg_lambda': [1.4779290759982566], 
+        # 'classifier__subsample': [0.7651084549069112],
         # "classifier__boosting_type": ["dart"],
         # "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
+
+        # Busqueda de paràmetres RandomSearch - LGBM:
+        "classifier__n_estimators": np.arange(750, 850, 10),
+        "classifier__learning_rate": np.linspace(0.010, 0.012, 10),
+        "classifier__num_leaves": np.arange(90, 100, 2),
+        "classifier__reg_alpha": np.linspace(0.2, 0.3, 10),
+        "classifier__reg_lambda": np.linspace(1.3, 1.5, 10), 
+        "classifier__min_child_samples": np.arange(4, 6, 1),
+        "classifier__subsample": np.linspace(0.7, 0.8, 10),
+        "classifier__colsample_bytree": np.linspace(0.25, 0.3, 10),
+        "classifier__boosting_type": ["dart"],
+        "classifier__scale_pos_weight": [1.6], # Aprox 62/38 classe desbalancejada
     }
 }
 

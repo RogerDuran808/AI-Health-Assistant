@@ -17,9 +17,9 @@ warnings.filterwarnings('ignore')
 #=========================================================
 
 # Definicions d'entrenament
-model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE, SMOTE
-pipeline_name = 'no_balance' # basic, no_balance
+pipeline_name = 'basic' # basic, no_balance
 features = 'all' # all, top10_perm, top10_fi
 
 #===========================================================
