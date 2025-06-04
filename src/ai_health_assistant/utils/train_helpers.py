@@ -230,7 +230,27 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     plt.show()
 
 ############## Optimitza l'umbral de decisió ###############################
-def optimize_threshold(classifier, X_val, y_val, target_recall=0.7):
+def optimize_threshold_v1(classifier, X_val, y_val, target_recall=0.7):
+    """
+    Optimitza l'umbral de decisió (versio 1 per umbral_v1.py) per maximitzar el F1 macro avg mantenint el recall (1) >= target_recall
+    """
+    y_scores = classifier.predict_proba(X_val)[:, 1]
+    best_threshold = 0.5
+    best_f1_macro = 0
+
+    for threshold in np.arange(0.1, 0.9, 0.01):
+        y_pred = (y_scores >= threshold).astype(int)
+        recall_1 = recall_score(y_val, y_pred, pos_label=1)
+        f1_macro = f1_score(y_val, y_pred, average='macro')
+
+        if recall_1 >= target_recall and f1_macro > best_f1_macro:
+            best_f1_macro = f1_macro
+            best_threshold = threshold
+
+    return best_threshold
+
+
+def optimize_threshold_v2(classifier, X_val, y_val, target_recall=0.7):
     """
     Optimitza l'umbral de decisió (versio 2, forma alternativa per umbral_v2.py) per maximitzar la precisó mantenint el recall >= target_recall
     """

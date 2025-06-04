@@ -86,20 +86,20 @@ PARAM_GRIDS = {
     
     "BalancedRandomForest": {
         # # Millors paràmetres trobats
-        # "classifier__n_estimators": [1163],
-        # "classifier__max_depth": [8],
-        # "classifier__max_features": ["log2"],
-        # "classifier__min_samples_leaf": [3],
-        # "classifier__min_samples_split": [5],
-        # "classifier__class_weight": ["balanced"]
+        "classifier__class_weight": ["balanced_subsample"],
+        "classifier__max_depth": [10],
+        "classifier__max_features": ["sqrt"],
+        "classifier__min_samples_leaf": [11],
+        "classifier__min_samples_split": [4],
+        "classifier__n_estimators": [1021]
 
-        # Parametres pel RandomSearch - BalancedRandomForest:
-        "classifier__n_estimators": randint(900, 1200),
-        "classifier__max_depth": randint(10, 14),
-        "classifier__max_features": ["sqrt", "log2", 0.5],
-        "classifier__min_samples_leaf": randint(8, 12),
-        "classifier__min_samples_split": randint(2,4),
-        "classifier__class_weight": ["balanced", "balanced_subsample"]
+        # # Parametres pel RandomSearch - BalancedRandomForest:
+        # "classifier__n_estimators": randint(100, 1200),
+        # "classifier__max_depth": randint(12, 16),
+        # "classifier__max_features": ["sqrt", "log2", 0.5],
+        # "classifier__min_samples_leaf": randint(8, 12),
+        # "classifier__min_samples_split": randint(3,6),
+        # "classifier__class_weight": ["balanced", "balanced_subsample"]
     },
     
     "GradientBoosting": {

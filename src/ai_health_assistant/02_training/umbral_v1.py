@@ -9,7 +9,7 @@ from imblearn.combine import SMOTETomek
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
 
 from scipy.stats import randint, uniform
-from ai_health_assistant.utils.train_helpers import mat_confusio, train_models, optimize_threshold
+from ai_health_assistant.utils.train_helpers import mat_confusio, train_models, optimize_threshold_v1
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
 from ai_health_assistant.utils.prep_helpers import build_preprocessor, TARGET, FEATURES
 
@@ -17,10 +17,10 @@ from ai_health_assistant.utils.prep_helpers import build_preprocessor, TARGET, F
 # ---------------------------------------------------------
 
 # Definim el model a utilitzar
-model_name = "BalancedRandomForest" # Possibles models:"MLP", "SVM", "RandomForest", "GradientBoosting", "BalancedRandomForest", "LGBM"
+model_name = "LGBM" # Possibles models:"MLP", "SVM", "RandomForest", "GradientBoosting", "BalancedRandomForest", "LGBM"
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
-pipeline_name = 'no_balance' # basic, no_balance
-features = 'top10_fi' # all, top10_perm, top10_fi
+pipeline_name = 'basic' # basic, no_balance
+features = 'all' # all, top10_perm, top10_fi
 
 # ---------------------------------------------------------
 
@@ -33,6 +33,17 @@ top15_perm = ['bmi', 'recovery_factor', 'minutesAsleep', 'full_sleep_breathing_r
 top10_fi = ['calories', 'bmi_hr_interaction', 'bmi', 'resting_hr', 'steps_norm_cal', 'daily_temperature_variation', 'recovery_factor', 'hr_zone_variability', 'lightly_active_minutes', 'minutesAsleep']    
 
 # -------------------------------------------------------
+
+
+# Seleccio de features
+if features == 'top15_perm':
+    FEATURES = top15_perm
+elif features == 'top10_fi':
+    FEATURES = top10_fi
+else:
+    FEATURES = FEATURES
+
+# --------------------------------------------------------
 
 # Prediccio de TIRED
 X_temp = df_train[FEATURES]
@@ -58,7 +69,7 @@ balancing_method = BALANCING_METHODS[balance_name]  # Combina oversampling i und
 X_train, X_val, y_train, y_val = train_test_split(
         X_temp, y_temp, test_size=0.20, stratify=y_temp, random_state=42)
 
-preprocessor = build_preprocessor(X_train)
+preprocessor = build_preprocessor(X_train, FEATURES)
 
 # ----------------------------------------------------------
 
@@ -93,36 +104,16 @@ best_est, y_train_pred, train_report, y_val_pred, val_report, best_params, best_
 
 #################### OPTIMITZEM UMBRAL ####################
 
-# Trobem el millor umbral per maximitzar el F1 score
-# Calibrem el model per tenir les millors probabilitats calibrades
-clf_cal = CalibratedClassifierCV(best_est, method="isotonic", cv=5)
-
-# Reentrenem el model calibrat amb el train
-clf_cal.fit(X_train, y_train)
-
-proba_val = clf_cal.predict_proba(X_val)[:,1]
-
-prec, rec, thr = precision_recall_curve(y_val, proba_val)
-
-# Calucl respecte f1, per maximitzar el F1 score
-f1 = 2*prec*rec/(prec+rec+1e-9)
-best_thr = thr[np.argmax(f1)]
-print(f"Umbral óptimo en validación: {best_thr:.3f} | F1={f1.max():.4f}")
-
-
-
-############# EVALUACIÓ DEL TEST ORIGINAL ##################
-
-probab_test = clf_cal.predict_proba(X_test)[:,1]
-y_test_pred  = (probab_test >= best_thr).astype(int)
+threshold = optimize_threshold_v1(best_est, X_val, y_val)
+y_pred_optimized = (best_est.predict_proba(X_test)[:, 1] >= threshold).astype(int)
 
 print("\n== Classification report en TEST ==")
-print(classification_report(y_test, y_test_pred, digits=4))
+print(classification_report(y_test, y_pred_optimized, digits=4))
 
 # Plot de la matriu de confusió
 mat_confusio(
     f"UAjust_{model_name}_v1",  
     y_test,
-    y_test_pred,
+    y_pred_optimized,
     save='yes'
     )

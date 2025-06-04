@@ -20,7 +20,7 @@ warnings.filterwarnings('ignore')
 model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE, SMOTE
 pipeline_name = 'no_balance' # basic, no_balance
-features = 'top10_fi' # all, top10_perm, top10_fi
+features = 'all' # all, top10_perm, top10_fi
 
 #===========================================================
 
@@ -93,7 +93,7 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     pipeline,
     param_grid,
     n_iter=10,
-    search_type='random', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
+    search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
 # Guardem els resultats en un df
