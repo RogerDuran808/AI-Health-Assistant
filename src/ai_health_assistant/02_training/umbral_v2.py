@@ -90,7 +90,7 @@ best_est, y_train_pred, train_report, y_val_pred, val_report, best_params, best_
     search_type='grid'
 )
 
-threshold = optimize_threshold_v2(best_est, X_val, y_val, target_recall=0.65)
+threshold = optimize_threshold_v2(best_est, X_val, y_val, target_recall=0.6)
 y_pred_optimized = (best_est.predict_proba(X_test)[:, 1] >= threshold).astype(int)
 
 print("\n== Classification report en TEST ==")
