@@ -1,7 +1,5 @@
 """Prova d'entrenament utilitzant les columnes amb major correlació
 amb la variable TIRED.
-Aquest script segueix la lògica de ``training.py`` però selecciona
-les columnes numèriques amb més correlació.
 """
 import pandas as pd
 from imblearn.pipeline import Pipeline as ImbPipeline
@@ -26,14 +24,16 @@ test_path = 'data/df_engineered_test.csv'
 df_train = pd.read_csv(train_path)
 df_test = pd.read_csv(test_path)
 
-# ---------------------------------------------------
-# Selecció automàtica de columnes per correlació
-# ---------------------------------------------------
-correlacions = df_train.corr(numeric_only=True)[TARGET].abs().sort_values(ascending=False)
-# Eliminem la correlació amb la pròpia variable objectiu
-correlacions = correlacions.drop(TARGET, errors='ignore')
-# Ens quedem amb un màxim de vuit columnes
-selected_features = correlacions.head(8).index.tolist()
+# # ---------------------------------------------------
+# # Selecció automàtica de columnes per correlació
+# # ---------------------------------------------------
+# correlacions = df_train.corr(numeric_only=True)[TARGET].abs().sort_values(ascending=False)
+# # Eliminem la correlació amb la pròpia variable objectiu
+# correlacions = correlacions.drop(TARGET, errors='ignore')
+# # Ens quedem amb un màxim de vuit columnes
+# selected_features = correlacions.head(5).index.tolist()
+
+selected_features = ['bmi', 'calories', 'resting_hr', 'rmssd', 'sleep_efficiency', 'minutesAsleep', 'minutesAwake']
 print(f"Columnes utilitzades: {selected_features}")
 
 # ---------------------------------------------------
@@ -74,7 +74,7 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     pipeline,
     param_grid,
     n_iter=10,
-    search_type='random'
+    search_type='grid'
 )
 
 results_df = append_results(

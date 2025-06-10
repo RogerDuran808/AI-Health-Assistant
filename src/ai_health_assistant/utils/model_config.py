@@ -85,21 +85,21 @@ PARAM_GRIDS = {
     },
     
     "BalancedRandomForest": {
-        # # # Millors paràmetres trobats
-        # "classifier__class_weight": ["balanced_subsample"],
-        # "classifier__max_depth": [10],
-        # "classifier__max_features": ["sqrt"],
-        # "classifier__min_samples_leaf": [11],
-        # "classifier__min_samples_split": [4],
-        # "classifier__n_estimators": [1021]
+        # # Millors paràmetres trobats
+        "classifier__class_weight": ["balanced_subsample"],
+        "classifier__max_depth": [10],
+        "classifier__max_features": ["sqrt"],
+        "classifier__min_samples_leaf": [11],
+        "classifier__min_samples_split": [4],
+        "classifier__n_estimators": [1021]
 
-        # Parametres pel RandomSearch - BalancedRandomForest:
-        "classifier__n_estimators": randint(500, 1200),
-        "classifier__max_depth": randint(5, 16),
-        "classifier__max_features": ["sqrt", "log2", 0.5],
-        "classifier__min_samples_leaf": randint(5, 10),
-        "classifier__min_samples_split": randint(3,6),
-        "classifier__class_weight": ["balanced", "balanced_subsample"]
+        # # Parametres pel RandomSearch - BalancedRandomForest:
+        # "classifier__n_estimators": randint(500, 1200),
+        # "classifier__max_depth": randint(5, 16),
+        # "classifier__max_features": ["sqrt", "log2", 0.5],
+        # "classifier__min_samples_leaf": randint(5, 10),
+        # "classifier__min_samples_split": randint(3,6),
+        # "classifier__class_weight": ["balanced", "balanced_subsample"]
     },
     
     "GradientBoosting": {
