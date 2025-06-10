@@ -1,4 +1,4 @@
-from ai_health_assistant.utils.prep_helpers import preprocess_data, FEATURES, TARGET
+from ai_health_assistant.utils.prep_helpers import preprocess_data, FEATURES, TARGET, COLUMNES_DATASET
 import pandas as pd
 
 '''
@@ -15,7 +15,7 @@ df_train, df_test = preprocess_data(
     train_path='data/df_cleaned_train.csv',
     test_path='data/df_cleaned_test.csv',
     output_dir='data/df_engineered',
-    features=FEATURES,
+    features=COLUMNES_DATASET,
     target=TARGET
 )
 

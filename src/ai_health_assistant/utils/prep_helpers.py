@@ -16,6 +16,8 @@ from sklearn.impute import SimpleImputer, KNNImputer
 TARGET = 'TIRED'
 
 # Features que volem utilitzar per fer la predicció
+COLS_ID = ['id', 'date']
+
 FEATURES = [
     "age",
     "gender",
@@ -61,6 +63,7 @@ FEATURES = [
     'active_to_total_ratio'
 ] 
 
+COLUMNES_DATASET = COLS_ID + FEATURES
 #################################################################################
 # Funcions per al preprocessament del dataset netejat
 #####################################################################

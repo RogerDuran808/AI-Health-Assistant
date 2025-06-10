@@ -3,6 +3,8 @@
 Entrenament d'un model LSTM per predir la fatiga del dia següent.
 Utilitza finestres temporals de 7 dies de dades del wearable per predir
 l'estat de cansament un dia després.
+
+Executar amb Python 3.10:   py -3.10 tests/training_lstm.py
 """
 
 # --- Imports ---
@@ -25,20 +27,14 @@ from ai_health_assistant.utils.prep_helpers import build_preprocessor, FEATURES,
 
 # --- Constants ---
 WINDOW_SIZE = 7  # Longitud de la finestra de dades
-MODEL_DIR = "models" # <--- MEJORA: Directorio para guardar modelos
 
 def carrega_dades(path: str) -> pd.DataFrame:
     """Carrega i prepara el dataset."""
     print(f"Carregant dades des de: {path}...")
     df = pd.read_csv(path)
-    # Convertim la columna de gènere a valors numèrics
-    if "gender" in df.columns:
-        df["gender"] = df["gender"].map({"MALE": 0, "FEMALE": 1})
     
     # Omplim valors buits de manera diferenciada per tipus de dada
     for col in df.select_dtypes(include=np.number).columns:
-        # MEJORA SUGERIDA: Usar ffill() puede ser mejor para series temporales
-        # df[col] = df[col].fillna(method='ffill').fillna(0)
         df[col] = df[col].fillna(0)
     for col in df.select_dtypes(include='object').columns:
         df[col] = df[col].fillna('missing')
@@ -168,12 +164,6 @@ def main():
     print("\nInforme de classificació:")
     print(classification_report(y_test, y_pred, digits=4))
 
-    # <--- MEJORA: Guardar el modelo y el preprocesador
-    print("Guardant el model i el preprocesador...")
-    os.makedirs(MODEL_DIR, exist_ok=True)
-    model.save(os.path.join(MODEL_DIR, "fatigue_lstm_model.keras"))
-    joblib.dump(preprocessor, os.path.join(MODEL_DIR, "preprocessor.joblib"))
-    print(f"Model i preprocesador guardats a la carpeta '{MODEL_DIR}'.")
 
 
 if __name__ == "__main__":
