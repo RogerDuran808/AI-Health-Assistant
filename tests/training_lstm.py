@@ -5,7 +5,6 @@ l'estat de cansament un dia després.
 
 Executar amb Python 3.10:   py -3.10 tests/training_lstm.py
 """
-
 # --- Imports ---
 import os
 import pandas as pd
@@ -18,12 +17,20 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.optimizers import Adam
+import random
+
+# --- Seed for reproducibility ---
+SEED = 42
+os.environ['PYTHONHASHSEED'] = str(SEED)
+random.seed(SEED)
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
 
 # Asumim que aquests mòduls existeixen
 from ai_health_assistant.utils.prep_helpers import build_preprocessor, FEATURES, TARGET
 
 # --- Constants ---
-WINDOW_SIZE = 7
+WINDOW_SIZE = 10
 
 def carrega_dades(path: str) -> pd.DataFrame:
     """Carrega i prepara el dataset."""
@@ -124,7 +131,7 @@ def main():
     print("\nIniciant entrenament del model...")
     model.fit(
         X_train, y_train,
-        epochs=100,
+        epochs=300,
         batch_size=32,
         validation_data=(X_val, y_val),
         callbacks=[early_stopping, reduce_lr],
