@@ -1,8 +1,5 @@
 import pandas as pd
-pd.set_option('display.max_columns', None)
 import numpy as np
-
-from sklearn.ensemble import RandomForestClassifier
 
 from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.feature_selection import SelectFromModel
