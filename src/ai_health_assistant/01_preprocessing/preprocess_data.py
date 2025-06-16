@@ -20,4 +20,5 @@ df_train, df_test = preprocess_data(
 )
 
 df = pd.concat([df_train, df_test], axis=0)
+df.to_csv('data/df_engineered.csv', index=False)
 print(df.info())

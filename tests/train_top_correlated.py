@@ -24,31 +24,32 @@ test_path = 'data/df_engineered_test.csv'
 df_train = pd.read_csv(train_path)
 df_test = pd.read_csv(test_path)
 
-# # ---------------------------------------------------
-# # Selecció automàtica de columnes per correlació
-# # ---------------------------------------------------
-# correlacions = df_train.corr(numeric_only=True)[TARGET].abs().sort_values(ascending=False)
-# # Eliminem la correlació amb la pròpia variable objectiu
-# correlacions = correlacions.drop(TARGET, errors='ignore')
-# # Ens quedem amb un màxim de vuit columnes
-# selected_features = correlacions.head(5).index.tolist()
+# ---------------------------------------------------
+# Selecció automàtica de columnes per correlació
+# ---------------------------------------------------
+correlacions = df_train.corr(numeric_only=True)[TARGET].abs().sort_values(ascending=False)
+# Eliminem la correlació amb la pròpia variable objectiu
+correlacions = correlacions.drop(TARGET, errors='ignore')
 
-selected_features = ['bmi', 'calories', 'resting_hr', 'rmssd', 'sleep_efficiency', 'minutesAsleep', 'minutesAwake']
-print(f"Columnes utilitzades: {selected_features}")
+# Ens quedem amb un màxim de vuit columnes
+corr_features = correlacions.head(5).index.tolist()
+print(corr_features)
+
+
 
 # ---------------------------------------------------
 # Preparació del train i test
 # ---------------------------------------------------
-X_train = df_train[selected_features]
+X_train = df_train[corr_features]
 y_train = df_train[TARGET]
 
-X_test = df_test[selected_features]
+X_test = df_test[corr_features]
 y_test = df_test[TARGET]
 
 # ---------------------------------------------------
 # Construïm el preprocessador i definim el model
 # ---------------------------------------------------
-preprocessor = build_preprocessor(df_train, selected_features)
+preprocessor = build_preprocessor(df_train, corr_features)
 
 model_name = 'BalancedRandomForest'
 clf, param_grid = get_classifier_config(model_name)
