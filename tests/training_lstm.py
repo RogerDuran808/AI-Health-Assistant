@@ -1,6 +1,6 @@
 """
 Entrenament d'un model LSTM per predir la fatiga del dia següent.
-Utilitza finestres temporals de 7 dies de dades del wearable per predir
+Utilitza finestres temporals de dades del wearable per predir
 l'estat de cansament un dia després.
 
 Executar amb Python 3.10:   py -3.10 tests/training_lstm.py

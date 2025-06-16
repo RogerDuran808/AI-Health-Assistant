@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE, SMOTE
 pipeline_name = 'no_balance' # basic, no_balance
-features = 'all' # all, top10_perm, top10_fi, sel_manual, corr_features
+features = 'top10_fi' # all, top15_perm, top10_fi, sel_manual, corr_features
 
 #===========================================================
 
