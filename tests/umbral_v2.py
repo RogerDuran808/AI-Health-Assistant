@@ -13,7 +13,7 @@ from ai_health_assistant.utils.train_helpers import optimize_threshold_v2, mat_c
 # Definim el model a utilitzar
 model_name = "LGBM"  # Opcions: MLP, SVM, RandomForest, GradientBoosting, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
-pipeline_name = 'basic' # basic, no_balance
+pipeline_name = 'balance' # balance, no_balance
 features = 'all' # all, top10_perm, top10_fi
 
 # ---------------------------------------------------------

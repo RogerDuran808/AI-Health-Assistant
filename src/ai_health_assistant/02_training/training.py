@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 from imblearn.pipeline import Pipeline as ImbPipeline
-from sklearn.feature_selection import SelectFromModel
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model, update_metrics_file
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
@@ -14,10 +13,10 @@ warnings.filterwarnings('ignore')
 #=========================================================
 
 # Definicions d'entrenament
-model_name = "BalancedRandomForest" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
+model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE, SMOTE
-pipeline_name = 'no_balance' # basic, no_balance
-features = 'top10_fi' # all, top15_perm, top10_fi, sel_manual, corr_features
+pipeline_name = 'balance' # balance, no_balance
+features = 'all' # all, top15_perm, top10_fi, sel_manual, corr_features
 
 #===========================================================
 
