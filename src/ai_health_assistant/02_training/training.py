@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 from imblearn.pipeline import Pipeline as ImbPipeline
+from sklearn.metrics import make_scorer, f1_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model, update_metrics_file
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
@@ -16,7 +17,7 @@ warnings.filterwarnings('ignore')
 model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE, SMOTE
 pipeline_name = 'balance' # balance, no_balance
-features = 'all' # all, top15_perm, top10_fi, sel_manual, corr_features
+features = 'all' # all, top15_perm, top10_fi, sel_manual
 
 #===========================================================
 
@@ -37,8 +38,6 @@ elif features == 'top10_fi':
     FEATURES = top10_fi
 elif features == 'sel_manual':
     FEATURES = sel_manual
-elif features == 'corr_features':
-    FEATURES = corr_features
 else:
     FEATURES = FEATURES
 
@@ -92,8 +91,8 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_test,
     pipeline,
     param_grid,
-    n_iter=10,
-    search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
+    n_iter=100,
+    search_type='random', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
 # Guardem els resultats en un df

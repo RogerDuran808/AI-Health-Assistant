@@ -20,7 +20,7 @@ from ai_health_assistant.utils.prep_helpers import build_preprocessor, TARGET, F
 model_name = "LGBM" # Possibles models:"MLP", "SVM", "RandomForest", "GradientBoosting", "BalancedRandomForest", "LGBM"
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 pipeline_name = 'balance' # balance, no_balance
-features = 'all' # all, top10_perm, top10_fi
+features = 'top10_fi' # all, top10_perm, top10_fi
 
 # ---------------------------------------------------------
 
@@ -96,15 +96,15 @@ best_est, y_train_pred, train_report, y_val_pred, val_report, best_params, best_
     y_val,
     pipeline,
     param_grid,
-    n_iter=200,
-    search_type='grid'
+    n_iter=10,
+    search_type='random'
 )
 
 #---------------------------------------------------------
 
 #################### OPTIMITZEM UMBRAL ####################
 
-threshold = optimize_threshold_v1(best_est, X_val, y_val, target_recall=0.6)
+threshold = optimize_threshold_v1(best_est, X_val, y_val, target_precision=0.48)
 y_pred_optimized = (best_est.predict_proba(X_test)[:, 1] >= threshold).astype(int)
 
 print("\n== Classification report en TEST ==")

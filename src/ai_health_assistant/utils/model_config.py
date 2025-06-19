@@ -125,29 +125,45 @@ PARAM_GRIDS = {
     },
     
     "LGBM": {
-        # Millors paràmetres trobats:
-        'classifier__colsample_bytree': [0.2678280051592841], 
-        'classifier__learning_rate': [0.015273394899450402], 
-        'classifier__min_child_samples': [5], 
-        'classifier__n_estimators': [673], 
-        'classifier__num_leaves': [94], 
-        'classifier__reg_alpha': [0.24018504093317733], 
-        'classifier__reg_lambda': [1.4779290759982566], 
-        'classifier__subsample': [0.7651084549069112],
-        "classifier__boosting_type": ["dart"],
-        "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
-
-        # # Busqueda de paràmetres RandomSearch - LGBM:
-        # "classifier__n_estimators": np.arange(750, 850, 10),
-        # "classifier__learning_rate": np.linspace(0.010, 0.012, 10),
-        # "classifier__num_leaves": np.arange(90, 100, 2),
-        # "classifier__reg_alpha": np.linspace(0.2, 0.3, 10),
-        # "classifier__reg_lambda": np.linspace(1.3, 1.5, 10), 
-        # "classifier__min_child_samples": np.arange(4, 6, 1),
-        # "classifier__subsample": np.linspace(0.7, 0.8, 10),
-        # "classifier__colsample_bytree": np.linspace(0.25, 0.3, 10),
+        # # Millors paràmetres trobats:
+        # 'classifier__colsample_bytree': [0.2678280051592841], 
+        # 'classifier__learning_rate': [0.015273394899450402], 
+        # 'classifier__min_child_samples': [5], 
+        # 'classifier__n_estimators': [673], 
+        # 'classifier__num_leaves': [94], 
+        # 'classifier__reg_alpha': [0.24018504093317733], 
+        # 'classifier__reg_lambda': [1.4779290759982566], 
+        # 'classifier__subsample': [0.7651084549069112],
         # "classifier__boosting_type": ["dart"],
-        # "classifier__scale_pos_weight": [1.6], # Aprox 62/38 classe desbalancejada
+        # "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
+
+        # # # Busqueda de paràmetres RandomSearch - LGBM:
+        # "classifier__scale_pos_weight": uniform(0.5, 1.3),
+        # "classifier__min_split_gain":   uniform(0.1, 0.4),
+        # "classifier__min_child_samples": randint(80, 200),
+        # "classifier__num_leaves":       randint(20, 80),
+        # "classifier__max_depth":        [3, 5, 7],
+        # "classifier__colsample_bytree": uniform(0.2, 0.4),
+        # "classifier__subsample":        uniform(0.5, 0.8),
+        # "classifier__reg_alpha":        loguniform(0.1, 10),
+        # "classifier__reg_lambda":       loguniform(0.1, 10),
+        # "classifier__learning_rate":    loguniform(0.02, 0.06),
+        # "classifier__n_estimators":     randint(400, 1200),
+        # "classifier__boosting_type":    ["gbdt"],      # opcional
+
+        # Paràmetres trobats per LGBM 2:
+        'classifier__colsample_bytree': [0.5254442364744265],
+        'classifier__learning_rate': [0.005622309335506315],
+        'classifier__max_depth': [9],
+        'classifier__min_child_samples': [34],
+        'classifier__min_split_gain': [0.06370173320348284],
+        'classifier__n_estimators': [591],
+        'classifier__num_leaves': [119],
+        'classifier__reg_alpha': [0.0035498788321965025],
+        'classifier__reg_lambda': [0.01334697757417809],
+        'classifier__scale_pos_weight': [1.8821833611219092],
+        'classifier__subsample': [0.7511807565247405],
+        
     }
 }
 
