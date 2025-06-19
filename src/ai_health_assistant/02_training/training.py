@@ -29,21 +29,8 @@ df_test = pd.read_csv('data/df_engineered_test.csv')
 top15_perm = ['bmi', 'recovery_factor', 'minutesAsleep', 'full_sleep_breathing_rate', 'daily_temperature_variation', 'minutes_in_default_zone_1', 'wake_after_sleep_pct', 'calories', 'active_to_rest_transition', 'rmssd', 'sleep_activity_balance', 'deep_sleep_score', 'steps_norm_cal', 'sleep_wake_ratio', 'sleep_rem_ratio']
 top10_fi = ['calories', 'bmi_hr_interaction', 'bmi', 'resting_hr', 'steps_norm_cal', 'daily_temperature_variation', 'recovery_factor', 'hr_zone_variability', 'lightly_active_minutes', 'minutesAsleep']
 top13_perm = ['bmi', 'recovery_factor', 'minutesAsleep', 'full_sleep_breathing_rate', 'daily_temperature_variation', 'minutes_in_default_zone_1', 'wake_after_sleep_pct', 'calories', 'active_to_rest_transition', 'rmssd', 'sleep_activity_balance', 'deep_sleep_score', 'steps_norm_cal']
+top_perm_2 = ['num__bmi', 'num__daily_temperature_variation', 'num__resting_hr', 'num__sleep_efficiency', 'num__rmssd', 'num__sleep_deep_ratio', 'cat__gender_FEMALE', 'num__lightly_active_minutes', 'num__calories', 'num__bmi_hr_interaction']
 sel_manual = ['bmi', 'calories', 'resting_hr', 'rmssd', 'sleep_efficiency', 'minutesAsleep', 'minutesAwake']
-# ---------------------------------------------------
-
-# Seleccio de features
-if features == 'top15_perm':
-    FEATURES = top15_perm
-elif features == 'top10_fi':
-    FEATURES = top10_fi
-elif features == 'top13_perm':
-    FEATURES = top13_perm
-elif features == 'sel_manual':
-    FEATURES = sel_manual
-else:
-    FEATURES = FEATURES
-
 # ---------------------------------------------------
 
 # Seleccio de features
@@ -108,8 +95,8 @@ best_est, y_train_pred, train_report, y_test_pred, test_report, best_params, bes
     y_test,
     pipeline,
     param_grid,
-    n_iter=100,
-    search_type='random', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
+    n_iter=300,
+    search_type='grid', # 'grid' quan fem search amb parametres especifics, sino predefinit 'random' que fa un randomsearch
 )
 
 # Guardem els resultats en un df

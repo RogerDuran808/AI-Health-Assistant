@@ -86,21 +86,21 @@ PARAM_GRIDS = {
     
     "BalancedRandomForest": {
 
-        # # Millors paràmetres trobats v1
-        "classifier__class_weight": ["balanced"],
-        "classifier__max_depth": [8],
-        "classifier__max_features": ["log2"],
-        "classifier__min_samples_leaf": [3],
-        "classifier__min_samples_split": [5],
-        "classifier__n_estimators": [1163]
+        # # # Millors paràmetres trobats v1 per trobar el TOP13PERM que dona un F1 de 60.37% amb LGBM
+        # "classifier__class_weight": ["balanced"],
+        # "classifier__max_depth": [8],
+        # "classifier__max_features": ["log2"],
+        # "classifier__min_samples_leaf": [3],
+        # "classifier__min_samples_split": [5],
+        # "classifier__n_estimators": [1163]
 
-        # # # Millors paràmetres trobats v2
-        # "classifier__class_weight": ["balanced_subsample"],
-        # "classifier__max_depth": [10],
-        # "classifier__max_features": ["sqrt"],
-        # "classifier__min_samples_leaf": [11],
-        # "classifier__min_samples_split": [4],
-        # "classifier__n_estimators": [1021]
+        # # Millors paràmetres trobats v2
+        "classifier__class_weight": ["balanced_subsample"],
+        "classifier__max_depth": [10],
+        "classifier__max_features": ["sqrt"],
+        "classifier__min_samples_leaf": [11],
+        "classifier__min_samples_split": [4],
+        "classifier__n_estimators": [1021]
 
         # # Parametres pel RandomSearch - BalancedRandomForest:
         # "classifier__n_estimators": randint(500, 1200),
@@ -163,18 +163,18 @@ PARAM_GRIDS = {
         # "classifier__scale_pos_weight": uniform(1.2, 2.5),      # 1.2-2.5
         # "classifier__min_split_gain": uniform(0.0, 0.3),     
 
-        # Paràmetres trobats per LGBM v2 (amb topfi13 un f1 de 60.37%):
-        'classifier__colsample_bytree': [0.5254442364744265],
-        'classifier__learning_rate': [0.005622309335506315],
+        # Paràmetres trobats per LGBM v2 (amb topperm13 un f1 de 60.37%):
+        'classifier__colsample_bytree': [0.53],
+        'classifier__learning_rate': [0.0058],
         'classifier__max_depth': [9],
         'classifier__min_child_samples': [34],
-        'classifier__min_split_gain': [0.06370173320348284],
+        'classifier__min_split_gain': [0.06],
         'classifier__n_estimators': [591],
         'classifier__num_leaves': [119],
-        'classifier__reg_alpha': [0.0035498788321965025],
-        'classifier__reg_lambda': [0.01334697757417809],
-        'classifier__scale_pos_weight': [1.8821833611219092],
-        'classifier__subsample': [0.7511807565247405],
+        'classifier__reg_alpha': [0.0036],
+        'classifier__reg_lambda': [0.0134],
+        'classifier__scale_pos_weight': [1.62],
+        'classifier__subsample': [0.75],
         
     }
 }
