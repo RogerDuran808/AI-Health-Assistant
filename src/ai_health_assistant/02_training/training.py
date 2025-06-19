@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 model_name = "LGBM" # RandomForest, GradientBoosting, MLP, SVM, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE, SMOTE
 pipeline_name = 'balance' # balance, no_balance
-features = 'all' # all, top15_perm, top10_fi, sel_manual
+features = 'top13_perm' # all, top15_perm, top13_perm, top10_fi, sel_manual
 
 #===========================================================
 
@@ -27,7 +27,8 @@ df_test = pd.read_csv('data/df_engineered_test.csv')
 
 # Seleccio de features, posibles columnes trobades a 02_LifeSnaps_Training_Experiments.ipynb o altres proves
 top15_perm = ['bmi', 'recovery_factor', 'minutesAsleep', 'full_sleep_breathing_rate', 'daily_temperature_variation', 'minutes_in_default_zone_1', 'wake_after_sleep_pct', 'calories', 'active_to_rest_transition', 'rmssd', 'sleep_activity_balance', 'deep_sleep_score', 'steps_norm_cal', 'sleep_wake_ratio', 'sleep_rem_ratio']
-top10_fi = ['calories', 'bmi_hr_interaction', 'bmi', 'resting_hr', 'steps_norm_cal', 'daily_temperature_variation', 'recovery_factor', 'hr_zone_variability', 'lightly_active_minutes', 'minutesAsleep']    
+top10_fi = ['calories', 'bmi_hr_interaction', 'bmi', 'resting_hr', 'steps_norm_cal', 'daily_temperature_variation', 'recovery_factor', 'hr_zone_variability', 'lightly_active_minutes', 'minutesAsleep']
+top13_perm = ['bmi', 'recovery_factor', 'minutesAsleep', 'full_sleep_breathing_rate', 'daily_temperature_variation', 'minutes_in_default_zone_1', 'wake_after_sleep_pct', 'calories', 'active_to_rest_transition', 'rmssd', 'sleep_activity_balance', 'deep_sleep_score', 'steps_norm_cal']
 sel_manual = ['bmi', 'calories', 'resting_hr', 'rmssd', 'sleep_efficiency', 'minutesAsleep', 'minutesAwake']
 # ---------------------------------------------------
 
@@ -36,6 +37,22 @@ if features == 'top15_perm':
     FEATURES = top15_perm
 elif features == 'top10_fi':
     FEATURES = top10_fi
+elif features == 'top13_perm':
+    FEATURES = top13_perm
+elif features == 'sel_manual':
+    FEATURES = sel_manual
+else:
+    FEATURES = FEATURES
+
+# ---------------------------------------------------
+
+# Seleccio de features
+if features == 'top15_perm':
+    FEATURES = top15_perm
+elif features == 'top10_fi':
+    FEATURES = top10_fi
+elif features == 'top13_perm':
+    FEATURES = top13_perm
 elif features == 'sel_manual':
     FEATURES = sel_manual
 else:
