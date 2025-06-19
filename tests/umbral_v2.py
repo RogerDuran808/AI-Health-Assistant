@@ -14,7 +14,7 @@ from ai_health_assistant.utils.train_helpers import optimize_threshold_v2, mat_c
 model_name = "LGBM"  # Opcions: MLP, SVM, RandomForest, GradientBoosting, BalancedRandomForest, LGBM
 balance_name = 'SMOTETomek' # SMOTETomek, SMOTEENN, ADASYN, BorderlineSMOTE
 pipeline_name = 'balance' # balance, no_balance
-features = 'top10_fi' # all, top10_perm, top10_fi
+features = 'top13_perm' # all, top10_perm, top10_fi
 
 # ---------------------------------------------------------
 
@@ -25,6 +25,7 @@ df_test = pd.read_csv('data/df_engineered_test.csv')
 # Seleccio de features, posibles columnes trobades a 02_LifeSnaps_Training_Experiments.ipynb o altres proves
 top15_perm = ['bmi', 'recovery_factor', 'minutesAsleep', 'full_sleep_breathing_rate', 'daily_temperature_variation', 'minutes_in_default_zone_1', 'wake_after_sleep_pct', 'calories', 'active_to_rest_transition', 'rmssd', 'sleep_activity_balance', 'deep_sleep_score', 'steps_norm_cal', 'sleep_wake_ratio', 'sleep_rem_ratio']
 top10_fi = ['calories', 'bmi_hr_interaction', 'bmi', 'resting_hr', 'steps_norm_cal', 'daily_temperature_variation', 'recovery_factor', 'hr_zone_variability', 'lightly_active_minutes', 'minutesAsleep']    
+top13_perm = ['bmi', 'recovery_factor', 'minutesAsleep', 'full_sleep_breathing_rate', 'daily_temperature_variation', 'minutes_in_default_zone_1', 'wake_after_sleep_pct', 'calories', 'active_to_rest_transition', 'rmssd', 'sleep_activity_balance', 'deep_sleep_score', 'steps_norm_cal']
 
 # -------------------------------------------------------
 
@@ -33,6 +34,8 @@ if features == 'top15_perm':
     FEATURES = top15_perm
 elif features == 'top10_fi':
     FEATURES = top10_fi
+elif features == 'top13_perm':
+    FEATURES = top13_perm
 else:
     FEATURES = FEATURES
 

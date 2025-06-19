@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 from sklearn.model_selection import  GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
-
+from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import classification_report, f1_score, make_scorer, confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
 
 from pathlib import Path
@@ -228,6 +228,26 @@ def mat_confusio(title_name, y_true, y_pred, save = 'no'):
     
     # Si no, mostrem la gràfica
     plt.show()
+
+def optimal_threshold(y_true, y_proba, metric='f1'):
+    """
+    Retorna:
+        thr_best  – llindar òptim pel 'metric'
+        score_best, prec_best, rec_best
+    """
+    prec, rec, thr = precision_recall_curve(y_true, y_proba)
+
+    if metric == 'f1':
+        score = 2 * prec * rec / (prec + rec + 1e-9)
+    elif metric == 'precision':
+        score = prec
+    elif metric == 'recall':
+        score = rec
+    else:
+        raise ValueError(f"Mètrica {metric} no implementada")
+
+    idx = np.nanargmax(score)
+    return thr[idx], score[idx], prec[idx], rec[idx]
 
 ############## Optimitza l'umbral de decisió ###############################
 def optimize_threshold_v1(classifier, X_val, y_val, target_precision=0.5):

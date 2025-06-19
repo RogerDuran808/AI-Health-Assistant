@@ -86,21 +86,21 @@ PARAM_GRIDS = {
     
     "BalancedRandomForest": {
 
-        # # # Millors paràmetres trobats v1 per trobar el TOP13PERM que dona un F1 de 60.37% amb LGBM
-        # "classifier__class_weight": ["balanced"],
-        # "classifier__max_depth": [8],
-        # "classifier__max_features": ["log2"],
-        # "classifier__min_samples_leaf": [3],
-        # "classifier__min_samples_split": [5],
-        # "classifier__n_estimators": [1163]
+        # # Millors paràmetres trobats v1 per trobar el TOP13PERM que dona un F1 de 60.37% amb LGBM
+        "classifier__class_weight": ["balanced"],
+        "classifier__max_depth": [8],
+        "classifier__max_features": ["log2"],
+        "classifier__min_samples_leaf": [3],
+        "classifier__min_samples_split": [5],
+        "classifier__n_estimators": [1163]
 
-        # # Millors paràmetres trobats v2
-        "classifier__class_weight": ["balanced_subsample"],
-        "classifier__max_depth": [10],
-        "classifier__max_features": ["sqrt"],
-        "classifier__min_samples_leaf": [11],
-        "classifier__min_samples_split": [4],
-        "classifier__n_estimators": [1021]
+        # # # Millors paràmetres trobats v2
+        # "classifier__class_weight": ["balanced_subsample"],
+        # "classifier__max_depth": [10],
+        # "classifier__max_features": ["sqrt"],
+        # "classifier__min_samples_leaf": [11],
+        # "classifier__min_samples_split": [4],
+        # "classifier__n_estimators": [1021]
 
         # # Parametres pel RandomSearch - BalancedRandomForest:
         # "classifier__n_estimators": randint(500, 1200),

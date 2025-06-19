@@ -3,6 +3,7 @@ import numpy as np
 
 from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.metrics import make_scorer, f1_score
+from sklearn.metrics import precision_recall_curve, f1_score
 
 from ai_health_assistant.utils.train_helpers import train_models, append_results, mat_confusio, plot_learning_curve, save_model, update_metrics_file
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
@@ -132,5 +133,3 @@ update_metrics_file(results_df)
 # Amb la funcio definida, guardem el model entrenat a la carpeta de models local
 # i a la carpeta de models de la nostre webapp, per poder-lo carregar si save_external='yes'
 save_model(best_est, model_name, save_external='no')
-
-

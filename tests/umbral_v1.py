@@ -7,9 +7,10 @@ from sklearn.calibration import CalibratedClassifierCV
 from imblearn.pipeline import Pipeline as ImbPipeline
 from imblearn.combine import SMOTETomek
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, learning_curve, RandomizedSearchCV
+from sklearn.metrics import precision_recall_curve
 
 from scipy.stats import randint, uniform
-from ai_health_assistant.utils.train_helpers import mat_confusio, train_models, optimize_threshold_v1
+from ai_health_assistant.utils.train_helpers import mat_confusio, train_models, optimize_threshold_v1, optimal_threshold
 from ai_health_assistant.utils.model_config import get_classifier_config, BALANCING_METHODS
 from ai_health_assistant.utils.prep_helpers import build_preprocessor, TARGET, FEATURES
 
@@ -106,16 +107,21 @@ best_est, y_train_pred, train_report, y_val_pred, val_report, best_params, best_
 
 #################### OPTIMITZEM UMBRAL ####################
 
-threshold = optimize_threshold_v1(best_est, X_val, y_val, target_precision=0.48)
-y_pred_optimized = (best_est.predict_proba(X_test)[:, 1] >= threshold).astype(int)
+y_val_proba = best_est.predict_proba(X_val)[:, 1]
+thr_best, f1_best, p_best, r_best = optimal_threshold(y_val, y_val_proba)
+print(f"Valid  | F1={f1_best:.3f}  Prec={p_best:.3f}  Rec={r_best:.3f}  Thr={thr_best:.3f}")
 
-print("\n== Classification report en TEST ==")
-print(classification_report(y_test, y_pred_optimized, digits=4))
+# ------------------------------------------------------------------
+# 3. Prediccions binàries amb el llindar ÒPTIM
+# ------------------------------------------------------------------
+# 3a) VALIDACIÓ (per comprovar)
+y_val_pred = (y_val_proba >= thr_best).astype(int)
+print("\nVALIDATION REPORT")
+print(classification_report(y_val, y_val_pred, digits=4))
 
-# Plot de la matriu de confusió
-mat_confusio(
-    f"UAjust_{model_name}_v1",  
-    y_test,
-    y_pred_optimized,
-    save='yes'
-    )
+# 3b) TEST FINAL
+y_test_proba = best_est.predict_proba(X_test)[:, 1]
+y_test_pred  = (y_test_proba >= thr_best).astype(int)
+
+print("\nTEST REPORT (threshold ajustat)")
+print(classification_report(y_test, y_test_pred, digits=4))
