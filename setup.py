@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="ai_health_assistant",              # nom del paquet
+    name="ai-health-assistant",              # nom del paquet
     version="0.1.0",
     packages=find_packages(where="src"),     # troba només dins src/
     package_dir={"": "src"},                 # indica que src/ és el directori arrel de paquets

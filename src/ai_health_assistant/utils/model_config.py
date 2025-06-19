@@ -2,7 +2,7 @@
 Fitxer de configuració dels models d'aprenentatge automàtic, incloent classificadors i els seus param grids.
 Aquest fitxer centralitza totes les configuracions dels models per millorar la maintainabilitat i la reutilització.
 """
-
+import numpy as np
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
@@ -21,7 +21,7 @@ CLASSIFIERS = {
     "RandomForest": RandomForestClassifier(random_state=42, class_weight='balanced'),
     "GradientBoosting": GradientBoostingClassifier(random_state=42),
     "BalancedRandomForest": BalancedRandomForestClassifier(random_state=42, n_jobs=-1, oob_score=False),
-    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0)
+    "LGBM": LGBMClassifier(n_estimators=1000, learning_rate=0.05, num_leaves=31, class_weight='balanced', random_state=42, importance_type='gain', verbose=0, objective='binary')
 }
 
 ##################### PARAM GRIDS #####################
@@ -85,21 +85,33 @@ PARAM_GRIDS = {
     },
     
     "BalancedRandomForest": {
-        # Millors paràmetres trobats
-        "classifier__n_estimators": [1163],
-        "classifier__max_depth": [8],
-        "classifier__max_features": ["log2"],
-        "classifier__min_samples_leaf": [3],
-        "classifier__min_samples_split": [5],
-        "classifier__class_weight": ["balanced"]
+
+        # # # Millors paràmetres trobats v1 per trobar el TOP13PERM que dona un F1 de 60.37% amb LGBM
+        # "classifier__class_weight": ["balanced"],
+        # "classifier__max_depth": [8],
+        # "classifier__max_features": ["log2"],
+        # "classifier__min_samples_leaf": [3],
+        # "classifier__min_samples_split": [5],
+        # "classifier__n_estimators": [1163]
+
+        # # Millors paràmetres trobats v2
+        "classifier__class_weight": ["balanced_subsample"],
+        "classifier__max_depth": [10],
+        "classifier__max_features": ["sqrt"],
+        "classifier__min_samples_leaf": [11],
+        "classifier__min_samples_split": [4],
+        "classifier__n_estimators": [1021]
 
         # # Parametres pel RandomSearch - BalancedRandomForest:
-        # "classifier__n_estimators": randint(400, 1600),
-        # "classifier__max_depth": randint(5, 10),
+        # "classifier__n_estimators": randint(500, 1200),
+        # "classifier__max_depth": randint(5, 16),
         # "classifier__max_features": ["sqrt", "log2", 0.5],
-        # "classifier__min_samples_leaf": randint(1, 5),
-        # "classifier__min_samples_split": randint(2, 8),
-        # "classifier__class_weight": ["balanced", "balanced_subsample"]
+        # "classifier__min_samples_leaf": randint(5, 10),
+        # "classifier__min_samples_split": randint(3,6),
+        # "classifier__class_weight": ["balanced", "balanced_subsample"],
+
+        
+
     },
     
     "GradientBoosting": {
@@ -125,29 +137,45 @@ PARAM_GRIDS = {
     },
     
     "LGBM": {
-        # Millors paràmetres trobats:
-        'classifier__colsample_bytree': [0.2678280051592841], 
-        'classifier__learning_rate': [0.015273394899450402], 
-        'classifier__min_child_samples': [5], 
-        'classifier__n_estimators': [673], 
-        'classifier__num_leaves': [94], 
-        'classifier__reg_alpha': [0.24018504093317733], 
-        'classifier__reg_lambda': [1.4779290759982566], 
-        'classifier__subsample': [0.7651084549069112],
-        "classifier__boosting_type": ["dart"],
-        "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
-
-        # # Busqueda de paràmetres RandomSearch - LGBM:
-        # "classifier__n_estimators": randint(300, 1200),
-        # "classifier__learning_rate": uniform(0.01, 0.2),
-        # "classifier__num_leaves": randint(30, 150),
-        # "classifier__reg_alpha": uniform(0, 0.5),
-        # "classifier__reg_lambda": uniform(0, 1.5),
-        # "classifier__min_child_samples": randint(5, 20),
-        # "classifier__subsample": uniform(0.2, 1.5),
-        # "classifier__colsample_bytree": uniform(0.2, 1.5),
+        # # Paràmetres trobats per LGBM v1:
+        # 'classifier__colsample_bytree': [0.2678280051592841], 
+        # 'classifier__learning_rate': [0.015273394899450402], 
+        # 'classifier__min_child_samples': [5], 
+        # 'classifier__n_estimators': [673], 
+        # 'classifier__num_leaves': [94], 
+        # 'classifier__reg_alpha': [0.24018504093317733], 
+        # 'classifier__reg_lambda': [1.4779290759982566], 
+        # 'classifier__subsample': [0.7651084549069112],
         # "classifier__boosting_type": ["dart"],
         # "classifier__scale_pos_weight": [1.6] # Aprox 62/38 classe desbalancejada
+
+        # # # Busqueda de paràmetres RandomSearch - LGBM:
+        # "classifier__boosting_type": ["dart", "gbdt"],
+        # "classifier__n_estimators":   randint(400, 1200),
+        # "classifier__learning_rate":  loguniform(5e-3, 4e-2),
+        # "classifier__num_leaves":     randint(60, 160),
+        # "classifier__max_depth":      [-1, 5, 7, 9],
+        # "classifier__min_child_samples": randint(5, 40),
+        # "classifier__subsample":      uniform(0.6, 0.95),       # 0.60-0.95
+        # "classifier__colsample_bytree": uniform(0.2, 0.7),      # 0.20-0.70
+        # "classifier__reg_alpha":      loguniform(1e-3, 1.0),
+        # "classifier__reg_lambda":     loguniform(1e-3, 5.0),
+        # "classifier__scale_pos_weight": uniform(1.2, 2.5),      # 1.2-2.5
+        # "classifier__min_split_gain": uniform(0.0, 0.3),     
+
+        # Paràmetres trobats per LGBM v2 (amb topperm13 un f1 de 60.37%):
+        'classifier__colsample_bytree': [0.53],
+        'classifier__learning_rate': [0.0058],
+        'classifier__max_depth': [9],
+        'classifier__min_child_samples': [34],
+        'classifier__min_split_gain': [0.06],
+        'classifier__n_estimators': [591],
+        'classifier__num_leaves': [119],
+        'classifier__reg_alpha': [0.0036],
+        'classifier__reg_lambda': [0.0134],
+        'classifier__scale_pos_weight': [1.62],
+        'classifier__subsample': [0.75],
+        
     }
 }
 

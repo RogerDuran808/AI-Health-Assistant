@@ -83,7 +83,7 @@ python -m venv .venv
 
 
 # 3. Instal·lar els requirements.txt i  el paquet en mode editable
-pip install -r requirements.txt
+pip install -r requirements-py313.txt
 pip install -e .
 ```
 

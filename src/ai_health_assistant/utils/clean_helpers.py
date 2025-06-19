@@ -6,6 +6,11 @@ TARGET = 'TIRED'
 
 # Columnes disponibles al fitbit inspire 3
 FEATURES = [
+    # Per personalitzar més la imputació i aplicar millors tecniques
+        "id", 
+        "date",
+
+        # FEATURES
         "age",
         "gender",
         "bmi",
