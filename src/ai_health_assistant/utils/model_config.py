@@ -170,11 +170,11 @@ PARAM_GRIDS = {
         'classifier__min_child_samples': [34],
         'classifier__min_split_gain': [0.06],
         'classifier__n_estimators': [591],
-        'classifier__num_leaves': [119],
+        'classifier__num_leaves': [100],
         'classifier__reg_alpha': [0.0036],
         'classifier__reg_lambda': [0.0134],
         'classifier__scale_pos_weight': [1.62],
-        'classifier__subsample': [0.75],
+        'classifier__subsample': [0.75]
         
     }
 }
