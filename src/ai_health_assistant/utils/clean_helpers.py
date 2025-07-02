@@ -4,13 +4,13 @@ from sklearn.model_selection import train_test_split
 
 TARGET = 'TIRED'
 
-# Columnes disponibles al fitbit inspire 3
+# Columnes disponibles al Fitbit Inspire 3
 FEATURES = [
-    # Per personalitzar més la imputació i aplicar millors tecniques
+    # Per personalitzar la imputació i aplicar tècniques més eficients
         "id", 
         "date",
 
-        # FEATURES
+        # Característiques
         "age",
         "gender",
         "bmi",
@@ -41,19 +41,18 @@ FEATURES = [
     ]
     
 
-
 ########################################################################################
-# Funcions per neteja de dades Fitbit LifeSnaps
+# Funcions de neteja de dades de Fitbit LifeSnaps
 #####################################################################################
 
 def features_split(df, target, features):
     df = df[features + [target]].copy()
-    # Abans de fer el split eliminem les fileres amb valors NaN
+    # Eliminar les files amb valors NaN abans del split
     df = df.dropna(subset=[target])
 
     x_cols = df.drop(columns=[target]).columns.tolist()
 
-    # Fem el split per evitar data leakage
+    # Fer el split per evitar la fuga d'informació (data leakage)
     X_train, X_test, y_train, y_test = train_test_split(
         df[x_cols],
         df[target],
@@ -64,64 +63,64 @@ def features_split(df, target, features):
     return X_train, X_test, y_train, y_test
 
 def drop_no_factible(df):
-    # Corregim el dataset.
-    # Definim els rangs possibles
+    # Corregir el conjunt de dades
+    # Definir els rangs permesos
     rangs_possibles = {
         "calories":                      {"min": 0, "max": 20000},
         "steps":                         {"min": 0, "max": 150000},
-        "lightly_active_minutes":         {"min": None, "max": 1440},
-        "moderately_active_minutes":     {"min": None, "max": 1440},
-        "very_active_minutes":           {"min": None, "max": 1440},
-        "sedentary_minutes":             {"min": None, "max": 1440},
-        "resting_hr":                    {"min": 20, "max": 250},
-        "minutes_below_default_zone_1":  {"min": None, "max": 1440},
-        "minutes_in_default_zone_1":     {"min": None, "max": 1440},
-        "minutes_in_default_zone_2":     {"min": None, "max": 1440},
-        "minutes_in_default_zone_3":     {"min": None, "max": 1440},
-        "minutesToFallAsleep":           {"min": None, "max": 1440},
-        "minutesAsleep":                 {"min": None, "max": 1440},
-        "minutesAwake":                  {"min": None, "max": 1440},
-        "minutesAfterWakeup":            {"min": None, "max": 1440},
-        "sleep_efficiency":              {"min": 0, "max": 100},
-        "sleep_deep_ratio":              {"min": 0, "max": 1},
-        "sleep_light_ratio":             {"min": 0, "max": 1},
-        "sleep_rem_ratio":               {"min": 0, "max": 1},
-        "sleep_wake_ratio":              {"min": 0, "max": 1},
-        "daily_temperature_variation":   {"min": -15, "max": 15},
-        "rmssd":                         {"min": 0, "max": 500},
-        "spo2":                          {"min": 50, "max": 100},
-        "full_sleep_breathing_rate":     {"min": 1, "max": 60},
+        "lightly_active_minutes":       {"min": None, "max": 1440},
+        "moderately_active_minutes":    {"min": None, "max": 1440},
+        "very_active_minutes":          {"min": None, "max": 1440},
+        "sedentary_minutes":            {"min": None, "max": 1440},
+        "resting_hr":                   {"min": 20, "max": 250},
+        "minutes_below_default_zone_1": {"min": None, "max": 1440},
+        "minutes_in_default_zone_1":    {"min": None, "max": 1440},
+        "minutes_in_default_zone_2":    {"min": None, "max": 1440},
+        "minutes_in_default_zone_3":    {"min": None, "max": 1440},
+        "minutesToFallAsleep":          {"min": None, "max": 1440},
+        "minutesAsleep":                {"min": None, "max": 1440},
+        "minutesAwake":                 {"min": None, "max": 1440},
+        "minutesAfterWakeup":           {"min": None, "max": 1440},
+        "sleep_efficiency":             {"min": 0, "max": 100},
+        "sleep_deep_ratio":             {"min": 0, "max": 1},
+        "sleep_light_ratio":            {"min": 0, "max": 1},
+        "sleep_rem_ratio":              {"min": 0, "max": 1},
+        "sleep_wake_ratio":             {"min": 0, "max": 1},
+        "daily_temperature_variation":  {"min": -15, "max": 15},
+        "rmssd":                        {"min": 0, "max": 500},
+        "spo2":                         {"min": 50, "max": 100},
+        "full_sleep_breathing_rate":    {"min": 1, "max": 60},
     }
     # Neteja per columnes
     for col, valor in rangs_possibles.items():
-        # valors massa baixos
+        # Assignar NaN als valors per sota del mínim
         if valor['min'] is not None:
             df.loc[df[col] < valor['min'], col] = np.nan
-        # valors massa alts
+        # Assignar NaN als valors per sobre del màxim
         if valor['max'] is not None:
             df.loc[df[col] > valor['max'], col] = np.nan
     return df
 
 def fix_bmi(df):
-    # Fem una correcció de la variable del bmi
-    limits = (0, 18.5, 24.9, 29.9, 34.9)  # límits segons les dades que tenim i el bmi
+    # Corregir la variable BMI
+    limits = (0, 18.5, 24.9, 29.9, 34.9)  # Límits basats en les categories de BMI
     categories_BMI = [
         'Infrapes',
         'Normal',
         'Sobrepes',
         'Obes'
     ]
-    # Com que els valors >=25 es troben igualment a la categoria de Sobrepes, els imputem com a 25
+    # Com que els valors ≥25 pertanyen a 'Sobrepes', s'imputen amb 25
     df.loc[df['bmi'] == '>=25', 'bmi'] = 25
 
-    # Assignar a 18.4 els valors '<19' perquè caiguin dins 'Infrapes'
+    # Imputar 18.4 als valors '<19' per classificar-los com 'Infrapes'
     df.loc[df['bmi'] == '<19', 'bmi'] = 18.4
 
-    # Assignar a 30 els valors '>=30' perquè caiguin dins 'Obes'
-    # Suposarem que no hi ha valors superiors a 35 i, per tant, no hi haurà cap més categoria de bmi
+    # Imputar 30 als valors '≥30' per classificar-los com 'Obes'
+    # S'assumeix l'absència de valors >35, per la qual cosa no s'afegeixen més categories de BMI
     df.loc[df['bmi'] == '>=30', 'bmi'] = 30
 
-    # Convertim a float
+    # Convertir la columna BMI a float
     df['bmi'] = pd.to_numeric(df['bmi'], errors='coerce')
 
     df['bmi_tipo'] = pd.cut(
@@ -132,21 +131,18 @@ def fix_bmi(df):
     )
     return df
 
-
-
-
 ################### CORRECCIÓ D'OUTILIERS ######################
 def handle_outliers(X_train, X_test, multiplier=1.5):
     """
-    Mètode per tractar els outliers utilitzant IQR per cada grup de classe.
+    Mètode per tractar els outliers mitjançant l'IQR segons cada classe.
 
-    Aquest mètode calcula els límits inferior i superior per cada columna numèrica
-    de les dades d'entrenament i les aplica a les dades d'entrenament i test.
+    Aquest mètode calcula els límits inferior i superior en les dades d'entrenament
+    i els aplica tant al conjunt d'entrenament com de prova.
     """
 
     numeric_cols = X_train.select_dtypes(include="number").columns
 
-    # Bounds nomes del training set per no tenir data leakage
+    # Límits només del conjunt d'entrenament per evitar la fuga d'informació
     bounds = {}
     for col in numeric_cols:
         q1, q3 = X_train[col].quantile([0.25, 0.75])
@@ -162,19 +158,17 @@ def handle_outliers(X_train, X_test, multiplier=1.5):
 
     return X_train, X_test
 
-
 ######################### NETEJA DE DADES ###############################
-
 def clean_data(input_path, output_path, target, features):
     """
     Flux complet de neteja:
-      1) carrega dades
-      2) selecciona les columnes disponibles al fitbit inspire 3 i fem l'split
-      3) eliminem les columnes no factibles
-      4) corregeix BMI
-      5) retalla outliers
-      6) escriu CSV net
-    Retorna els DataFrames netejats de train i test, i el concatenat.
+      1) Carrega dades.
+      2) Selecciona columnes disponibles al Fitbit Inspire 3 i realitza el split.
+      3) Elimina valors no factibles.
+      4) Corregir la variable BMI.
+      5) Tractar outliers.
+      6) Escriure els CSV netejats.
+    Retorna els DataFrames de train, test i el conjunt complet.
     """
     df = pd.read_csv(input_path)
     X_train, X_test, y_train, y_test = features_split(df, target, features)
@@ -195,3 +189,4 @@ def clean_data(input_path, output_path, target, features):
     print(f"  - Test:  {output_path}_test.csv")
     
     return df_train, df_test
+

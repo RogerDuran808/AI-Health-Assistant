@@ -3,11 +3,11 @@ import pandas as pd
 
 ########################## Neteja de les dades ################################
 '''
-Justificació de la neteja de dades al notebook: 01_LifeSnaps_EDA.ipynb
-L'objectiu es tenir les dades netes i imputades de forma basica per fer un bon preprocessament. 
-Sense errors de dades ni outliers que puguin perjudicar el model.
+Exploració de dades inicial realitzada a l'arxiu: 01_LifeSnaps_EDA.ipynb
+L'objectiu és tenir les dades netes i imputades de forma bàsica per fer un bon preprocessament. 
+Sense errors de dades i amb tractament d'outliers per a millorar la qualitat del model.
 
-Seleccionem les columnes disponibles del dispositiu fitbit
+Seleccionem les columnes disponibles del dispositiu Fitbit Inspire 3
 Corregim la variable del bmi i afegim categories de bmi_tipo
 Corregim els valors anòmals del dataset
 Finalment exportem a CSV, les dades separades del train i del test
