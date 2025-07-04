@@ -40,9 +40,18 @@ worst_spo2 = top10(spo2_feasible, "spo2", ascending=True)
 
 # Variació temperatura cutània – pitjor = desviació més ALTA
 #     (rang factible fixat entre −5 °C i +5 °C)
-temp_feasible = df[df["daily_temperature_variation"].between(-5, 5, inclusive="both")]
-worst_temp = top10(temp_feasible, "daily_temperature_variation", ascending=False)
+# Rang factible acotat entre −5 °C i +5 °C
+temp_feasible = (
+    df[df["daily_temperature_variation"].between(-5, 5, inclusive="both")]
+    .copy()                                            # evitem SettingWithCopyWarning
+    .assign(abs_temp=lambda x: x["daily_temperature_variation"].abs())  # |ΔT|
+)
 
+# Top-10 de pitjors variacions (|ΔT| més alt)
+worst_temp = (
+    top10(temp_feasible, "abs_temp", ascending=False)  # ordenem per |ΔT|
+    .drop(columns="abs_temp")                          # columna auxiliar fora
+)
 # Freqüència respiratòria nocturna – pitjor = valor més ALT (5–40 rpm)
 breath_feasible = df[df["full_sleep_breathing_rate"].between(5, 40, inclusive="both")]
 worst_breath = top10(breath_feasible, "full_sleep_breathing_rate", ascending=False)
@@ -51,19 +60,19 @@ worst_breath = top10(breath_feasible, "full_sleep_breathing_rate", ascending=Fal
 # Sortida (print o guarda)
 # ----------------------------------------------------------------------------------
 print("== Top-10 Resting HR (alt) ==")
-print(worst_resting_hr, end="\n\n")
+print(worst_resting_hr[METRIQUES], end="\n\n")
 
 print("== Top-10 RMSSD (baix) ==")
-print(worst_rmssd, end="\n\n")
+print(worst_rmssd[METRIQUES], end="\n\n")
 
 print("== Top-10 SpO₂ (baix) ==")
-print(worst_spo2, end="\n\n")
+print(worst_spo2[METRIQUES], end="\n\n")
 
 print("== Top-10 ΔSkinTemp (alt) ==")
-print(worst_temp, end="\n\n")
+print(worst_temp[METRIQUES], end="\n\n")
 
 print("== Top-10 Sleep Breathing Rate (alt) ==")
-print(worst_breath, end="\n\n")
+print(worst_breath[METRIQUES], end="\n\n")
 
 # Exportem:
 worst_resting_hr[METRIQUES].to_csv("data/data_llm/top10_resting_hr.csv", index=False)
@@ -80,13 +89,13 @@ worst_breath[METRIQUES].to_csv("data/data_llm/top10_breath.csv", index=False)
 # -------------------------------------------------------------------
 # Definir els rangs “completament sans”
 # -------------------------------------------------------------------
-cond_resting_hr   = df["resting_hr"].between(40, 70, inclusive="both")
-cond_rmssd        = df["rmssd"].between(30, 200, inclusive="both")
-cond_spo2         = df["spo2"].between(95, 100, inclusive="both")
-cond_temp_var     = df["daily_temperature_variation"].between(-0.5, 0.5, inclusive="both")
+cond_resting_hr   = df["resting_hr"].between(40, 75, inclusive="both")
+cond_rmssd        = df["rmssd"].between(20, 200, inclusive="both")
+cond_spo2         = df["spo2"].between(94, 100, inclusive="both")
+cond_temp         = df["daily_temperature_variation"].between(-2, 2, inclusive="both")
 cond_breath_rate  = df["full_sleep_breathing_rate"].between(12, 20, inclusive="both")
 
-healthy_mask = cond_resting_hr & cond_rmssd & cond_spo2 & cond_temp_var & cond_breath_rate
+healthy_mask = cond_resting_hr & cond_rmssd & cond_spo2 & cond_temp & cond_breath_rate
 healthy = df[healthy_mask].copy()
 
 ## -------------------------------------------------------------------
